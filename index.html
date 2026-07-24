@@ -3,13 +3,283 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#242923" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#141714" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="description" content="Shared tools with your neighbors – no login needed.">
 <title>NeighborTools</title>
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%232E52D0'/%3E%3Ctext y='.9em' font-size='70' x='50%25' text-anchor='middle' fill='white'%3E🔧%3C/text%3E%3C/svg%3E">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800&family=IBM+Plex+Mono:wght@500&family=Inter:wght@400;500;600;700&display=swap');
+
+:root{
+  --bg:#E8EBE4; --card:#FFFFFF; --ink:#20251F; --muted:#67705F; --line:#D3D8CB;
+  --accent:#2E52D0; --accent-press:#2543AE; --accent-tint:#E7ECFB;
+  --home:#256B43; --home-tint:#E1F0E6; --out:#9A5300; --out-tint:#FBEBD3;
+  --danger:#B23A26; --headbg:#242923; --headink:#F4F6F1;
+  --shadow:0 1px 2px rgba(32,37,31,.06);
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#141714; --card:#1C201B; --ink:#E8EBE4; --muted:#9AA392; --line:#2E342E;
+    --accent:#5B7CFF; --accent-press:#4A6AE0; --accent-tint:#1A2240;
+    --home:#3D9B68; --home-tint:#1A2E22; --out:#D4923A; --out-tint:#2E2418;
+    --danger:#E05A48; --headbg:#0E100E; --headink:#F4F6F1;
+    --shadow:0 1px 3px rgba(0,0,0,.35);
+  }
+}
+*{box-sizing:border-box; margin:0}
+html,body{height:100%}
+body{background:var(--bg); color:var(--ink);
+  font-family:Inter,system-ui,-apple-system,sans-serif; font-size:15px; line-height:1.45;
+  -webkit-font-smoothing:antialiased}
+button{font:inherit; color:inherit; background:none; border:none; cursor:pointer}
+:focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:4px}
+[hidden]{display:none !important}
+
+.vb-center{min-height:100vh; display:flex; align-items:center; justify-content:center}
+
+/* Header – pegboard style panel */
+.vb-head{position:sticky; top:0; z-index:20; display:flex; align-items:center; justify-content:space-between;
+  gap:10px; padding:14px 16px; background-color:var(--headbg);
+  background-image:radial-gradient(circle, rgba(244,246,241,.16) 1.5px, transparent 1.6px);
+  background-size:17px 17px; color:var(--headink)}
+.vb-head-tall{flex-direction:column; align-items:flex-start; gap:6px; padding:26px 20px 22px; position:static}
+.vb-logo{font-family:'Big Shoulders Display','Arial Narrow',sans-serif; font-weight:800; font-size:22px;
+  letter-spacing:.06em; display:flex; align-items:center; gap:9px; color:var(--headink)}
+.vb-logomark{display:inline-flex; align-items:center; justify-content:center; width:26px; height:26px;
+  border-radius:7px; background:var(--accent); color:#fff; flex:0 0 auto}
+.vb-tagline{color:rgba(244,246,241,.75); font-size:13.5px}
+.vb-headright{display:flex; align-items:center; gap:8px}
+.vb-mechip{display:inline-flex; align-items:center; gap:7px; padding:6px 11px; border-radius:999px;
+  background:rgba(244,246,241,.12); color:var(--headink); font-weight:600; font-size:13px;
+  border:1px solid rgba(244,246,241,.22); max-width:150px}
+.vb-mechip .vb-navn{overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.vb-onhead{color:var(--headink)}
+.vb-onhead:hover{background:rgba(244,246,241,.14)}
+.vb-spin{width:14px; height:14px; border-radius:50%; border:2px solid rgba(244,246,241,.35);
+  border-top-color:var(--headink); animation:vbspin .7s linear infinite}
+@keyframes vbspin{to{transform:rotate(360deg)}}
+.vb-pulse{animation:vbpulse 1.2s ease-in-out infinite}
+@keyframes vbpulse{50%{opacity:.45}}
+.vb-logo-moerk{color:var(--ink)}
+.vb-logo-moerk .vb-logomark{background:var(--accent)}
+
+.vb-banner{font-size:12.5px; padding:7px 16px; text-align:center}
+.vb-banner.test{background:var(--accent-tint); color:var(--accent)}
+.vb-banner.minne{background:var(--out-tint); color:var(--out)}
+
+.vb-main{max-width:540px; margin:0 auto; padding:14px 14px calc(120px + env(safe-area-inset-bottom))}
+
+.vb-stats{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--muted);
+  letter-spacing:.02em; margin:2px 2px 10px}
+.vb-search{margin-bottom:10px}
+
+.vb-chips{display:flex; gap:7px; overflow-x:auto; padding:8px 0 10px; margin:0 -14px 4px; padding-left:14px; padding-right:14px;
+  position:sticky; top:56px; z-index:15; background:var(--bg); scrollbar-width:none}
+.vb-chips::-webkit-scrollbar{display:none}
+.vb-chip{flex:0 0 auto; display:inline-flex; align-items:center; gap:6px; padding:9px 14px;
+  border-radius:999px; border:1.5px solid var(--line); background:var(--card); font-size:13.5px; font-weight:600;
+  color:var(--muted); white-space:nowrap; transition:background .12s,color .12s,border-color .12s}
+.vb-chip.on{background:var(--ink); color:#fff; border-color:var(--ink)}
+.vb-chipdiv{flex:0 0 1px; background:var(--line); align-self:stretch; margin:2px 3px}
+
+.vb-list{display:flex; flex-direction:column; gap:10px}
+.vb-card{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px 15px;
+  box-shadow:var(--shadow)}
+.vb-toolimg{width:64px; height:64px; border-radius:10px; object-fit:cover; background:var(--line); flex:0 0 auto}
+.vb-toolrow{display:flex; align-items:flex-start; justify-content:space-between; gap:10px}
+.vb-toolleft{display:flex; gap:12px; align-items:flex-start; min-width:0; flex:1}
+.vb-toolname{font-size:16px; font-weight:700; display:flex; align-items:center; gap:8px; min-width:0}
+.vb-you{color:var(--muted); font-weight:500; font-size:13px}
+.vb-type{font-family:'Big Shoulders Display','Arial Narrow',sans-serif; font-weight:700; font-size:11.5px;
+  letter-spacing:.09em; text-transform:uppercase; color:var(--muted); border:1px solid var(--line);
+  border-radius:6px; padding:3px 7px; white-space:nowrap; margin-top:1px}
+.vb-ownerline{font-size:13px; color:var(--muted); margin-top:5px; display:flex; align-items:center; gap:6px}
+.vb-sw{display:inline-block; width:10px; height:10px; border-radius:3px; flex:0 0 auto}
+
+/* Status tag – looks like a physical loan tag with a hole */
+.vb-tagrow{margin-top:9px}
+.vb-tagg{position:relative; display:inline-flex; align-items:center; font-size:12.5px; font-weight:600;
+  padding:5px 11px 5px 22px; border-radius:5px 999px 999px 5px}
+.vb-tagg::before{content:""; position:absolute; left:8px; top:50%; transform:translateY(-50%);
+  width:7px; height:7px; border-radius:50%; background:var(--bg); box-shadow:inset 0 0 0 1.5px currentColor}
+.vb-tagg.home{background:var(--home-tint); color:var(--home)}
+.vb-tagg.onloan{background:var(--out-tint); color:var(--out)}
+
+.vb-notes{font-size:13px; color:var(--muted); margin-top:8px; overflow-wrap:anywhere}
+.vb-addr{font-size:13px; color:var(--muted); margin-top:5px; display:flex; align-items:center; gap:5px}
+.vb-counts{font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:var(--muted); margin-top:8px}
+
+.vb-toolactions{display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:12px}
+
+.vb-btn{display:inline-flex; align-items:center; justify-content:center; gap:7px; width:100%;
+  padding:14px 18px; border-radius:12px; font-weight:700; font-size:15px;
+  transition:background .12s, transform .05s}
+.vb-btn:active{transform:scale(.985)}
+.vb-btn:disabled{opacity:.45; cursor:default}
+.vb-primary{background:var(--accent); color:#fff}
+.vb-primary:not(:disabled):hover{background:var(--accent-press)}
+.vb-ghost{background:transparent; border:1.5px dashed var(--line); color:var(--muted)}
+.vb-return{background:var(--home-tint); color:var(--home)}
+.vb-dangertxt{background:transparent; color:var(--danger); font-weight:600}
+.vb-dangertxt.confirm{background:var(--danger); color:#fff}
+.vb-small{width:auto; padding:11px 16px; font-size:14px}
+.vb-iconbtn{display:inline-flex; align-items:center; justify-content:center; width:34px; height:34px;
+  border-radius:9px; color:var(--muted); flex:0 0 auto}
+.vb-iconbtn:hover{background:rgba(32,37,31,.06)}
+
+.vb-inp{width:100%; padding:11px 12px; border-radius:10px; border:1.5px solid var(--line);
+  background:var(--card); font:inherit; color:var(--ink)}
+.vb-inp:focus{outline:none; border-color:var(--accent)}
+textarea.vb-inp{resize:vertical}
+select.vb-inp{appearance:auto}
+.vb-field{display:block; margin-bottom:12px}
+.vb-lbl{display:block; font-size:12px; font-weight:700; letter-spacing:.05em; text-transform:uppercase;
+  color:var(--muted); margin-bottom:5px}
+
+/* Bottom nav + floating action button */
+.vb-nav{position:fixed; left:0; right:0; bottom:0; z-index:20; display:flex; justify-content:center; gap:4px;
+  background:var(--card); border-top:1px solid var(--line);
+  padding:6px 8px calc(8px + env(safe-area-inset-bottom))}
+.vb-tab{display:flex; flex-direction:column; align-items:center; gap:3px; padding:7px 0; width:104px;
+  border-radius:10px; color:var(--muted)}
+.vb-tab span{font-family:'Big Shoulders Display','Arial Narrow',sans-serif; font-weight:700; font-size:11.5px;
+  letter-spacing:.1em; text-transform:uppercase}
+.vb-tab.on{color:var(--accent); background:var(--accent-tint)}
+.vb-fab{position:fixed; right:16px; bottom:calc(76px + env(safe-area-inset-bottom)); z-index:21;
+  display:inline-flex; align-items:center; gap:7px; padding:13px 18px; border-radius:999px;
+  background:var(--accent); color:#fff; font-weight:700; font-size:14.5px;
+  box-shadow:0 6px 18px rgba(46,82,208,.38)}
+.vb-fab:hover{background:var(--accent-press)}
+
+/* Bottom sheet / modal forms */
+.vb-overlay{position:fixed; inset:0; z-index:40; background:rgba(24,27,23,.5); display:flex;
+  align-items:flex-end; justify-content:center; animation:vbfade .15s ease-out}
+.vb-sheet{background:var(--card); width:100%; max-width:540px; max-height:88vh; overflow-y:auto;
+  border-radius:20px 20px 0 0; padding:18px 18px calc(22px + env(safe-area-inset-bottom));
+  animation:vbup .22s ease-out}
+@media (min-width:640px){
+  .vb-overlay{align-items:center; padding:24px}
+  .vb-sheet{border-radius:20px}
+}
+@keyframes vbfade{from{opacity:0}}
+@keyframes vbup{from{transform:translateY(24px); opacity:.6}}
+.vb-sheet-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; gap:10px}
+.vb-h2{font-family:'Big Shoulders Display','Arial Narrow',sans-serif; font-weight:800; font-size:21px;
+  letter-spacing:.03em; text-transform:uppercase; overflow-wrap:anywhere}
+.vb-sheet-actions{display:flex; flex-direction:column; gap:8px; margin-top:6px}
+.vb-pickgrid{display:flex; flex-direction:column; gap:8px}
+.vb-pick{display:grid; grid-template-columns:auto 1fr; align-items:center; column-gap:10px; text-align:left;
+  padding:12px 13px; border:1.5px solid var(--line); border-radius:12px; background:var(--card); width:100%}
+.vb-pick:hover{border-color:var(--accent); background:var(--accent-tint)}
+.vb-pick-name{font-weight:700}
+.vb-pick-addr{grid-column:2; font-size:12.5px; color:var(--muted)}
+
+/* Setup (first run) */
+.vb-setuprow{display:flex; gap:9px; align-items:flex-start; margin-bottom:12px}
+.vb-setupnum{font-family:'Big Shoulders Display','Arial Narrow',sans-serif; font-weight:800; font-size:15px;
+  color:var(--muted); width:24px; height:24px; border:1.5px solid var(--line); border-radius:8px;
+  display:flex; align-items:center; justify-content:center; margin-top:8px; flex:0 0 auto}
+.vb-setupfields{flex:1; display:flex; flex-direction:column; gap:7px}
+.vb-finetext{font-size:12px; color:var(--muted); margin-top:12px}
+
+/* Activity log */
+.vb-loglist{display:flex; flex-direction:column; gap:7px}
+.vb-logrow{display:flex; justify-content:space-between; align-items:baseline; gap:10px;
+  background:var(--card); border:1px solid var(--line); border-left-width:4px; border-radius:10px;
+  padding:10px 12px; font-size:13.5px}
+.vb-logrow.t-laan{border-left-color:var(--out)}
+.vb-logrow.t-retur{border-left-color:var(--home)}
+.vb-logrow.t-ny{border-left-color:var(--accent)}
+.vb-logrow.t-slett{border-left-color:var(--danger)}
+.vb-logrow.t-pers{border-left-color:var(--line)}
+.vb-logtext{overflow-wrap:anywhere}
+.vb-logdate{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--muted); white-space:nowrap}
+
+.vb-muted{color:var(--muted); font-size:13.5px}
+.vb-mb{margin-bottom:12px}
+.vb-mt{margin-top:12px}
+.vb-toast{position:fixed; left:50%; transform:translateX(-50%);
+  bottom:calc(84px + env(safe-area-inset-bottom)); z-index:50; background:var(--ink); color:#fff;
+  padding:10px 16px; border-radius:999px; font-size:13.5px; font-weight:600; max-width:90vw; text-align:center;
+  box-shadow:0 6px 20px rgba(0,0,0,.25); animation:vbup .2s ease-out}
+
+.vb-card{transition:border-color .12s, box-shadow .12s}
+.vb-card:hover{border-color:color-mix(in srgb, var(--accent) 35%, var(--line))}
+.vb-empty{display:flex; flex-direction:column; align-items:center; gap:12px; text-align:center;
+  color:var(--muted); padding:48px 24px; border:1.5px dashed var(--line); border-radius:16px; margin-top:6px}
+.vb-empty b{color:var(--ink); font-size:16px}
+.vb-empty-ico{width:56px; height:56px; border-radius:16px; background:var(--accent-tint); color:var(--accent);
+  display:flex; align-items:center; justify-content:center}
+.vb-skeleton{background:linear-gradient(90deg, var(--line) 25%, var(--card) 50%, var(--line) 75%);
+  background-size:200% 100%; animation:vbskel 1.2s ease-in-out infinite; border-radius:10px; height:88px; margin-bottom:10px}
+@keyframes vbskel{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.vb-toast[role="status"]{pointer-events:none}
+.vb-btn[aria-busy="true"]{opacity:.55; pointer-events:none}
+.vb-overlay{overscroll-behavior:contain}
+.vb-sheet:focus{outline:none}
+.vb-sheet-head h2{margin:0}
+
+/* Store-like grid on larger screens */
+@media (min-width: 640px){
+  .vb-main{max-width:920px}
+  .vb-list.grid{display:grid; grid-template-columns:repeat(2, 1fr); gap:12px}
+}
+@media (min-width: 960px){
+  .vb-main{max-width:1100px}
+  .vb-list.grid{grid-template-columns:repeat(3, 1fr)}
+}
+.vb-list.grid .vb-card{display:flex; flex-direction:column; height:100%}
+.vb-list.grid .vb-toolactions{margin-top:auto}
+
+.vb-tagg.long{background:#FDE8E6; color:var(--danger)}
+@media (prefers-color-scheme: dark){
+  .vb-tagg.long{background:#3A1F1C; color:var(--danger)}
+}
+
+.vb-check{
+  width:22px; height:22px; border-radius:6px; border:2px solid var(--line);
+  display:inline-flex; align-items:center; justify-content:center; flex:0 0 auto;
+  margin-top:2px; background:var(--card)
+}
+.vb-check.on{background:var(--accent); border-color:var(--accent); color:#fff}
+.vb-bulk{
+  position:fixed; left:50%; transform:translateX(-50%);
+  bottom:calc(72px + env(safe-area-inset-bottom)); z-index:22;
+  display:flex; gap:8px; align-items:center; padding:10px 12px;
+  background:var(--ink); color:#fff; border-radius:14px;
+  box-shadow:0 8px 24px rgba(0,0,0,.28); max-width:94vw
+}
+.vb-bulk .vb-btn{width:auto; padding:10px 14px; font-size:13.5px}
+.vb-bulk-count{font-weight:700; font-size:13.5px; white-space:nowrap; padding:0 4px}
+
+.vb-hist{margin-top:10px; border-top:1px solid var(--line); padding-top:10px}
+.vb-hist h4{font-size:12px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin-bottom:6px}
+.vb-hist-row{font-size:13px; color:var(--muted); padding:4px 0; display:flex; justify-content:space-between; gap:8px}
+.vb-pinbox{max-width:360px; margin:0 auto; padding:24px 18px}
+.vb-langbtn{font-size:12px; font-weight:700; padding:6px 10px; border-radius:8px; color:var(--headink);
+  border:1px solid rgba(244,246,241,.25)}
+.vb-langbtn:hover{background:rgba(244,246,241,.12)}
+
+@media (prefers-reduced-motion: reduce){
+  *{animation:none !important; transition:none !important}
+}
+</style>
 </head>
 <body>
-<p>Loading full app… if you see this, upload incomplete.</p>
-<script>
-// Full app body will be pushed next if this succeeds
-console.log('NeighborTools shell');
-</script>
+<div id="app">
+  <div class="vb-center">
+    <div style="text-align:center">
+      <div class="vb-logo vb-logo-moerk vb-pulse" style="justify-content:center"><span class="vb-logomark">🔧</span>NEIGHBORTOOLS</div>
+      <p class="vb-muted" style="margin-top:14px">Laster …</p>
+    </div>
+  </div>
+</div>
+
+<script src="/app.js" defer></script>
+
 </body>
 </html>
