@@ -1,0 +1,25 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  api-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Start server
+        run: |
+          mkdir -p /tmp/nt-data
+          DATA_DIR=/tmp/nt-data PORT=8080 python3 server.py &
+          sleep 1
+          curl -sf http://127.0.0.1:8080/api/health
+      - name: Run API smoke tests
+        run: python3 tests/api_test.py http://127.0.0.1:8080
+      - name: Syntax check server
+        run: python3 -m py_compile server.py
