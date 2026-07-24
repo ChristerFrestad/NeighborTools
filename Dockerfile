@@ -2,8 +2,8 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
-# Copy app files
-COPY server.py index.html app.js manifest.webmanifest sw.js ./
+# App is a single index.html + server + PWA files
+COPY server.py index.html manifest.webmanifest sw.js ./
 
 # Data lives here (mounted as volume in Portainer)
 RUN mkdir -p /data
