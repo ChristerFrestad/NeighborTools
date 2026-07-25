@@ -1,4 +1,7 @@
 data.json
+data.json.migrated
+groups/
+pin-salt
 *.tmp
 __pycache__/
 *.pyc

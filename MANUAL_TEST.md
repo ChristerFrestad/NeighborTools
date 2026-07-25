@@ -2,11 +2,25 @@
 
 Run through this before tagging a release or pushing to a public repo.
 
+## Front page & groups
+- [ ] Fresh server (no groups) shows the front page with PIN box + “Start new tool group”
+- [ ] Wrong PIN shows “no group found” and stays on the front page
+- [ ] Creating a group with a PIN already in use keeps the form and asks for another PIN
+- [ ] PIN shorter than 4 or longer than 8 characters cannot be submitted
+- [ ] After creating a group you land in the Tools tab
+- [ ] Reload keeps you logged into the same group (no PIN re-entry)
+- [ ] Padlock button in header logs out back to the front page
+- [ ] Logging into group A then group B shows two separate tool lists
+- [ ] “Who are you?” is remembered per group, not shared between groups
+- [ ] Upgrading an install with an existing `data.json`: the old PIN still opens the group,
+      `data.json.migrated` is left behind, and no plain-text PIN remains in the group file
+- [ ] A migrated group without a PIN shows “Open the group” instead of a PIN box
+
 ## Setup
-- [ ] Fresh start (no data.json) shows setup screen
 - [ ] Cannot start with fewer than 2 named people
 - [ ] Can add extra person rows and remove them
-- [ ] After start, app shows Tools tab with empty state
+- [ ] Typed PIN survives adding/removing a person row
+- [ ] “Back” returns to the front page
 
 ## Identity
 - [ ] First open forces “Who are you?”
@@ -63,6 +77,9 @@ Run through this before tagging a release or pushing to a public repo.
 
 ## Ops
 - [ ] `/api/health` returns `{"ok": true, ...}`
+- [ ] `/api/groups` lists ids and counts only – no names or tools
+- [ ] `GET /api/groups/<id>/data` without the right `X-Pin` returns 401
+- [ ] A new app version is picked up on reload (service worker is network-first)
 - [ ] Docker healthcheck becomes healthy
 - [ ] Restart container keeps data (volume)
 - [ ] Port mapping 8787 works
@@ -73,7 +90,8 @@ Run through this before tagging a release or pushing to a public repo.
 - [ ] Long-loan tag appears after 14 days (or set since in data)
 - [ ] History icon shows per-tool CRM-style log
 - [ ] CSV export downloads tools with status
+- [ ] CSV import: semicolon file from Excel, Norwegian headers, æøå intact
+- [ ] CSV import: re-importing the same file adds nothing (all rows skipped)
+- [ ] CSV import: unknown owner is created as a person, unknown type becomes “Annet”
 - [ ] Language toggle NO/EN updates UI
-- [ ] Setup optional PIN → lock screen on next session
-- [ ] CONFIG.pin enforces PIN when set
 - [ ] Grid shows 2–3 columns on wide screens

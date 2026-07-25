@@ -1,5 +1,5 @@
 /* NeighborTools – minimal service worker (app shell cache) */
-const CACHE = 'nt-shell-v1';
+const CACHE = 'nt-shell-v2';
 const ASSETS = ['/', '/index.html', '/manifest.webmanifest'];
 
 self.addEventListener('install', function(e){
@@ -24,6 +24,22 @@ self.addEventListener('fetch', function(e){
   var url = new URL(e.request.url);
   // Never cache API – always network
   if(url.pathname.indexOf('/api/') === 0){
+    return;
+  }
+  // App shell: network first, so a new version is picked up right away.
+  // The cache is only a fallback for offline use.
+  var erSkall = e.request.mode === 'navigate' ||
+                url.pathname === '/' || url.pathname === '/index.html';
+  if(erSkall){
+    e.respondWith(
+      fetch(e.request).then(function(res){
+        var kopi = res.clone();
+        caches.open(CACHE).then(function(c){ c.put('/index.html', kopi); });
+        return res;
+      }).catch(function(){
+        return caches.match('/index.html');
+      })
+    );
     return;
   }
   e.respondWith(
