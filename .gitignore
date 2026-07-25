@@ -1,4 +1,6 @@
 data.json
+groups/
+pin-salt
 *.tmp
 __pycache__/
 *.pyc
