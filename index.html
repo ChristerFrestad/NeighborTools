@@ -1073,47 +1073,47 @@ function visListe(){
   }
 
   var longDays = CONFIG.longLoanDays || 14;
-  boks.innerHTML = '<div class="vb-list grid">' + liste.map(function(t){
-    var eier = byId[t.ownerId], hos = byId[t.holderId];
-    var hjemme = t.holderId === t.ownerId;
-    var dager = antallDager(t.since);
+  boks.innerHTML = '<div class="vb-list grid">' + liste.map(function(v){
+    var eier = byId[v.ownerId], hos = byId[v.holderId];
+    var hjemme = v.holderId === v.ownerId;
+    var dager = antallDager(v.since);
     var lenge = !hjemme && dager >= longDays;
     var status = hjemme
       ? t('home') + ' · ' + esc(eier ? eier.name : '?')
-      : esc(hos ? hos.name : '?') + ' · ' + dagerSiden(t.since) +
+      : esc(hos ? hos.name : '?') + ' · ' + dagerSiden(v.since) +
         (lenge ? ' · ' + t('longLoan') : '');
-    var sel = !!st.selected[t.id];
+    var sel = !!st.selected[v.id];
         var handling = '';
     if(hjemme){
-      handling = '<button class="vb-btn vb-primary vb-small" onclick="H.laan(\'' + t.id + '\')">' + esc(t('loanOut')) + '</button>';
-      if(meg && t.holderId !== meg){
-        handling += '<button class="vb-btn vb-ghost vb-small" onclick="H.laanTilMeg(\'' + t.id + '\')">' + esc(t('loanToMe')) + '</button>';
+      handling = '<button class="vb-btn vb-primary vb-small" onclick="H.laan(\'' + v.id + '\')">' + esc(t('loanOut')) + '</button>';
+      if(meg && v.holderId !== meg){
+        handling += '<button class="vb-btn vb-ghost vb-small" onclick="H.laanTilMeg(\'' + v.id + '\')">' + esc(t('loanToMe')) + '</button>';
       }
     } else {
-      handling = '<button class="vb-btn vb-return vb-small" onclick="H.lever(\'' + t.id + '\')">' +
+      handling = '<button class="vb-btn vb-return vb-small" onclick="H.lever(\'' + v.id + '\')">' +
           ikon('tilbake',15) + ' ' + esc(t('returnBtn')) + '</button>';
     }
-    var bilde = t.img
-      ? '<img class="vb-toolimg" src="' + esc(t.img) + '" alt="">'
+    var bilde = v.img
+      ? '<img class="vb-toolimg" src="' + esc(v.img) + '" alt="">'
       : '<div class="vb-toolimg" style="display:flex;align-items:center;justify-content:center;color:var(--muted)">' +
           ikon('skru',22) + '</div>';
     return '<article class="vb-card">' +
       '<div class="vb-toolrow">' +
-        '<button class="vb-check' + (sel?' on':'') + '" aria-label="Select" onclick="H.toggleSel(\'' + t.id + '\')">' +
+        '<button class="vb-check' + (sel?' on':'') + '" aria-label="Select" onclick="H.toggleSel(\'' + v.id + '\')">' +
           (sel ? '✓' : '') + '</button>' +
         '<div class="vb-toolleft">' + bilde +
-          '<div style="min-width:0"><h3 class="vb-toolname">' + esc(t.name) + '</h3>' +
+          '<div style="min-width:0"><h3 class="vb-toolname">' + esc(v.name) + '</h3>' +
           '<div class="vb-ownerline">' + esc(t('owner')) + ': ' + sw(eier ? eier.color : '#999') + ' ' +
             esc(eier ? eier.name : '?') + '</div></div>' +
         '</div>' +
-        '<span class="vb-type">' + esc(t.type) + '</span></div>' +
+        '<span class="vb-type">' + esc(v.type) + '</span></div>' +
       '<div class="vb-tagrow"><span class="vb-tagg ' + (hjemme ? 'hjemme' : (lenge ? 'lenge' : 'ute')) + '">' +
         status + '</span></div>' +
-      (t.notes ? '<p class="vb-notes">' + esc(t.notes) + '</p>' : '') +
+      (v.notes ? '<p class="vb-notes">' + esc(v.notes) + '</p>' : '') +
       '<div class="vb-toolactions" style="flex-wrap:wrap;gap:8px">' + handling +
-        '<button class="vb-iconbtn" aria-label="' + esc(t('history')) + '" onclick="H.visHistorikk(\'' + t.id + '\')">' +
+        '<button class="vb-iconbtn" aria-label="' + esc(t('history')) + '" onclick="H.visHistorikk(\'' + v.id + '\')">' +
           ikon('klokke',17) + '</button>' +
-        '<button class="vb-iconbtn" aria-label="' + esc(t('edit')) + '" onclick="H.rediger(\'' + t.id + '\')">' +
+        '<button class="vb-iconbtn" aria-label="' + esc(t('edit')) + '" onclick="H.rediger(\'' + v.id + '\')">' +
           ikon('blyant',17) + '</button>' +
       '</div>' +
     '</article>';
