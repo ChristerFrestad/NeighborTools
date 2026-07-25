@@ -10,6 +10,8 @@ RUN mkdir -p /data
 
 ENV PORT=8080
 ENV DATA_DIR=/data
+# Without this, print() output is buffered and never shows in `docker logs`
+ENV PYTHONUNBUFFERED=1
 
 EXPOSE 8080
 

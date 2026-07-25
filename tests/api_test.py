@@ -6,6 +6,7 @@
 import json
 import sys
 import urllib.error
+import urllib.parse
 import urllib.request
 
 BASE = sys.argv[1] if len(sys.argv) > 1 else "http://127.0.0.1:8080"
@@ -61,8 +62,8 @@ def main():
         return
     print("OK empty group list")
 
-    # PIN length is enforced: 4-8 characters
-    for bad in ["123", "123456789"]:
+    # PIN length is enforced: 4-32 characters
+    for bad in ["123", "x" * 33]:
         code, err = req("POST", "/api/groups", {"pin": bad, "data": sample_data()})
         assert code == 400 and err.get("error") == "pin length", (bad, code, err)
     print("OK pin length")
@@ -116,9 +117,21 @@ def main():
     assert code == 200 and d4["data"]["people"][0]["name"] == "Cyd", d4
     print("OK groups are separate")
 
+    # PINs may contain letters and special characters; the client URI-encodes
+    # the X-Pin header, so the test does the same.
+    fancy = "Wain/a@y"
+    code, d5 = req("POST", "/api/groups", {"pin": fancy, "data": sample_data("Eli")})
+    assert code == 201 and d5.get("id"), d5
+    code, o2 = req("POST", "/api/groups/open", {"pin": fancy})
+    assert code == 200 and o2["id"] == d5["id"], o2
+    code, d6 = req("GET", f"/api/groups/{d5['id']}/data",
+                   pin=urllib.parse.quote(fancy, safe=""))
+    assert code == 200 and d6["data"]["people"][0]["name"] == "Eli", d6
+    print("OK special-character pin")
+
     # The group list leaks no names or contents
     code, g = req("GET", "/api/groups")
-    assert code == 200 and len(g["groups"]) == 2, g
+    assert code == 200 and len(g["groups"]) == 3, g
     assert set(g["groups"][0]) == {"id", "people", "tools", "created"}, g
     print("OK group list has no contents")
 
