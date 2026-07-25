@@ -316,8 +316,8 @@ var I18N = {
     setupTitle: 'Hvem deler verktøy?', setupHint: 'Start med dere tre – flere kan legges til når som helst.',
     start: 'Kom i gang', addPerson: 'Legg til en person til',
     setupPin: 'PIN (valgfritt)', setupPinHint: 'La stå tom for åpen tilgang. PIN kreves da for å åpne appen.',
-    setupPinReq: 'PIN (4–8 tegn)',
-    setupPinReqHint: 'PIN-en er nøkkelen til samarbeidet – del den bare med naboene dine. Seks siffer er tryggere enn fire.',
+    setupPinReq: 'PIN (4–32 tegn)',
+    setupPinReqHint: 'PIN-en er nøkkelen til samarbeidet – del den bare med naboene dine. Bokstaver og spesialtegn er lov, og lengre er tryggere – f.eks. Wain/a@y.',
     enterPin: 'Skriv inn PIN', unlock: 'Lås opp', wrongPin: 'Feil PIN',
     landingTitle: 'Velkommen', landingHint: 'Har naboene dine gitt deg en PIN? Skriv den inn. Ellers kan du starte et nytt samarbeid.',
     openGroup: 'Åpne samarbeid',
@@ -325,7 +325,7 @@ var I18N = {
     or: 'eller',
     pinNotFound: 'Fant ingen samarbeid med denne PIN-en.',
     pinTaken: 'Denne PIN-en er allerede i bruk. Velg en annen.',
-    pinLength: 'PIN må være 4–8 tegn.',
+    pinLength: 'PIN må være 4–32 tegn.',
     switchGroup: 'Bytt samarbeid', switchGroupAsk: 'Logge ut av dette samarbeidet? Du trenger PIN-en for å komme inn igjen.',
     back: 'Tilbake', serverDown: 'Fikk ikke kontakt med serveren. Prøv igjen.',
     backup: 'Last ned', restore: 'Gjenopprett', exportCsv: 'Eksporter CSV', importCsv: 'Importer CSV',
@@ -347,8 +347,8 @@ var I18N = {
     setupTitle: 'Who is sharing tools?', setupHint: 'Start with a few people – more can be added later.',
     start: 'Get started', addPerson: 'Add another person',
     setupPin: 'PIN (optional)', setupPinHint: 'Leave empty for open access. PIN will be required to open the app.',
-    setupPinReq: 'PIN (4–8 characters)',
-    setupPinReqHint: 'The PIN is the key to your group – only share it with your neighbors. Six digits is safer than four.',
+    setupPinReq: 'PIN (4–32 characters)',
+    setupPinReqHint: 'The PIN is the key to your group – only share it with your neighbors. Letters and special characters are allowed, and longer is safer – e.g. Wain/a@y.',
     enterPin: 'Enter PIN', unlock: 'Unlock', wrongPin: 'Wrong PIN',
     landingTitle: 'Welcome', landingHint: 'Did your neighbors give you a PIN? Enter it below. Otherwise, start a new group.',
     openGroup: 'Open group',
@@ -356,7 +356,7 @@ var I18N = {
     or: 'or',
     pinNotFound: 'No group found with that PIN.',
     pinTaken: 'That PIN is already in use. Please pick another one.',
-    pinLength: 'PIN must be 4–8 characters.',
+    pinLength: 'PIN must be 4–32 characters.',
     switchGroup: 'Switch group', switchGroupAsk: 'Log out of this group? You will need the PIN to get back in.',
     back: 'Back', serverDown: 'Could not reach the server. Please try again.',
     backup: 'Download', restore: 'Restore', exportCsv: 'Export CSV', importCsv: 'Import CSV',
@@ -421,7 +421,8 @@ function api(path, options, msTimeout){
 }
 function pinHeader(extra){
   var h = extra || {};
-  if(Lager.pin) h['X-Pin'] = Lager.pin;
+  // URI-encoded so special characters (and æøå) are legal in an HTTP header
+  if(Lager.pin) h['X-Pin'] = encodeURIComponent(Lager.pin);
   return h;
 }
 function groupUrl(){ return 'api/groups/' + Lager.gid + '/data'; }
@@ -674,7 +675,7 @@ H.openGroup = async function(){
   if(st.lagrer) return;
   var inp = $('#land-pin');
   var pin = inp ? inp.value.trim() : '';
-  if(pin.length < 4 || pin.length > 8){ st.landingError = t('pinLength'); render(); return; }
+  if(pin.length < 4 || pin.length > 32){ st.landingError = t('pinLength'); render(); return; }
   st.lagrer = true; visLagrer(true);
   var r = await api('api/groups/open', {
     method:'POST',
@@ -713,7 +714,7 @@ H.oStart = function(){
 
   // On a server the PIN is the key to the group: required, and unique.
   if(Lager.mode === 'server'){
-    if(pin.length < 4 || pin.length > 8){ st.landingError = t('pinLength'); render(); return; }
+    if(pin.length < 4 || pin.length > 32){ st.landingError = t('pinLength'); render(); return; }
     st.lagrer = true; visLagrer(true);
     api('api/groups', {
       method:'POST',
@@ -1145,7 +1146,7 @@ function render(){
       '</header>' +
       '<main class="vb-main"><section class="vb-card vb-pinbox">' +
         '<h2 class="vb-h2">' + esc(t('enterPin')) + '</h2>' +
-        '<input class="vb-inp" id="pin-inp" type="password" inputmode="numeric" autocomplete="one-time-code" ' +
+        '<input class="vb-inp" id="pin-inp" type="password" autocomplete="one-time-code" ' +
           'placeholder="PIN" onkeydown="if(event.key===\'Enter\')H.unlockPin()">' +
         '<button class="vb-btn vb-primary vb-mt" onclick="H.unlockPin()">' + esc(t('unlock')) + '</button>' +
       '</section></main>' +
@@ -1230,7 +1231,7 @@ function htmlLanding(){
           (st.lang==='nb'?'EN':'NO') + '</button></div>' +
         '<h2 class="vb-h2">' + esc(t('landingTitle')) + '</h2>' +
         '<p class="vb-muted vb-mb">' + esc(t('landingHint')) + '</p>' +
-        '<input class="vb-inp" id="land-pin" type="password" inputmode="numeric" maxlength="8" ' +
+        '<input class="vb-inp" id="land-pin" type="password" maxlength="32" ' +
           'autocomplete="one-time-code" placeholder="PIN" ' +
           'onkeydown="if(event.key===\'Enter\')H.openGroup()">' +
         errHtml +
@@ -1279,8 +1280,8 @@ function htmlOppsett(){
         '<button class="vb-btn vb-ghost" onclick="H.oLegg()">' + ikon('pluss',16) + ' ' + esc(t('addPerson')) + '</button>' +
         '<div class="vb-mt">' +
           felt(onServer ? t('setupPinReq') : t('setupPin'),
-            '<input class="vb-inp" id="setup-pin" type="password" inputmode="numeric" maxlength="8" ' +
-            'placeholder="' + (onServer ? '123456' : '1234') + '" autocomplete="new-password" ' +
+            '<input class="vb-inp" id="setup-pin" type="password" maxlength="32" ' +
+            'placeholder="' + (onServer ? (st.lang==='en' ? 'e.g. 123456 or Wain/a@y' : 'f.eks. 123456 eller Wain/a@y') : '1234') + '" autocomplete="new-password" ' +
             'value="' + esc(st.setupPin || '') + '" oninput="H.setupPinInput(this)"' +
             (onServer ? ' onkeydown="if(event.key===\'Enter\')H.oStart()"' : '') + '>') +
           '<p class="vb-finetext">' + esc(onServer ? t('setupPinReqHint') : t('setupPinHint')) + '</p>' +

@@ -28,7 +28,7 @@ LOCK = threading.Lock()
 MAX_SIZE = 8_000_000  # 8 MB – room for a few images
 MAX_GROUPS = 200
 MIN_PIN = 4
-MAX_PIN = 8
+MAX_PIN = 32
 PBKDF2_ROUNDS = 100_000
 GID_RE = re.compile(r"^[a-f0-9]{6,32}$")
 
@@ -167,7 +167,8 @@ class Handler(BaseHTTPRequestHandler):
         g = read_group(gid)
         if g is None:
             return None, (404, {"error": "no such group"})
-        pin = str(self.headers.get("X-Pin", "")).strip()
+        # The client URI-encodes the PIN so special characters survive the header
+        pin = unquote(str(self.headers.get("X-Pin", ""))).strip()
         stored = str(g.get("pinHash") or "")
         if not stored or not pin or not hmac.compare_digest(stored, hash_pin(pin)):
             time.sleep(0.4)  # slow down PIN guessing
