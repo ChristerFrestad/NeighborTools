@@ -119,7 +119,7 @@ def main():
     # The group list leaks no names or contents
     code, g = req("GET", "/api/groups")
     assert code == 200 and len(g["groups"]) == 2, g
-    assert set(g["groups"][0]) == {"id", "hasPin", "people", "tools", "created"}, g
+    assert set(g["groups"][0]) == {"id", "people", "tools", "created"}, g
     print("OK group list has no contents")
 
     # Unknown group and path traversal

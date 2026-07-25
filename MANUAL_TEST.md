@@ -12,9 +12,7 @@ Run through this before tagging a release or pushing to a public repo.
 - [ ] Padlock button in header logs out back to the front page
 - [ ] Logging into group A then group B shows two separate tool lists
 - [ ] “Who are you?” is remembered per group, not shared between groups
-- [ ] Upgrading an install with an existing `data.json`: the old PIN still opens the group,
-      `data.json.migrated` is left behind, and no plain-text PIN remains in the group file
-- [ ] A migrated group without a PIN shows “Open the group” instead of a PIN box
+- [ ] Redeploying over an old single-file install: front page appears, old `data.json` is ignored
 
 ## Setup
 - [ ] Cannot start with fewer than 2 named people

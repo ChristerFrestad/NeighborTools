@@ -22,7 +22,6 @@ from urllib.parse import unquote
 PORT = int(os.environ.get("PORT", "8080"))
 DATA_DIR = Path(os.environ.get("DATA_DIR", Path(__file__).resolve().parent))
 BASE = Path(__file__).resolve().parent
-DATA_FILE = DATA_DIR / "data.json"          # legacy single-group file
 GROUPS_DIR = DATA_DIR / "groups"
 SALT_FILE = DATA_DIR / "pin-salt"
 LOCK = threading.Lock()
@@ -85,14 +84,14 @@ def hash_pin(pin):
 
 
 # ---------- Group storage ----------
-def group_path(gid):
+def group_file(gid):
     return GROUPS_DIR / (gid + ".json")
 
 
 def read_group(gid):
     if not GID_RE.match(gid or ""):
         return None
-    p = group_path(gid)
+    p = group_file(gid)
     if not p.exists():
         return None
     try:
@@ -104,7 +103,7 @@ def read_group(gid):
 def write_group(g):
     # Atomic write: temp file then replace (safe on power loss)
     GROUPS_DIR.mkdir(parents=True, exist_ok=True)
-    p = group_path(g["id"])
+    p = group_file(g["id"])
     tmp = p.with_suffix(".tmp")
     tmp.write_text(json.dumps(g, ensure_ascii=False), encoding="utf-8")
     os.replace(tmp, p)
@@ -133,51 +132,10 @@ def find_group_by_pin(pin):
     return None
 
 
-def open_group():
-    """The single PIN-less group, if that is the only group (legacy install)."""
-    groups = all_groups()
-    if len(groups) == 1 and not groups[0].get("pinHash"):
-        return groups[0]
-    return None
-
-
-def new_group(data, pin):
-    return {
-        "id": uuid.uuid4().hex[:12],
-        "pinHash": hash_pin(pin) if pin else None,
-        "created": now_iso(),
-        "data": data,
-    }
-
-
-def migrate_legacy():
-    """Move an existing data.json into the group layout, once."""
-    if GROUPS_DIR.exists() and any(GROUPS_DIR.glob("*.json")):
-        return
-    if not DATA_FILE.exists():
-        return
-    try:
-        data = json.loads(DATA_FILE.read_text(encoding="utf-8"))
-    except Exception:
-        return
-    if not isinstance(data, dict):
-        return
-    # The old PIN lived in plain text inside the data blob – hash it instead.
-    pin = str(((data.get("settings") or {}).get("pin") or "")).strip()
-    if isinstance(data.get("settings"), dict):
-        data["settings"].pop("pin", None)
-    g = new_group(data, pin)
-    write_group(g)
-    os.replace(DATA_FILE, DATA_FILE.with_suffix(".json.migrated"))
-    print(f"  Migrated data.json -> groups/{g['id']}.json"
-          f"{' (PIN kept)' if pin else ' (no PIN – open group)'}")
-
-
 def group_summary(g):
     d = g.get("data") or {}
     return {
         "id": g.get("id"),
-        "hasPin": bool(g.get("pinHash")),
         "people": len(d.get("people") or []),
         "tools": len(d.get("tools") or []),
         "created": g.get("created"),
@@ -204,19 +162,16 @@ class Handler(BaseHTTPRequestHandler):
             raise ValueError("size")
         return json.loads(self.rfile.read(length).decode("utf-8"))
 
-    def _pin_header(self):
-        return str(self.headers.get("X-Pin", "")).strip()
-
     def _auth(self, gid):
-        """Returns (group, error_reply_args). Group is None when access is denied."""
+        """Returns (group, error). The group is None when access is denied."""
         g = read_group(gid)
         if g is None:
             return None, (404, {"error": "no such group"})
-        if g.get("pinHash"):
-            pin = self._pin_header()
-            if not pin or not hmac.compare_digest(str(g["pinHash"]), hash_pin(pin)):
-                time.sleep(0.4)  # slow down PIN guessing
-                return None, (401, {"error": "wrong pin"})
+        pin = str(self.headers.get("X-Pin", "")).strip()
+        stored = str(g.get("pinHash") or "")
+        if not stored or not pin or not hmac.compare_digest(stored, hash_pin(pin)):
+            time.sleep(0.4)  # slow down PIN guessing
+            return None, (401, {"error": "wrong pin"})
         return g, None
 
     # ---------- GET ----------
@@ -227,6 +182,7 @@ class Handler(BaseHTTPRequestHandler):
             return self._reply(200, {"ok": True, "service": "neighbortools"})
 
         if path == "/api/groups":
+            # Ids and counts only – never names or tools, since this is unauthenticated
             with LOCK:
                 groups = [group_summary(g) for g in all_groups()]
             return self._reply(200, {"groups": groups})
@@ -238,13 +194,6 @@ class Handler(BaseHTTPRequestHandler):
                 if err:
                     return self._reply(*err)
                 return self._reply(200, {"data": g.get("data")})
-
-        if path == "/api/data":  # legacy clients – only for a lone open group
-            with LOCK:
-                g = open_group()
-            if g is None:
-                return self._reply(404, {"error": "use /api/groups"})
-            return self._reply(200, {"data": g.get("data")})
 
         # Static files from app directory
         if path in ("/", "/index.html"):
@@ -274,13 +223,6 @@ class Handler(BaseHTTPRequestHandler):
         if m:
             return self.save_data(m.group(1))
 
-        if path == "/api/data":  # legacy clients – only for a lone open group
-            with LOCK:
-                g = open_group()
-            if g is None:
-                return self._reply(404, {"error": "use /api/groups"})
-            return self.save_data(g["id"])
-
         self._reply(404, {"error": "not found"})
 
     def create_group(self):
@@ -304,7 +246,12 @@ class Handler(BaseHTTPRequestHandler):
             if find_group_by_pin(pin) is not None:
                 return self._reply(409, {"error": "pin in use"})
             data["rev"] = 1
-            g = new_group(data, pin)
+            g = {
+                "id": uuid.uuid4().hex[:12],
+                "pinHash": hash_pin(pin),
+                "created": now_iso(),
+                "data": data,
+            }
             write_group(g)
         self._reply(201, {"id": g["id"], "data": g["data"]})
 
@@ -366,7 +313,6 @@ if __name__ == "__main__":
     print("  NeighborTools is running!")
     print(f"  Port: {PORT}")
     print(f"  Data: {GROUPS_DIR}")
-    migrate_legacy()
     print(f"  Groups: {len(all_groups())}")
     print(f"  Local: http://localhost:{PORT}")
     print(f"  Network: http://{local_ip()}:{PORT}")

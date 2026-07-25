@@ -320,9 +320,7 @@ var I18N = {
     setupPinReqHint: 'PIN-en er nøkkelen til samarbeidet – del den bare med naboene dine. Seks siffer er tryggere enn fire.',
     enterPin: 'Skriv inn PIN', unlock: 'Lås opp', wrongPin: 'Feil PIN',
     landingTitle: 'Velkommen', landingHint: 'Har naboene dine gitt deg en PIN? Skriv den inn. Ellers kan du starte et nytt samarbeid.',
-    landingHintOpen: 'Det finnes allerede et samarbeid her. Åpne det, eller start et nytt med egen PIN.',
-    openGroup: 'Åpne samarbeid', openGroupNoPin: 'Åpne samarbeidet',
-    openGroupNoPinHint: 'Dette samarbeidet er uten PIN – alle med adressen kommer inn.',
+    openGroup: 'Åpne samarbeid',
     newGroup: 'Start nytt verktøysamarbeid',
     or: 'eller',
     pinNotFound: 'Fant ingen samarbeid med denne PIN-en.',
@@ -353,9 +351,7 @@ var I18N = {
     setupPinReqHint: 'The PIN is the key to your group – only share it with your neighbors. Six digits is safer than four.',
     enterPin: 'Enter PIN', unlock: 'Unlock', wrongPin: 'Wrong PIN',
     landingTitle: 'Welcome', landingHint: 'Did your neighbors give you a PIN? Enter it below. Otherwise, start a new group.',
-    landingHintOpen: 'There is already a group here. Open it, or start a new one with its own PIN.',
-    openGroup: 'Open group', openGroupNoPin: 'Open the group',
-    openGroupNoPinHint: 'This group has no PIN – anyone with the address can enter.',
+    openGroup: 'Open group',
     newGroup: 'Start a new tool group',
     or: 'or',
     pinNotFound: 'No group found with that PIN.',
@@ -398,57 +394,56 @@ var fmtDato = function(iso){
 /* ---------- Storage (server / artifact / memory) ----------
    On a server, every tool-sharing group is its own store and the PIN is the
    key to it. gid + pin are kept on this device so you stay logged in. */
-var Lager = { mode:'minne', mem:null, me:null, gid:null, pin:'', grupper:[] };
+var Lager = { mode:'minne', mem:null, me:null, gid:null, pin:'' };
 
-var SESSKEY = CONFIG.storageKey + ':sess';
-function lesSesjon(){
-  try{ return JSON.parse(localStorage.getItem(SESSKEY) || 'null'); }catch(e){ return null; }
+var SESSION_KEY = CONFIG.storageKey + ':sess';
+function readSession(){
+  try{ return JSON.parse(localStorage.getItem(SESSION_KEY) || 'null'); }catch(e){ return null; }
 }
-function skrivSesjon(){
-  try{ localStorage.setItem(SESSKEY, JSON.stringify({gid:Lager.gid, pin:Lager.pin})); }catch(e){}
+function writeSession(){
+  try{ localStorage.setItem(SESSION_KEY, JSON.stringify({gid:Lager.gid, pin:Lager.pin})); }catch(e){}
 }
-function slettSesjon(){ try{ localStorage.removeItem(SESSKEY); }catch(e){} }
+function clearSession(){ try{ localStorage.removeItem(SESSION_KEY); }catch(e){} }
 
-function api(sti, valg, msTimeout){
+function api(path, options, msTimeout){
   return new Promise(function(res){
     var ctl = new AbortController();
-    var tid = setTimeout(function(){ ctl.abort(); }, msTimeout || 8000);
-    var o = valg || {};
+    var timer = setTimeout(function(){ ctl.abort(); }, msTimeout || 8000);
+    var o = options || {};
     o.cache = 'no-store';
     o.signal = ctl.signal;
-    fetch(sti, o).then(function(r){
-      clearTimeout(tid);
+    fetch(path, o).then(function(r){
+      clearTimeout(timer);
       r.json().then(function(j){ res({ok:r.ok, status:r.status, body:j}); })
               .catch(function(){ res({ok:r.ok, status:r.status, body:null}); });
-    }).catch(function(){ clearTimeout(tid); res({ok:false, status:0, body:null}); });
+    }).catch(function(){ clearTimeout(timer); res({ok:false, status:0, body:null}); });
   });
 }
-function pinHode(ekstra){
-  var h = ekstra || {};
+function pinHeader(extra){
+  var h = extra || {};
   if(Lager.pin) h['X-Pin'] = Lager.pin;
   return h;
 }
-function gruppeSti(){ return 'api/groups/' + Lager.gid + '/data'; }
-function settGruppe(gid, pin){
+function groupUrl(){ return 'api/groups/' + Lager.gid + '/data'; }
+function setGroup(gid, pin){
   Lager.gid = gid; Lager.pin = pin || '';
-  skrivSesjon();
+  writeSession();
 }
-function forlatGruppe(){
+function leaveGroup(){
   Lager.gid = null; Lager.pin = ''; Lager.me = null;
-  slettSesjon();
+  clearSession();
 }
 
 async function initLager(){
   var probe = await api('api/groups', null, 2500);
   if(probe.ok && probe.body && Array.isArray(probe.body.groups)){
     Lager.mode = 'server';
-    Lager.grupper = probe.body.groups;
-    var s = lesSesjon();
+    var s = readSession();
     if(s && s.gid){
       Lager.gid = s.gid; Lager.pin = s.pin || '';
-      var r = await api(gruppeSti(), {headers: pinHode()});
+      var r = await api(groupUrl(), {headers: pinHeader()});
       if(r.ok && r.body && r.body.data) return r.body.data;
-      forlatGruppe();   // group deleted or PIN changed – back to the front page
+      leaveGroup();   // group deleted or PIN changed – back to the front page
     }
     return null;
   }
@@ -470,7 +465,7 @@ async function initLager(){
 async function hentData(){
   if(Lager.mode === 'server'){
     if(!Lager.gid) return null;
-    var s = await api(gruppeSti(), {headers: pinHode()});
+    var s = await api(groupUrl(), {headers: pinHeader()});
     if(s.ok && s.body) return s.body.data;
     if(s.status === 401 || s.status === 404) return null; // access lost
     return undefined;                                     // could not reach server
@@ -486,9 +481,9 @@ async function hentData(){
 
 async function lagreData(d, basertRev){
   if(Lager.mode === 'server'){
-    var r = await fetch(gruppeSti(), {
+    var r = await fetch(groupUrl(), {
       method:'POST',
-      headers: pinHode({'Content-Type':'application/json'}),
+      headers: pinHeader({'Content-Type':'application/json'}),
       body: JSON.stringify({rev: basertRev || 0, data: d})
     });
     if(r.status === 409){
@@ -509,17 +504,17 @@ async function lagreData(d, basertRev){
 }
 
 /* One "who am I" per group, so the same device can be used in several groups */
-function megKey(){ return Lager.gid ? MEKEY + ':' + Lager.gid : MEKEY; }
+function meKey(){ return Lager.gid ? MEKEY + ':' + Lager.gid : MEKEY; }
 function hentMeg(){
   if(Lager.mode === 'server'){
     // Per group only – never fall back across groups
-    try{ return localStorage.getItem(megKey()); }catch(e){ return null; }
+    try{ return localStorage.getItem(meKey()); }catch(e){ return null; }
   }
   return Lager.me;
 }
 function settMeg(id){
   Lager.me = id;
-  if(Lager.mode === 'server'){ try{ localStorage.setItem(megKey(), id); }catch(e){} }
+  if(Lager.mode === 'server'){ try{ localStorage.setItem(meKey(), id); }catch(e){} }
   if(Lager.mode === 'artifact'){
     try{ window.storage.set(MEKEY, JSON.stringify(id), false); }catch(e){}
   }
@@ -557,7 +552,8 @@ var st = {
   selected: {},
   pinOk: false,
   landing: false,     // front page: open an existing group or start a new one
-  landingFeil: ''     // message shown on the front page / setup screen
+  landingError: '',   // message shown on the front page / setup screen
+  setupPin: ''        // PIN typed in the setup wizard (kept across re-renders)
 };
 var toastTimer = null;
 
@@ -624,7 +620,7 @@ H.oppdater = async function(){
   if(d){ st.data = d; render(); toast('Oppdatert'); }
   else if(d === undefined){ toast(t('serverDown')); }
   else if(Lager.mode === 'server'){
-    forlatGruppe();
+    leaveGroup();
     st.data = null; st.landing = true; render();
   }
 };
@@ -663,22 +659,22 @@ H.importBackup = function(inp){
 };
 
 /* ----- Front page: open an existing group, or start a new one ----- */
-H.nyttSamarbeid = function(){
-  st.landing = false; st.landingFeil = '';
+H.newGroup = function(){
+  st.landing = false; st.landingError = '';
   st.oppsett = [{name:'',address:''},{name:'',address:''},{name:'',address:''}];
-  st.oppsettPin = '';
+  st.setupPin = '';
   render();
 };
-H.tilbakeTilStart = function(){
-  st.oppsett = null; st.landingFeil = '';
+H.backToStart = function(){
+  st.oppsett = null; st.landingError = '';
   st.landing = true;
   render();
 };
-H.aapneGruppe = async function(){
+H.openGroup = async function(){
   if(st.lagrer) return;
   var inp = $('#land-pin');
   var pin = inp ? inp.value.trim() : '';
-  if(pin.length < 4 || pin.length > 8){ st.landingFeil = t('pinLength'); render(); return; }
+  if(pin.length < 4 || pin.length > 8){ st.landingError = t('pinLength'); render(); return; }
   st.lagrer = true; visLagrer(true);
   var r = await api('api/groups/open', {
     method:'POST',
@@ -687,39 +683,20 @@ H.aapneGruppe = async function(){
   });
   st.lagrer = false; visLagrer(false);
   if(r.ok && r.body && r.body.id){
-    settGruppe(r.body.id, pin);
+    setGroup(r.body.id, pin);
     st.data = r.body.data;
-    st.landing = false; st.landingFeil = '';
+    st.landing = false; st.landingError = '';
     render();
     return;
   }
-  st.landingFeil = (r.status === 404) ? t('pinNotFound') : t('serverDown');
+  st.landingError = (r.status === 404) ? t('pinNotFound') : t('serverDown');
   render();
 };
-H.aapneUtenPin = async function(gid){
-  if(st.lagrer) return;
-  st.lagrer = true; visLagrer(true);
-  settGruppe(gid, '');
-  var r = await api(gruppeSti(), {headers: pinHode()});
-  st.lagrer = false; visLagrer(false);
-  if(r.ok && r.body && r.body.data){
-    st.data = r.body.data;
-    st.landing = false; st.landingFeil = '';
-  }else{
-    forlatGruppe();
-    st.landingFeil = t('serverDown');
-  }
-  render();
-};
-H.byttGruppe = function(){
+H.switchGroup = function(){
   if(!confirm(t('switchGroupAsk'))) return;
-  forlatGruppe();
+  leaveGroup();
   st.data = null; st.selected = {}; st.modal = null; st.visning = 'verktoy';
-  st.landing = true; st.landingFeil = '';
-  api('api/groups', null, 2500).then(function(r){
-    if(r.ok && r.body && Array.isArray(r.body.groups)) Lager.grupper = r.body.groups;
-    render();
-  });
+  st.landing = true; st.landingError = '';
   render();
 };
 
@@ -730,13 +707,13 @@ H.oStart = function(){
     return { id:uid(), name:r.name.trim(), address:r.address.trim(), color:FARGER[i % FARGER.length] };
   });
   var pinEl = $('#setup-pin');
-  var pin = pinEl ? pinEl.value.trim() : (st.oppsettPin || '');
+  var pin = pinEl ? pinEl.value.trim() : (st.setupPin || '');
   var d = { v:1, people:people, tools:[], log:[], settings:{} };
   people.forEach(function(p){ leggLogg(d, {t:'pers', name:p.name}); });
 
   // On a server the PIN is the key to the group: required, and unique.
   if(Lager.mode === 'server'){
-    if(pin.length < 4 || pin.length > 8){ st.landingFeil = t('pinLength'); render(); return; }
+    if(pin.length < 4 || pin.length > 8){ st.landingError = t('pinLength'); render(); return; }
     st.lagrer = true; visLagrer(true);
     api('api/groups', {
       method:'POST',
@@ -745,14 +722,14 @@ H.oStart = function(){
     }).then(function(r){
       st.lagrer = false; visLagrer(false);
       if(r.ok && r.body && r.body.id){
-        settGruppe(r.body.id, pin);
+        setGroup(r.body.id, pin);
         st.data = r.body.data;
-        st.oppsett = null; st.oppsettPin = ''; st.landingFeil = '';
+        st.oppsett = null; st.setupPin = ''; st.landingError = '';
         render();
         return;
       }
       // Keep the form filled in so only the PIN has to be changed
-      st.landingFeil = (r.status === 409) ? t('pinTaken')
+      st.landingError = (r.status === 409) ? t('pinTaken')
                      : (r.status === 400) ? t('pinLength') : t('serverDown');
       render();
       var p = $('#setup-pin');
@@ -773,7 +750,7 @@ H.oStart = function(){
   });
 };
 H.oRad = function(i, felt, el){ st.oppsett[i][felt] = el.value; oppdaterStartKnapp(); };
-H.oPin = function(el){ st.oppsettPin = el.value; oppdaterStartKnapp(); };
+H.setupPinInput = function(el){ st.setupPin = el.value; oppdaterStartKnapp(); };
 H.oLegg = function(){ st.oppsett.push({name:'', address:''}); render(); };
 H.oFjern = function(i){ st.oppsett.splice(i, 1); render(); };
 
@@ -969,112 +946,112 @@ H.exportCsv = function(){
   toast('CSV');
 };
 /* CSV parser: quotes, escaped quotes, CRLF, BOM. Delimiter , or ; (Excel nb-NO uses ;) */
-function parseCsv(tekst){
-  tekst = String(tekst == null ? '' : tekst);
-  if(tekst.charCodeAt(0) === 0xFEFF) tekst = tekst.slice(1);
-  var nl = tekst.indexOf('\n');
-  var forste = nl === -1 ? tekst : tekst.slice(0, nl);
-  var skille = (forste.indexOf(';') > -1 && forste.indexOf(',') === -1) ? ';' : ',';
-  var rader = [], rad = [], celle = '', iSitat = false;
-  for(var i = 0; i < tekst.length; i++){
-    var c = tekst[i];
-    if(iSitat){
+function parseCsv(text){
+  text = String(text == null ? '' : text);
+  if(text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+  var nl = text.indexOf('\n');
+  var firstLine = nl === -1 ? text : text.slice(0, nl);
+  var delim = (firstLine.indexOf(';') > -1 && firstLine.indexOf(',') === -1) ? ';' : ',';
+  var rows = [], row = [], cell = '', inQuotes = false;
+  for(var i = 0; i < text.length; i++){
+    var c = text[i];
+    if(inQuotes){
       if(c === '"'){
-        if(tekst[i+1] === '"'){ celle += '"'; i++; }
-        else iSitat = false;
-      }else celle += c;
-    }else if(c === '"'){ iSitat = true; }
-    else if(c === skille){ rad.push(celle); celle = ''; }
-    else if(c === '\n'){ rad.push(celle); rader.push(rad); rad = []; celle = ''; }
-    else if(c !== '\r'){ celle += c; }
+        if(text[i+1] === '"'){ cell += '"'; i++; }
+        else inQuotes = false;
+      }else cell += c;
+    }else if(c === '"'){ inQuotes = true; }
+    else if(c === delim){ row.push(cell); cell = ''; }
+    else if(c === '\n'){ row.push(cell); rows.push(row); row = []; cell = ''; }
+    else if(c !== '\r'){ cell += c; }
   }
-  if(celle !== '' || rad.length){ rad.push(celle); rader.push(rad); }
-  return rader.filter(function(r){
+  if(cell !== '' || row.length){ row.push(cell); rows.push(row); }
+  return rows.filter(function(r){
     return r.some(function(x){ return String(x).trim() !== ''; });
   });
 }
 H.importCsv = function(inp){
-  var fil = inp.files && inp.files[0];
-  if(!fil) return;
+  var file = inp.files && inp.files[0];
+  if(!file) return;
   var reader = new FileReader();
   reader.onload = function(e){
     inp.value = '';
-    var rader = parseCsv(e.target.result);
-    if(!rader.length){ toast(st.lang==='en' ? 'Empty CSV file' : 'Tom CSV-fil'); return; }
+    var rows = parseCsv(e.target.result);
+    if(!rows.length){ toast(st.lang==='en' ? 'Empty CSV file' : 'Tom CSV-fil'); return; }
 
     // Column mapping: header row (English or Norwegian) or positional (export order)
     var alias = { name:['name','navn','verktøy','verktoy'], type:['type','kategori'],
                   owner:['owner','eier'], holder:['holder','låner','laner'],
                   status:['status'], since:['since','siden','dato'], notes:['notes','notat','notater'] };
-    var hode = rader[0].map(function(h){ return String(h).trim().toLowerCase(); });
-    var kol = {};
-    var harHode = hode.indexOf('name') > -1 || hode.indexOf('navn') > -1;
+    var header = rows[0].map(function(h){ return String(h).trim().toLowerCase(); });
+    var col = {};
+    var hasHeader = header.indexOf('name') > -1 || header.indexOf('navn') > -1;
     Object.keys(alias).forEach(function(k, idx){
-      if(harHode){
-        kol[k] = -1;
-        alias[k].forEach(function(a){ if(kol[k] === -1) kol[k] = hode.indexOf(a); });
-      }else kol[k] = idx;
+      if(hasHeader){
+        col[k] = -1;
+        alias[k].forEach(function(a){ if(col[k] === -1) col[k] = header.indexOf(a); });
+      }else col[k] = idx;
     });
-    if(harHode) rader = rader.slice(1);
-    var felt = function(r, k){
-      var i = kol[k];
+    if(hasHeader) rows = rows.slice(1);
+    var field = function(r, k){
+      var i = col[k];
       return (i > -1 && r[i] != null) ? String(r[i]).trim() : '';
     };
 
-    var gyldige = rader.filter(function(r){ return felt(r, 'name'); });
-    if(!gyldige.length){
+    var valid = rows.filter(function(r){ return field(r, 'name'); });
+    if(!valid.length){
       toast(st.lang==='en' ? 'No tools found in file' : 'Fant ingen verktøy i filen');
       return;
     }
-    var sp = st.lang==='en'
-      ? 'Import ' + gyldige.length + ' tools from «' + fil.name + '»? They are added to the existing list; rows matching an existing tool (same name and owner) are skipped.'
-      : 'Importere ' + gyldige.length + ' verktøy fra «' + fil.name + '»? De legges til i eksisterende liste; rader som matcher et verktøy som finnes fra før (samme navn og eier), hoppes over.';
-    if(!confirm(sp)) return;
+    var question = st.lang==='en'
+      ? 'Import ' + valid.length + ' tools from «' + file.name + '»? They are added to the existing list; rows matching an existing tool (same name and owner) are skipped.'
+      : 'Importere ' + valid.length + ' verktøy fra «' + file.name + '»? De legges til i eksisterende liste; rader som matcher et verktøy som finnes fra før (samme navn og eier), hoppes over.';
+    if(!confirm(question)) return;
 
-    var antNye = 0, antHoppet = 0;
+    var added = 0, skipped = 0;
     endre(function(d){
-      var persByNavn = {};
-      d.people.forEach(function(p){ persByNavn[p.name.trim().toLowerCase()] = p; });
-      var finnEllerLagPerson = function(navn){
-        if(!navn) return null;
-        var n = navn.trim().toLowerCase();
-        if(persByNavn[n]) return persByNavn[n];
-        var p = { id:uid(), name:navn.trim(), address:'', color:FARGER[d.people.length % FARGER.length] };
+      var peopleByName = {};
+      d.people.forEach(function(p){ peopleByName[p.name.trim().toLowerCase()] = p; });
+      var findOrAddPerson = function(name){
+        if(!name) return null;
+        var key = name.trim().toLowerCase();
+        if(peopleByName[key]) return peopleByName[key];
+        var p = { id:uid(), name:name.trim(), address:'', color:FARGER[d.people.length % FARGER.length] };
         d.people.push(p);
-        persByNavn[n] = p;
+        peopleByName[key] = p;
         leggLogg(d, {t:'pers', name:p.name});
         return p;
       };
-      antNye = 0; antHoppet = 0;
-      gyldige.forEach(function(r){
-        var navn = felt(r, 'name');
-        var eier = finnEllerLagPerson(felt(r, 'owner')) ||
-                   (hentMeg() && d.people.find(function(p){ return p.id === hentMeg(); })) ||
-                   d.people[0];
-        if(!eier){ antHoppet++; return; }
-        var dublett = d.tools.some(function(x){
-          return x.name.trim().toLowerCase() === navn.toLowerCase() && x.ownerId === eier.id;
+      added = 0; skipped = 0;
+      valid.forEach(function(r){
+        var name = field(r, 'name');
+        var owner = findOrAddPerson(field(r, 'owner')) ||
+                    (hentMeg() && d.people.find(function(p){ return p.id === hentMeg(); })) ||
+                    d.people[0];
+        if(!owner){ skipped++; return; }
+        var duplicate = d.tools.some(function(x){
+          return x.name.trim().toLowerCase() === name.toLowerCase() && x.ownerId === owner.id;
         });
-        if(dublett){ antHoppet++; return; }
-        var typ = felt(r, 'type');
-        if(TYPER.indexOf(typ) === -1) typ = 'Annet';
-        var laaner = finnEllerLagPerson(felt(r, 'holder'));
-        var siden = felt(r, 'since');
-        if(!siden || isNaN(Date.parse(siden))) siden = naaISO();
-        else siden = new Date(siden).toISOString();
-        d.tools.push({ id:uid(), name:navn, type:typ, ownerId:eier.id,
-                       holderId:(laaner || eier).id, notes:felt(r, 'notes'),
-                       since:siden, created:naaISO() });
-        antNye++;
+        if(duplicate){ skipped++; return; }
+        var type = field(r, 'type');
+        if(TYPER.indexOf(type) === -1) type = 'Annet';
+        var holder = findOrAddPerson(field(r, 'holder'));
+        var since = field(r, 'since');
+        if(!since || isNaN(Date.parse(since))) since = naaISO();
+        else since = new Date(since).toISOString();
+        d.tools.push({ id:uid(), name:name, type:type, ownerId:owner.id,
+                       holderId:(holder || owner).id, notes:field(r, 'notes'),
+                       since:since, created:naaISO() });
+        added++;
       });
       return d;
     }).then(function(ok){
       if(ok) toast(st.lang==='en'
-        ? antNye + ' tools imported' + (antHoppet ? ', ' + antHoppet + ' skipped' : '')
-        : antNye + ' verktøy importert' + (antHoppet ? ', ' + antHoppet + ' hoppet over' : ''));
+        ? added + ' tools imported' + (skipped ? ', ' + skipped + ' skipped' : '')
+        : added + ' verktøy importert' + (skipped ? ', ' + skipped + ' hoppet over' : ''));
     });
   };
-  reader.readAsText(fil);
+  reader.readAsText(file);
 };
 H.visHistorikk = function(id){ st.modal = {type:'historikk', id:id}; render(); };
 H.unlockPin = function(){
@@ -1212,7 +1189,7 @@ function render(){
         '<button class="vb-iconbtn vb-onhead" aria-label="Refresh" onclick="H.oppdater()">' + ikon('oppdater') + '</button>' +
         (Lager.mode === 'server'
           ? '<button class="vb-iconbtn vb-onhead" aria-label="' + esc(t('switchGroup')) + '" title="' +
-            esc(t('switchGroup')) + '" onclick="H.byttGruppe()">' + ikon('laas') + '</button>'
+            esc(t('switchGroup')) + '" onclick="H.switchGroup()">' + ikon('laas') + '</button>'
           : '') +
         '<button class="vb-mechip" onclick="H.byttMeg()">' +
           (megGyldig ? sw(byId[meg].color) + '<span class="vb-navn">' + esc(byId[meg].name) + '</span>' : (st.lang==='en'?'You':'Velg deg')) +
@@ -1238,23 +1215,9 @@ function tabKnapp(v, ik, navn){
 
 /* ----- Front page (server mode): open a group with a PIN, or start a new one ----- */
 function htmlLanding(){
-  var grupper = Lager.grupper || [];
-  // A migrated install can have a single group without a PIN – then a PIN box
-  // would have nothing to unlock, so offer the group directly instead.
-  var apen = (grupper.length === 1 && !grupper[0].hasPin) ? grupper[0] : null;
-  var feil = st.landingFeil
-    ? '<p class="vb-finetext" style="color:var(--fare,#B23A26)" role="alert">' + esc(st.landingFeil) + '</p>'
+  var errHtml = st.landingError
+    ? '<p class="vb-finetext" style="color:var(--fare,#B23A26)" role="alert">' + esc(st.landingError) + '</p>'
     : '';
-
-  var inngang = apen
-    ? '<button class="vb-btn vb-primary" onclick="H.aapneUtenPin(\'' + esc(apen.id) + '\')">' +
-        esc(t('openGroupNoPin')) + '</button>' +
-      '<p class="vb-finetext">' + esc(t('openGroupNoPinHint')) + '</p>' + feil
-    : '<input class="vb-inp" id="land-pin" type="password" inputmode="numeric" maxlength="8" ' +
-        'autocomplete="one-time-code" placeholder="PIN" ' +
-        'onkeydown="if(event.key===\'Enter\')H.aapneGruppe()">' +
-      feil +
-      '<button class="vb-btn vb-primary vb-mt" onclick="H.aapneGruppe()">' + esc(t('openGroup')) + '</button>';
 
   return '<header class="vb-head vb-head-tall">' +
       '<div class="vb-logo"><span class="vb-logomark">' + ikon('skru',15) + '</span>' + esc(CONFIG.name.toUpperCase()) + '</div>' +
@@ -1266,10 +1229,14 @@ function htmlLanding(){
           '<button class="vb-langbtn" style="color:var(--ink);border-color:var(--line)" onclick="H.toggleLang()">' +
           (st.lang==='nb'?'EN':'NO') + '</button></div>' +
         '<h2 class="vb-h2">' + esc(t('landingTitle')) + '</h2>' +
-        '<p class="vb-muted vb-mb">' + esc(apen ? t('landingHintOpen') : t('landingHint')) + '</p>' +
-        inngang +
+        '<p class="vb-muted vb-mb">' + esc(t('landingHint')) + '</p>' +
+        '<input class="vb-inp" id="land-pin" type="password" inputmode="numeric" maxlength="8" ' +
+          'autocomplete="one-time-code" placeholder="PIN" ' +
+          'onkeydown="if(event.key===\'Enter\')H.openGroup()">' +
+        errHtml +
+        '<button class="vb-btn vb-primary vb-mt" onclick="H.openGroup()">' + esc(t('openGroup')) + '</button>' +
         '<p class="vb-finetext" style="text-align:center">' + esc(t('or')) + '</p>' +
-        '<button class="vb-btn vb-ghost" onclick="H.nyttSamarbeid()">' +
+        '<button class="vb-btn vb-ghost" onclick="H.newGroup()">' +
           ikon('pluss',16) + ' ' + esc(t('newGroup')) + '</button>' +
       '</section>' +
     '</main>' +
@@ -1278,9 +1245,9 @@ function htmlLanding(){
 
 /* ----- Setup screen ----- */
 function htmlOppsett(){
-  var paaServer = Lager.mode === 'server';
-  var feilOppsett = st.landingFeil
-    ? '<p class="vb-finetext" style="color:var(--fare,#B23A26)" role="alert">' + esc(st.landingFeil) + '</p>'
+  var onServer = Lager.mode === 'server';
+  var errHtml = st.landingError
+    ? '<p class="vb-finetext" style="color:var(--fare,#B23A26)" role="alert">' + esc(st.landingError) + '</p>'
     : '';
   var rader = st.oppsett.map(function(r, i){
     return '<div class="vb-setuprow">' +
@@ -1311,19 +1278,19 @@ function htmlOppsett(){
         rader +
         '<button class="vb-btn vb-ghost" onclick="H.oLegg()">' + ikon('pluss',16) + ' ' + esc(t('addPerson')) + '</button>' +
         '<div class="vb-mt">' +
-          felt(paaServer ? t('setupPinReq') : t('setupPin'),
+          felt(onServer ? t('setupPinReq') : t('setupPin'),
             '<input class="vb-inp" id="setup-pin" type="password" inputmode="numeric" maxlength="8" ' +
-            'placeholder="' + (paaServer ? '123456' : '1234') + '" autocomplete="new-password" ' +
-            'value="' + esc(st.oppsettPin || '') + '" oninput="H.oPin(this)"' +
-            (paaServer ? ' onkeydown="if(event.key===\'Enter\')H.oStart()"' : '') + '>') +
-          '<p class="vb-finetext">' + esc(paaServer ? t('setupPinReqHint') : t('setupPinHint')) + '</p>' +
-          feilOppsett +
+            'placeholder="' + (onServer ? '123456' : '1234') + '" autocomplete="new-password" ' +
+            'value="' + esc(st.setupPin || '') + '" oninput="H.setupPinInput(this)"' +
+            (onServer ? ' onkeydown="if(event.key===\'Enter\')H.oStart()"' : '') + '>') +
+          '<p class="vb-finetext">' + esc(onServer ? t('setupPinReqHint') : t('setupPinHint')) + '</p>' +
+          errHtml +
         '</div>' +
         '<button id="startknapp" class="vb-btn vb-primary vb-mt" disabled onclick="H.oStart()">' + esc(t('start')) + '</button>' +
-        (paaServer
-          ? '<button class="vb-btn vb-ghost" onclick="H.tilbakeTilStart()">' + esc(t('back')) + '</button>'
+        (onServer
+          ? '<button class="vb-btn vb-ghost" onclick="H.backToStart()">' + esc(t('back')) + '</button>'
           : '') +
-        '<p class="vb-finetext">' + (paaServer
+        '<p class="vb-finetext">' + (onServer
           ? (st.lang==='en'
             ? 'Everyone who knows the PIN sees and edits the same list. Only share it with people you trust.'
             : 'Alle som har PIN-en ser og endrer den samme lista. Del den kun med de dere stoler på.')
@@ -1340,7 +1307,7 @@ function oppdaterStartKnapp(){
   var antall = st.oppsett.filter(function(r){ return r.name.trim(); }).length;
   var pinOk = true;
   if(Lager.mode === 'server'){
-    var p = (st.oppsettPin || '').trim();
+    var p = (st.setupPin || '').trim();
     pinOk = p.length >= 4 && p.length <= 8;   // the PIN is the key to the group
   }
   k.disabled = antall < 2 || !pinOk;
@@ -1735,7 +1702,7 @@ render = function(){
       st.landing = true;   // front page: open a group with a PIN, or start a new one
     }else{
       st.oppsett = [{name:'',address:''},{name:'',address:''},{name:'',address:''}];
-      st.oppsettPin = '';
+      st.setupPin = '';
     }
   }
   render();
@@ -1746,7 +1713,7 @@ render = function(){
     var d = await hentData();
     if(d === null && Lager.mode === 'server'){
       // Group gone or PIN no longer valid – back to the front page
-      forlatGruppe();
+      leaveGroup();
       st.data = null; st.landing = true; render();
       return;
     }

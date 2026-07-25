@@ -28,13 +28,13 @@ self.addEventListener('fetch', function(e){
   }
   // App shell: network first, so a new version is picked up right away.
   // The cache is only a fallback for offline use.
-  var erSkall = e.request.mode === 'navigate' ||
+  var isShell = e.request.mode === 'navigate' ||
                 url.pathname === '/' || url.pathname === '/index.html';
-  if(erSkall){
+  if(isShell){
     e.respondWith(
       fetch(e.request).then(function(res){
-        var kopi = res.clone();
-        caches.open(CACHE).then(function(c){ c.put('/index.html', kopi); });
+        var copy = res.clone();
+        caches.open(CACHE).then(function(c){ c.put('/index.html', copy); });
         return res;
       }).catch(function(){
         return caches.match('/index.html');

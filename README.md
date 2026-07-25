@@ -46,6 +46,15 @@ docker compose up -d --build
 
 Open: `http://localhost:8787`
 
+### Upgrading from the single-file version
+
+This release is a clean break: data is stored per group, and a `data.json` from
+the old single-group version is **not** carried over. Pull, redeploy, and create
+your group from the front page. Nothing else is needed — no migration step, no
+manual cleanup. The old file is simply ignored and can be deleted from the
+volume. If you want the old list back, download a backup from the old version
+first and use **Restore** in the Log tab after creating the group.
+
 ### Portainer
 
 1. Stacks → Add stack
@@ -127,11 +136,11 @@ that do not exist yet are created as people.
 
 - Each group is one file: `/data/groups/<id>.json` (Docker volume `neighbortools-data`)
 - PINs are never stored in plain text – only a PBKDF2 hash, salted per installation
+  (`/data/pin-salt`; deleting it makes every existing PIN unusable)
 - The server refuses to read or write a group without its PIN
-- An existing single-group `data.json` is migrated automatically on first start
-  (its PIN is hashed, the plain-text copy removed, and the old file renamed to
-  `data.json.migrated`). A group that had no PIN stays open to everyone with the
-  address – start a new group if you want it locked.
+- `GET /api/groups` is unauthenticated but returns ids and counts only – never
+  names or tools
+- A forgotten PIN cannot be recovered: it is the only way into the group
 - For stronger protection, put **Cloudflare Access** (free) in front of the URL
 - Download a backup from the Log tab when it matters
 
