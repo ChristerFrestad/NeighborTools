@@ -8,6 +8,7 @@
 import hashlib
 import hmac
 import json
+import math
 import os
 import re
 import socket
@@ -24,6 +25,8 @@ DATA_DIR = Path(os.environ.get("DATA_DIR", Path(__file__).resolve().parent))
 BASE = Path(__file__).resolve().parent
 GROUPS_DIR = DATA_DIR / "groups"
 SALT_FILE = DATA_DIR / "pin-salt"
+REQUESTS_FILE = DATA_DIR / "requests.json"
+POSTNR_FILE = BASE / "postnummer.json"
 LOCK = threading.Lock()
 MAX_SIZE = 8_000_000  # 8 MB – room for a few images
 MAX_GROUPS = 200
@@ -31,6 +34,16 @@ MIN_PIN = 4
 MAX_PIN = 32
 PBKDF2_ROUNDS = 100_000
 GID_RE = re.compile(r"^[a-f0-9]{6,32}$")
+
+# Neighborhood requests ("etterlysninger" across groups on the same server)
+REQUEST_TTL_DAYS = 30      # open requests vanish after this
+MAX_REQUESTS = 500         # server-wide cap on the shared request board
+MAX_REQ_TEXT = 280
+MAX_REQ_NOTE = 500
+MAX_REQ_NAME = 60
+MAX_REQ_TOOL = 80          # optional "here is the tool I can lend" label
+MAX_RESPONSES = 20         # per request
+RADII_KM = (5, 10, 25, 50)  # choices for "how far will you travel?"
 
 MIME = {
     ".html": "text/html; charset=utf-8",
@@ -132,6 +145,102 @@ def find_group_by_pin(pin):
     return None
 
 
+# ---------- Neighborhood requests ----------
+# All groups on one server share /data/requests.json. A request carries only
+# what the requester chose to share (first name, postal code, text); matching
+# uses postal-code centroids bundled in postnummer.json, so no external
+# service is ever called. Groups only see requests within the requester's
+# own travel radius, and never learn which group a request came from.
+_postnr_cache = None
+
+
+def postnr_table():
+    global _postnr_cache
+    if _postnr_cache is None:
+        try:
+            _postnr_cache = json.loads(POSTNR_FILE.read_text(encoding="utf-8"))
+        except Exception:
+            _postnr_cache = {}
+    return _postnr_cache
+
+
+def postnr_info(nr):
+    """[lat, lon, place] for a Norwegian postal code, or None."""
+    return postnr_table().get(str(nr or "").strip())
+
+
+def haversine_km(lat1, lon1, lat2, lon2):
+    rad = math.radians
+    a = (math.sin(rad(lat2 - lat1) / 2) ** 2
+         + math.cos(rad(lat1)) * math.cos(rad(lat2))
+         * math.sin(rad(lon2 - lon1) / 2) ** 2)
+    return 2 * 6371.0 * math.asin(math.sqrt(a))
+
+
+def read_requests():
+    try:
+        r = json.loads(REQUESTS_FILE.read_text(encoding="utf-8"))
+        return r if isinstance(r, list) else []
+    except Exception:
+        return []
+
+
+def write_requests(lst):
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    tmp = REQUESTS_FILE.with_suffix(".tmp")
+    tmp.write_text(json.dumps(lst, ensure_ascii=False), encoding="utf-8")
+    os.replace(tmp, REQUESTS_FILE)
+
+
+def prune_requests(lst):
+    cutoff = time.time() - REQUEST_TTL_DAYS * 86400
+    out = []
+    for r in lst:
+        try:
+            ts = datetime.fromisoformat(r["created"]).timestamp()
+        except Exception:
+            continue
+        if ts >= cutoff:
+            out.append(r)
+    return out
+
+
+def load_requests_pruned():
+    """Call under LOCK. Reads the board and persists any expiry pruning."""
+    lst = read_requests()
+    pruned = prune_requests(lst)
+    if len(pruned) != len(lst):
+        write_requests(pruned)
+    return pruned
+
+
+def group_coords(g):
+    """Coordinates for every member postal code in a group."""
+    out = []
+    for p in (g.get("data") or {}).get("people") or []:
+        info = postnr_info(p.get("postnr"))
+        if info:
+            out.append(info)
+    return out
+
+
+def request_public(r, dist_km):
+    """What another group is allowed to see: never the origin group id."""
+    return {
+        "id": r["id"], "text": r["text"], "name": r["name"],
+        "postnr": r["postnr"], "place": r["place"],
+        "radiusKm": r["radiusKm"], "distKm": dist_km,
+        "created": r["created"], "responses": len(r.get("responses") or []),
+    }
+
+
+def request_own(r):
+    out = {k: r[k] for k in ("id", "text", "name", "postnr", "place",
+                             "radiusKm", "created")}
+    out["responses"] = r.get("responses") or []
+    return out
+
+
 def group_summary(g):
     d = g.get("data") or {}
     return {
@@ -196,6 +305,10 @@ class Handler(BaseHTTPRequestHandler):
                     return self._reply(*err)
                 return self._reply(200, {"data": g.get("data")})
 
+        m = re.match(r"^/api/groups/([^/]+)/requests$", path)
+        if m:
+            return self.list_requests(m.group(1))
+
         # Static files from app directory
         if path in ("/", "/index.html"):
             path = "/index.html"
@@ -223,6 +336,18 @@ class Handler(BaseHTTPRequestHandler):
         m = re.match(r"^/api/groups/([^/]+)/data$", path)
         if m:
             return self.save_data(m.group(1))
+
+        m = re.match(r"^/api/groups/([^/]+)/requests$", path)
+        if m:
+            return self.create_request(m.group(1))
+
+        m = re.match(r"^/api/groups/([^/]+)/requests/([a-f0-9]{6,32})/respond$", path)
+        if m:
+            return self.respond_request(m.group(1), m.group(2))
+
+        m = re.match(r"^/api/groups/([^/]+)/requests/([a-f0-9]{6,32})/close$", path)
+        if m:
+            return self.close_request(m.group(1), m.group(2))
 
         self._reply(404, {"error": "not found"})
 
@@ -293,6 +418,115 @@ class Handler(BaseHTTPRequestHandler):
             g["data"] = new_data
             write_group(g)
         self._reply(200, {"data": new_data})
+
+    # ---------- Neighborhood requests ----------
+    def list_requests(self, gid):
+        with LOCK:
+            g, err = self._auth(gid)
+            if err:
+                return self._reply(*err)
+            lst = load_requests_pruned()
+            mine = [request_own(r) for r in lst if r.get("gid") == g["id"]]
+            nearby = []
+            settings = (g.get("data") or {}).get("settings") or {}
+            if settings.get("neighborhood"):
+                coords = group_coords(g)
+                for r in lst:
+                    if r.get("gid") == g["id"] or not coords:
+                        continue
+                    d = min(haversine_km(r["lat"], r["lon"], c[0], c[1])
+                            for c in coords)
+                    if d <= r["radiusKm"]:
+                        nearby.append(request_public(r, max(1, round(d))))
+        return self._reply(200, {"mine": mine, "nearby": nearby})
+
+    def create_request(self, gid):
+        try:
+            body = self._body()
+            text = str(body.get("text", "")).strip()
+            name = str(body.get("name", "")).strip()
+            postnr = str(body.get("postnr", "")).strip()
+            radius = int(body.get("radiusKm", 0))
+        except Exception:
+            return self._reply(400, {"error": "invalid request"})
+        if not (0 < len(text) <= MAX_REQ_TEXT) or not (0 < len(name) <= MAX_REQ_NAME):
+            return self._reply(400, {"error": "invalid request"})
+        if radius not in RADII_KM:
+            return self._reply(400, {"error": "invalid radius"})
+        info = postnr_info(postnr)
+        if not info:
+            return self._reply(400, {"error": "unknown postnr"})
+
+        with LOCK:
+            g, err = self._auth(gid)
+            if err:
+                return self._reply(*err)
+            lst = load_requests_pruned()
+            if len(lst) >= MAX_REQUESTS:
+                return self._reply(507, {"error": "too many requests"})
+            r = {
+                "id": uuid.uuid4().hex[:12], "gid": g["id"],
+                "text": text, "name": name,
+                "postnr": postnr, "place": info[2],
+                "lat": info[0], "lon": info[1],
+                "radiusKm": radius, "created": now_iso(), "responses": [],
+            }
+            lst.append(r)
+            write_requests(lst)
+        return self._reply(201, {"request": request_own(r)})
+
+    def respond_request(self, gid, rid):
+        try:
+            body = self._body()
+            note = str(body.get("note", "")).strip()
+            name = str(body.get("name", "")).strip()
+            postnr = str(body.get("postnr", "")).strip()
+            tool = str(body.get("tool", "")).strip()[:MAX_REQ_TOOL]
+        except Exception:
+            return self._reply(400, {"error": "invalid request"})
+        if not (0 < len(note) <= MAX_REQ_NOTE) or not (0 < len(name) <= MAX_REQ_NAME):
+            return self._reply(400, {"error": "invalid request"})
+        info = postnr_info(postnr)
+        if not info:
+            return self._reply(400, {"error": "unknown postnr"})
+
+        with LOCK:
+            g, err = self._auth(gid)
+            if err:
+                return self._reply(*err)
+            lst = load_requests_pruned()
+            r = next((x for x in lst if x["id"] == rid), None)
+            if r is None:
+                return self._reply(404, {"error": "no such request"})
+            if r.get("gid") == g["id"]:
+                return self._reply(400, {"error": "own request"})
+            if len(r.get("responses") or []) >= MAX_RESPONSES:
+                return self._reply(409, {"error": "full"})
+            d = haversine_km(r["lat"], r["lon"], info[0], info[1])
+            if d > r["radiusKm"]:
+                return self._reply(403, {"error": "out of range"})
+            r.setdefault("responses", []).append({
+                "id": uuid.uuid4().hex[:12], "name": name,
+                "postnr": postnr, "place": info[2],
+                "distKm": max(1, round(d)), "note": note, "tool": tool,
+                "created": now_iso(),
+            })
+            write_requests(lst)
+        return self._reply(201, {"ok": True})
+
+    def close_request(self, gid, rid):
+        with LOCK:
+            g, err = self._auth(gid)
+            if err:
+                return self._reply(*err)
+            lst = load_requests_pruned()
+            r = next((x for x in lst if x["id"] == rid), None)
+            if r is None:
+                return self._reply(404, {"error": "no such request"})
+            if r.get("gid") != g["id"]:
+                return self._reply(403, {"error": "not yours"})
+            write_requests([x for x in lst if x["id"] != rid])
+        return self._reply(200, {"ok": True})
 
     def log_message(self, *args):
         pass

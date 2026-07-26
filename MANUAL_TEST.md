@@ -6,7 +6,7 @@ Run through this before tagging a release or pushing to a public repo.
 - [ ] Fresh server (no groups) shows the front page with PIN box + “Start new tool group”
 - [ ] Wrong PIN shows “no group found” and stays on the front page
 - [ ] Creating a group with a PIN already in use keeps the form and asks for another PIN
-- [ ] PIN shorter than 4 or longer than 8 characters cannot be submitted
+- [ ] PIN shorter than 4 or longer than 32 characters cannot be submitted
 - [ ] After creating a group you land in the Tools tab
 - [ ] Reload keeps you logged into the same group (no PIN re-entry)
 - [ ] Padlock button in header logs out back to the front page
@@ -91,5 +91,52 @@ Run through this before tagging a release or pushing to a public repo.
 - [ ] CSV import: semicolon file from Excel, Norwegian headers, æøå intact
 - [ ] CSV import: re-importing the same file adds nothing (all rows skipped)
 - [ ] CSV import: unknown owner is created as a person, unknown type becomes “Annet”
-- [ ] Language toggle NO/EN updates UI
 - [ ] Grid shows 2–3 columns on wide screens
+
+## Language & contrast
+- [ ] A first-time visitor (cleared storage) gets the browser's language: `nb`/`nn`/`no` → Norwegian, anything else → English
+- [ ] Browser preferring `en` before `nb` gets English (order is respected)
+- [ ] Detection is never stored – only an explicit NO/EN click is
+- [ ] An explicit choice survives a reload even when the browser asks for the other language
+- [ ] `CONFIG.autoLang = false` falls back to `CONFIG.defaultLang`
+- [ ] NO/EN switch shows both options; the active one is filled in and has `aria-pressed="true"`
+- [ ] Switching updates every tab, modal, toast and tool category
+- [ ] The choice survives reload, and `<html lang>` follows it
+- [ ] Tool categories: a group created before this change still shows the right category, translated
+- [ ] Selected filter chip is readable in **both** light and dark mode (dark text on light chip in dark mode)
+- [ ] Toast messages are actually visible after saving (loan, return, delete, restore)
+- [ ] Toast and the multi-select bar are readable in dark mode
+
+## Due dates, reservations & outside loans
+- [ ] Loan sheet has an optional return date; leaving it empty behaves as before
+- [ ] Card shows “due in N days” / “due tomorrow” / “N days overdue”
+- [ ] Overdue tag uses the warning colour, upcoming uses the accent colour
+- [ ] Holder sees the reminder banner when a tool is due within a day or overdue; it filters to “My loans”
+- [ ] Returning a tool clears its due date
+- [ ] “Reserve” appears only on tools held by someone else; reserving twice does not duplicate
+- [ ] Queue is listed on the card in order
+- [ ] Returning a reserved tool toasts “Next: <name>”
+- [ ] Home tool with a queue shows “Loan to <name>”; receiving it clears that person from the queue
+- [ ] Removing a person also removes their reservations
+- [ ] “Loan outside the group” records name + note, shows the Neighborhood tag, and appears in log, history and CSV
+- [ ] Returning an outside loan clears the external holder
+- [ ] CSV export has a `due` column; re-importing keeps the date
+
+## Requests & neighborhood
+- [ ] Requests tab shows empty state + “New request” FAB
+- [ ] Group-only request: visible to the group, log entry created
+- [ ] “Group + neighborhood” reveals radius picker (5/10/25/50 km)
+- [ ] Without postal code on your profile you are asked for it; it is saved to the profile after posting
+- [ ] With postal code: “calculated from …” line shows address + postal code, not editable in the sheet
+- [ ] Unknown postal code is rejected with a toast
+- [ ] Second group sees nothing until the neighborhood switch is turned on
+- [ ] Second group (member postal code within radius) sees: first name, area, ~distance – never address or group
+- [ ] Group outside the radius sees nothing
+- [ ] Reply sheet: free-text note, privacy line about what is shared
+- [ ] Reply sheet lists only tools that are home right now; picking one shows “Can lend: «…»” to the requester
+- [ ] Reply sheet has no tool picker when nothing is home
+- [ ] Requester sees the reply with name, area, distance and note; tab badge counts it
+- [ ] Replying to your own group’s request is rejected
+- [ ] Remove request needs a second tap; disappears from both groups
+- [ ] Requests expire from the shared board after 30 days
+- [ ] Person sheet has a postal-code field (4 digits, validated)

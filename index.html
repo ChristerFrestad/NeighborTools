@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="nb">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -83,7 +83,10 @@ button{font:inherit; color:inherit; background:none; border:none; cursor:pointer
 .vb-chip{flex:0 0 auto; display:inline-flex; align-items:center; gap:6px; padding:9px 14px;
   border-radius:999px; border:1.5px solid var(--line); background:var(--card); font-size:13.5px; font-weight:600;
   color:var(--muted); white-space:nowrap; transition:background .12s,color .12s,border-color .12s}
-.vb-chip.on{background:var(--ink); color:#fff; border-color:var(--ink)}
+/* Selected chip inverts against the page, so it stays readable in both themes
+   (--ink is near-white in dark mode, where a hardcoded white would vanish) */
+.vb-chip.on{background:var(--ink); color:var(--bg); border-color:var(--ink)}
+.vb-chip.on .vb-sw{box-shadow:0 0 0 1.5px var(--bg)}
 .vb-chipdiv{flex:0 0 1px; background:var(--line); align-self:stretch; margin:2px 3px}
 
 .vb-list{display:flex; flex-direction:column; gap:10px}
@@ -205,7 +208,7 @@ select.vb-inp{appearance:auto}
 .vb-mb{margin-bottom:12px}
 .vb-mt{margin-top:12px}
 .vb-toast{position:fixed; left:50%; transform:translateX(-50%);
-  bottom:calc(84px + env(safe-area-inset-bottom)); z-index:50; background:var(--ink); color:#fff;
+  bottom:calc(84px + env(safe-area-inset-bottom)); z-index:50; background:var(--ink); color:var(--bg);
   padding:10px 16px; border-radius:999px; font-size:13.5px; font-weight:600; max-width:90vw; text-align:center;
   box-shadow:0 6px 20px rgba(0,0,0,.25); animation:vbup .2s ease-out}
 
@@ -253,19 +256,63 @@ select.vb-inp{appearance:auto}
   position:fixed; left:50%; transform:translateX(-50%);
   bottom:calc(72px + env(safe-area-inset-bottom)); z-index:22;
   display:flex; gap:8px; align-items:center; padding:10px 12px;
-  background:var(--ink); color:#fff; border-radius:14px;
+  background:var(--ink); color:var(--bg); border-radius:14px;
   box-shadow:0 8px 24px rgba(0,0,0,.28); max-width:94vw
 }
 .vb-bulk .vb-btn{width:auto; padding:10px 14px; font-size:13.5px}
+.vb-bulk .vb-ghost{color:var(--bg); border-color:color-mix(in srgb, var(--bg) 40%, transparent)}
 .vb-bulk-count{font-weight:700; font-size:13.5px; white-space:nowrap; padding:0 4px}
 
 .vb-hist{margin-top:10px; border-top:1px solid var(--line); padding-top:10px}
 .vb-hist h4{font-size:12px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin-bottom:6px}
 .vb-hist-row{font-size:13px; color:var(--muted); padding:4px 0; display:flex; justify-content:space-between; gap:8px}
 .vb-pinbox{max-width:360px; margin:0 auto; padding:24px 18px}
-.vb-langbtn{font-size:12px; font-weight:700; padding:6px 10px; border-radius:8px; color:var(--headink);
-  border:1px solid rgba(244,246,241,.25)}
-.vb-langbtn:hover{background:rgba(244,246,241,.12)}
+/* Language switch: both languages visible, the active one filled in */
+.vb-langsw{display:inline-flex; align-items:stretch; border-radius:999px; overflow:hidden;
+  border:1px solid rgba(244,246,241,.3); flex:0 0 auto}
+.vb-langsw button{padding:5px 10px; font-size:11px; font-weight:800; letter-spacing:.08em;
+  color:rgba(244,246,241,.72); line-height:1.5; transition:background .12s, color .12s}
+.vb-langsw button:hover{background:rgba(244,246,241,.14); color:var(--headink)}
+.vb-langsw button.on{background:var(--headink); color:var(--headbg)}
+.vb-langsw button.on:hover{background:var(--headink); color:var(--headbg)}
+/* Variant for use on a light card instead of the dark header */
+.vb-langsw.kort{border-color:var(--line)}
+.vb-langsw.kort button{color:var(--muted)}
+.vb-langsw.kort button:hover{background:var(--bg); color:var(--ink)}
+.vb-langsw.kort button.on{background:var(--ink); color:var(--card)}
+.vb-langsw.kort button.on:hover{background:var(--ink); color:var(--card)}
+
+/* Requests ("etterlysninger") */
+.vb-sechead{font-family:'Big Shoulders Display','Arial Narrow',sans-serif; font-weight:800; font-size:15px;
+  letter-spacing:.07em; text-transform:uppercase; color:var(--muted); margin:18px 2px 10px}
+.vb-req-meta{font-size:12.5px; color:var(--muted); margin-top:6px; display:flex; align-items:center; gap:6px;
+  flex-wrap:wrap}
+.vb-resp{border-top:1px solid var(--line); padding:9px 0 4px; font-size:13px; color:var(--muted)}
+.vb-resp b{color:var(--ink)}
+.vb-hoodtoggle{display:flex; gap:11px; align-items:flex-start; cursor:pointer; margin-bottom:4px}
+.vb-hoodtoggle input{width:19px; height:19px; margin-top:2px; accent-color:var(--accent); flex:0 0 auto}
+.vb-radios{display:flex; flex-direction:column; gap:8px; padding:2px 0}
+.vb-radios label{display:flex; align-items:center; gap:9px; font-weight:600; cursor:pointer}
+.vb-radios input{width:17px; height:17px; accent-color:var(--accent); flex:0 0 auto}
+.vb-tab{position:relative}
+.vb-tabbadge{position:absolute; top:2px; right:16px; min-width:17px; height:17px; padding:0 4px;
+  border-radius:999px; background:var(--danger); color:#fff; font-size:10.5px; font-weight:700;
+  display:flex; align-items:center; justify-content:center}
+.vb-logrow.t-ettersp{border-left-color:var(--accent)}
+.vb-resp-tool{font-size:12.5px; color:var(--ink); margin-top:4px; display:flex; align-items:center; gap:5px}
+
+/* Due dates, queue and outside loans */
+.vb-tagrow{display:flex; flex-wrap:wrap; gap:6px}
+.vb-tagg.frist{background:var(--accent-tint); color:var(--accent)}
+.vb-tagg.ekstern{background:var(--line); color:var(--muted)}
+.vb-queue{font-size:12.5px; color:var(--muted); margin-top:8px; display:flex; align-items:center;
+  gap:5px; flex-wrap:wrap}
+.vb-remind{display:flex; align-items:center; gap:9px; width:100%; text-align:left; margin-bottom:10px;
+  padding:11px 13px; border-radius:12px; background:var(--out-tint); color:var(--out);
+  border:1px solid transparent; font-size:13.5px; font-weight:600}
+.vb-remind:hover{border-color:currentColor}
+.vb-remind span:first-of-type{flex:1}
+.vb-remind-link{text-decoration:underline; white-space:nowrap; font-weight:700}
 
 @media (prefers-reduced-motion: reduce){
   *{animation:none !important; transition:none !important}
@@ -277,7 +324,7 @@ select.vb-inp{appearance:auto}
   <div class="vb-center">
     <div style="text-align:center">
       <div class="vb-logo vb-logo-moerk vb-pulse" style="justify-content:center"><span class="vb-logomark">🔧</span>NEIGHBORTOOLS</div>
-      <p class="vb-muted" style="margin-top:14px">Laster …</p>
+      <p class="vb-muted" style="margin-top:14px">Loading …</p>
     </div>
   </div>
 </div>
@@ -295,7 +342,8 @@ var CONFIG = {
   shortName: 'NeighborTools',     // Short variant
   tagline: 'Shared tools with your neighbors – no login needed.',
   storageKey: 'neighbortools',    // Internal storage prefix (do not change after first use)
-  defaultLang: 'nb',              // 'nb' or 'en'
+  autoLang: true,                 // Match the browser's language on first visit
+  defaultLang: 'en',              // Fallback when autoLang finds no match (or is off)
   longLoanDays: 14,               // highlight loans older than this
   // Optional default PIN (also settable in app setup / settings). Leave '' for no PIN.
   pin: ''
@@ -332,7 +380,90 @@ var I18N = {
     selected: 'valgt', loanSelected: 'Lån ut valgte', clearSel: 'Fjern valg',
     history: 'Historikk', noHistory: 'Ingen historikk på dette verktøyet ennå.',
     updated: 'Oppdatert', saved: 'Lagret',
-    loading: 'Laster …'
+    loading: 'Laster …',
+    reqTab: 'Etterlys', newReq: 'Ny etterlysning',
+    reqIntro: 'Leter du etter noe? Spør gruppa – eller hele nabolaget.',
+    reqWhat: 'Hva leter du etter?', reqPh: 'F.eks. «Flisekutter til helgen»',
+    reqScope: 'Hvem skal se etterlysningen?',
+    reqScopeGroup: 'Bare gruppa mi', reqScopeHood: 'Gruppa + nabolaget',
+    reqScopeHint: 'Nabolaget = andre verktøygrupper på samme server, innenfor avstanden du velger.',
+    reqRadius: 'Hvor langt er du villig til å dra for å hente og levere?',
+    reqFrom: 'Din posisjon beregnes fra', reqFromEdit: 'endres på profilen din',
+    reqNeedPostnr: 'Legg inn postnummeret ditt for å kunne forespørre i nabolaget.',
+    postnr: 'Postnummer',
+    reqPickup: 'Du henter og leverer selv.',
+    reqPrivacy: 'Kun fornavn, område og avstand deles – aldri adressen din.',
+    publish: 'Legg ut',
+    reqMineTitle: 'Etterlysninger i gruppa', reqNearbyTitle: 'Fra nabolaget',
+    reqNone: 'Ingen etterlysninger ennå',
+    reqNoneHint: 'Spør etter noe du trenger – gruppa (eller nabolaget) ser det her.',
+    reqNearbyNone: 'Ingen forespørsler fra nabolaget akkurat nå.',
+    hoodToggle: 'Vis etterlysninger fra nabolaget',
+    hoodToggleHint: 'Andre grupper på denne serveren kan spørre etter ting i nærheten. Skru på for å se forespørsler innenfor avstanden deres – ingenting fra gruppa deles automatisk.',
+    canLend: 'Jeg kan låne ut',
+    respHint: 'Du velger selv hva du deler i svaret – ta med telefonnummer eller hentested om du er komfortabel med det.',
+    respPh: 'F.eks. «Jeg har en du kan låne. Ring/SMS 900 00 000 – hentes i Storgata 4.»',
+    respShared: 'Fornavnet ditt, området og avstanden deles sammen med svaret.',
+    yourReply: 'Svaret ditt', sendReply: 'Send svar',
+    replies: 'svar', noReplies: 'Ingen svar ennå.',
+    closeReq: 'Fjern etterlysningen', closeReqAsk: 'Trykk igjen for å fjerne',
+    reqClosed: 'Etterlysningen er fjernet', reqSaved: 'Etterlysningen er lagt ut',
+    replySent: 'Svaret er sendt',
+    unknownPostnr: 'Ukjent postnummer – sjekk at det er riktig.',
+    kmAway: 'km unna', area: 'området', hood: 'Nabolag', groupOnly: 'Gruppa',
+    respFull: 'Etterlysningen har fått maks antall svar.',
+    looksFor: 'etterlyser',
+    respTool: 'Verktøy du kan låne ut (valgfritt)',
+    respToolNone: 'Ingen – bare svar med tekst',
+    canLendTool: 'Kan låne ut',
+    extLoan: 'Lån ut utenfor gruppa',
+    extLoanHint: 'For naboer og andre som ikke står på lista. Lånet føres i historikken som vanlig.',
+    extName: 'Hvem låner?', extNamePh: 'F.eks. Kari fra 4633',
+    extNote: 'Kontakt / notat (valgfritt)', extNotePh: 'Telefon, hentested, avtale …',
+    extTag: 'Nabolag', extRegister: 'Registrer utlån',
+    due: 'Avtalt retur (valgfritt)',
+    dueHint: 'Låneren får en påminnelse i appen når datoen nærmer seg.',
+    dueIn: 'leveres om', dueToday: 'leveres i dag', dueTomorrow: 'leveres i morgen',
+    overdue: 'på overtid',
+    reserve: 'Reserver', unreserve: 'Fjern reservasjon',
+    inQueue: 'i kø', queueYou: 'Du står i kø',
+    nextUp: 'Neste', loanToNext: 'Lån ut til',
+    reserved: 'Du står i kø for dette verktøyet',
+    unreserved: 'Reservasjonen er fjernet',
+    remindOne: 'Du har 1 verktøy som skal leveres',
+    remindMany: 'verktøy som skal leveres',
+    showMine: 'Vis mine lån',
+    /* Forms and sheets */
+    name: 'Navn', address: 'Adresse', addressPh: 'Gate og nummer',
+    addAndPick: 'Legg til og velg meg',
+    notOnList: 'Jeg står ikke på lista – legg meg til',
+    pickPersonLong: 'Valget lagres bare på denne enheten, slik at knappene passer deg.',
+    editTool: 'Rediger verktøy', toolName: 'Navn på verktøyet',
+    toolNamePh: 'F.eks. Bosch drill 18V',
+    typeLbl: 'Type', photoLbl: 'Bilde (valgfritt)', photoRemove: 'Fjern bilde',
+    notesLbl: 'Notater (valgfritt)', notesPh: 'Batteri, tilbehør, tilstand …',
+    deleteTool: 'Slett verktøyet', tapDelete: 'Trykk igjen for å slette',
+    editPerson: 'Rediger person', newPerson: 'Ny person',
+    removePerson: 'Fjern personen', tapRemove: 'Trykk igjen for å fjerne',
+    cantRemove: 'Kan ikke fjernes – flytt eller slett verktøyene først',
+    addPersonBtn: 'Legg til person', youTag: '(deg)',
+    ownsCount: 'Eier {0} · har {1} lånt',
+    borrowedList: 'Har lånt', lentOutList: 'Lånt bort', fromWho: 'fra',
+    whoGets: 'Hvem får «{0}»?', loanMany: 'Lån ut {0} verktøy til …',
+    toolsMove: 'Verktøyet flyttes til personen du velger.',
+    noOthers: 'Ingen andre personer å låne ut til ennå.',
+    /* Toasts and confirms */
+    loanDone: 'Utlån registrert', returnDone: 'Levert tilbake',
+    toolDeleted: 'Verktøyet er slettet', personRemoved: 'Personen er fjernet',
+    addedName: '{0} er lagt til',
+    saveFail: 'Kunne ikke lagre. Prøv igjen.',
+    saveRace: 'Noen lagret samtidig – prøv en gang til.',
+    backupDone: 'Sikkerhetskopi lastet ned', backupBad: 'Ugyldig sikkerhetskopi',
+    restoreAsk: 'Erstatt all data med denne sikkerhetskopien? Dette kan ikke angres.',
+    restoreDone: 'Sikkerhetskopi gjenopprettet', fileFail: 'Kunne ikke lese filen',
+    logEmpty: 'Ingen hendelser ennå', logEmptyHint: 'Utlån og nye verktøy havner her.',
+    deleted: 'Slettet', addedShort: 'Lagt til',
+    sheetFail: 'Noe gikk galt – prøv igjen.'
   },
   en: {
     tools: 'Tools', people: 'People', log: 'Log',
@@ -363,18 +494,159 @@ var I18N = {
     selected: 'selected', loanSelected: 'Loan out selected', clearSel: 'Clear',
     history: 'History', noHistory: 'No history for this tool yet.',
     updated: 'Updated', saved: 'Saved',
-    loading: 'Loading …'
+    loading: 'Loading …',
+    reqTab: 'Requests', newReq: 'New request',
+    reqIntro: 'Looking for something? Ask your group – or the whole neighborhood.',
+    reqWhat: 'What are you looking for?', reqPh: 'E.g. “Tile cutter for the weekend”',
+    reqScope: 'Who should see the request?',
+    reqScopeGroup: 'My group only', reqScopeHood: 'Group + neighborhood',
+    reqScopeHint: 'Neighborhood = other tool groups on this server, within the distance you choose.',
+    reqRadius: 'How far are you willing to travel to pick up and return?',
+    reqFrom: 'Your position is calculated from', reqFromEdit: 'change it on your profile',
+    reqNeedPostnr: 'Add your postal code to be able to ask the neighborhood.',
+    postnr: 'Postal code',
+    reqPickup: 'You pick up and return the item yourself.',
+    reqPrivacy: 'Only your first name, area and distance are shared – never your address.',
+    publish: 'Post request',
+    reqMineTitle: 'Requests in your group', reqNearbyTitle: 'From the neighborhood',
+    reqNone: 'No requests yet',
+    reqNoneHint: 'Ask for something you need – your group (or neighborhood) sees it here.',
+    reqNearbyNone: 'No requests from the neighborhood right now.',
+    hoodToggle: 'Show requests from the neighborhood',
+    hoodToggleHint: 'Other groups on this server can ask for things nearby. Turn this on to see requests within their distance – nothing from your group is shared automatically.',
+    canLend: 'I can lend this',
+    respHint: 'You choose what to share in your reply – include a phone number or pickup spot if you are comfortable with it.',
+    respPh: 'E.g. “I have one you can borrow. Call/text 900 00 000 – pickup at Main St 4.”',
+    respShared: 'Your first name, area and distance are shared with the reply.',
+    yourReply: 'Your reply', sendReply: 'Send reply',
+    replies: 'replies', noReplies: 'No replies yet.',
+    closeReq: 'Remove request', closeReqAsk: 'Tap again to remove',
+    reqClosed: 'Request removed', reqSaved: 'Request posted',
+    replySent: 'Reply sent',
+    unknownPostnr: 'Unknown postal code – please check it.',
+    kmAway: 'km away', area: 'area', hood: 'Neighborhood', groupOnly: 'Group',
+    respFull: 'This request already has the maximum number of replies.',
+    looksFor: 'is looking for',
+    respTool: 'Tool you can lend (optional)',
+    respToolNone: 'None – text reply only',
+    canLendTool: 'Can lend',
+    extLoan: 'Loan outside the group',
+    extLoanHint: 'For neighbors and others not on the list. The loan is recorded in the history as usual.',
+    extName: 'Who is borrowing?', extNamePh: 'E.g. Kari from 4633',
+    extNote: 'Contact / note (optional)', extNotePh: 'Phone, pickup spot, agreement …',
+    extTag: 'Neighborhood', extRegister: 'Register loan',
+    due: 'Agreed return (optional)',
+    dueHint: 'The borrower gets a reminder in the app as the date approaches.',
+    dueIn: 'due in', dueToday: 'due today', dueTomorrow: 'due tomorrow',
+    overdue: 'overdue',
+    reserve: 'Reserve', unreserve: 'Cancel reservation',
+    inQueue: 'in queue', queueYou: 'You are in the queue',
+    nextUp: 'Next', loanToNext: 'Loan to',
+    reserved: 'You are in the queue for this tool',
+    unreserved: 'Reservation removed',
+    remindOne: 'You have 1 tool due back',
+    remindMany: 'tools due back',
+    showMine: 'Show my loans',
+    /* Forms and sheets */
+    name: 'Name', address: 'Address', addressPh: 'Street and number',
+    addAndPick: 'Add me and select',
+    notOnList: 'I am not on the list – add me',
+    pickPersonLong: 'Saved only on this device, so the buttons match you.',
+    editTool: 'Edit tool', toolName: 'Name of the tool',
+    toolNamePh: 'E.g. Bosch drill 18V',
+    typeLbl: 'Type', photoLbl: 'Photo (optional)', photoRemove: 'Remove photo',
+    notesLbl: 'Notes (optional)', notesPh: 'Battery, accessories, condition …',
+    deleteTool: 'Delete tool', tapDelete: 'Tap again to delete',
+    editPerson: 'Edit person', newPerson: 'New person',
+    removePerson: 'Remove person', tapRemove: 'Tap again to remove',
+    cantRemove: 'Cannot be removed – move or delete their tools first',
+    addPersonBtn: 'Add person', youTag: '(you)',
+    ownsCount: 'Owns {0} · has borrowed {1}',
+    borrowedList: 'Has borrowed', lentOutList: 'Lent out', fromWho: 'from',
+    whoGets: 'Who gets «{0}»?', loanMany: 'Loan {0} tools to …',
+    toolsMove: 'Tools move to the person you pick.',
+    noOthers: 'No other people to lend to yet.',
+    /* Toasts and confirms */
+    loanDone: 'Loan registered', returnDone: 'Returned',
+    toolDeleted: 'Tool deleted', personRemoved: 'Person removed',
+    addedName: '{0} added',
+    saveFail: 'Could not save. Please try again.',
+    saveRace: 'Someone saved at the same time – please try again.',
+    backupDone: 'Backup downloaded', backupBad: 'Invalid backup file',
+    restoreAsk: 'Replace all data with this backup? This cannot be undone.',
+    restoreDone: 'Backup restored', fileFail: 'Could not read the file',
+    logEmpty: 'No events yet', logEmptyHint: 'Loans and new tools show up here.',
+    deleted: 'Deleted', addedShort: 'Added',
+    sheetFail: 'Something went wrong – please try again.'
   }
 };
+/* t() with {0}/{1} placeholders filled in */
+function tf(key){
+  var s = t(key);
+  for(var i = 1; i < arguments.length; i++)
+    s = s.replace('{' + (i - 1) + '}', arguments[i]);
+  return s;
+}
 function t(key){
-  var lang = (st && st.lang) || CONFIG.defaultLang || 'nb';
-  return (I18N[lang] && I18N[lang][key]) || (I18N.nb[key]) || key;
+  var lang = (st && st.lang) || CONFIG.defaultLang || 'en';
+  return (I18N[lang] && I18N[lang][key]) || (I18N.en[key]) || key;
+}
+
+/* Language for a first-time visitor: the first of the browser's preferred
+   languages we actually speak, otherwise CONFIG.defaultLang. Only ever a
+   default – an explicit NO/EN choice is stored and always wins. */
+function fallbackSprak(){
+  return CONFIG.defaultLang === 'nb' ? 'nb' : 'en';
+}
+function oppdagSprak(){
+  if(!CONFIG.autoLang) return fallbackSprak();
+  try{
+    var liste = (navigator.languages && navigator.languages.length)
+      ? navigator.languages
+      : [navigator.language || navigator.userLanguage];
+    for(var i = 0; i < liste.length; i++){
+      // Compare the language subtag only: 'nb-NO' -> 'nb', 'en-GB' -> 'en'
+      var kode = String(liste[i] || '').toLowerCase().split('-')[0];
+      if(kode === 'nb' || kode === 'nn' || kode === 'no') return 'nb';
+      if(kode === 'en') return 'en';
+    }
+  }catch(e){}
+  return fallbackSprak();
 }
 
 var KEY = CONFIG.storageKey + ':data';
 var MEKEY = CONFIG.storageKey + ':meg';
-var TYPER = ['Drill & skru','Sag','Sliping & kutting','Håndverktøy','Måleverktøy',
-             'Hage & ute','Stige & stillas','Maling & tapet','Bil & mek','Elektro','Annet'];
+/* Holder id for a loan to someone outside the group (tool.ext holds the name) */
+var EXT = '__ext';
+/* Tool categories. New tools store the stable key; older data holds the
+   Norwegian label, which still resolves, so nothing needs migrating. */
+var TYPER = [
+  {k:'drill',   nb:'Drill & skru',      en:'Drill & drive'},
+  {k:'saw',     nb:'Sag',               en:'Saws'},
+  {k:'grind',   nb:'Sliping & kutting', en:'Grinding & cutting'},
+  {k:'hand',    nb:'Håndverktøy',       en:'Hand tools'},
+  {k:'measure', nb:'Måleverktøy',       en:'Measuring'},
+  {k:'garden',  nb:'Hage & ute',        en:'Garden & outdoor'},
+  {k:'ladder',  nb:'Stige & stillas',   en:'Ladders & scaffolding'},
+  {k:'paint',   nb:'Maling & tapet',    en:'Paint & wallpaper'},
+  {k:'car',     nb:'Bil & mek',         en:'Car & mechanics'},
+  {k:'electro', nb:'Elektro',           en:'Electrical'},
+  {k:'other',   nb:'Annet',             en:'Other'}
+];
+/* Accepts a key or a label in either language */
+function typeFinn(v){
+  var s = String(v == null ? '' : v).trim().toLowerCase();
+  for(var i = 0; i < TYPER.length; i++){
+    var x = TYPER[i];
+    if(x.k === s || x.nb.toLowerCase() === s || x.en.toLowerCase() === s) return x;
+  }
+  return null;
+}
+/* Label in the current language; unknown values pass through unchanged */
+function typeNavn(v){
+  var x = typeFinn(v);
+  return x ? x[st.lang === 'en' ? 'en' : 'nb'] : String(v == null ? '' : v);
+}
 var FARGER = ['#2E52D0','#256B43','#9A5300','#8E3B8E','#B23A26','#0E7490','#6D5A1F','#4F5D75'];
 
 var $ = function(s){ return document.querySelector(s); };
@@ -549,21 +821,43 @@ function setPinOk(ok){
 var st = {
   klar:false, data:null, visning:'verktoy', filter:'alle', sok:'',
   modal:null, lagrer:false, oppsett:null, bekreft:null,
-  lang: CONFIG.defaultLang || 'nb',
+  lang: oppdagSprak(),   // a stored choice replaces this during boot
   selected: {},
   pinOk: false,
   landing: false,     // front page: open an existing group or start a new one
   landingError: '',   // message shown on the front page / setup screen
-  setupPin: ''        // PIN typed in the setup wizard (kept across re-renders)
+  setupPin: '',       // PIN typed in the setup wizard (kept across re-renders)
+  req: {mine: [], nearby: []},  // neighborhood requests from the server
+  toast: '', toastTil: 0        // current toast message and when it expires
 };
 var toastTimer = null;
+var TOAST_MS = 2600;
 
+/* The message lives in state, not in the DOM: every render replaces #app,
+   and a re-render right after a save (see endre) would otherwise wipe it. */
 function toast(m){
-  var t = $('#toast');
-  if(!t) return;
-  t.textContent = m; t.hidden = false; t.setAttribute('role','status');
+  st.toast = m;
+  st.toastTil = Date.now() + TOAST_MS;
+  visToast();
+}
+function visToast(){
+  var el = $('#toast');
+  if(!el) return;
+  var igjen = st.toast ? st.toastTil - Date.now() : 0;
+  if(igjen <= 0){
+    st.toast = '';
+    el.hidden = true;
+    return;
+  }
+  el.textContent = st.toast;
+  el.hidden = false;
+  el.setAttribute('role', 'status');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(function(){ t.hidden = true; }, 2600);
+  toastTimer = setTimeout(function(){
+    st.toast = '';
+    var e = $('#toast');
+    if(e) e.hidden = true;
+  }, igjen);
 }
 function visLagrer(paa){
   var s = $('#spin'); if(s) s.hidden = !paa;
@@ -594,19 +888,43 @@ async function endre(fn, melding){
         throw e;
       }
     }
-    toast('Noen lagret samtidig – prøv en gang til.');
+    toast(t('saveRace'));
   }catch(e){
-    toast('Kunne ikke lagre. Prøv igjen.');
+    toast(t('saveFail'));
   }finally{
     st.lagrer = false; visLagrer(false); render();
   }
   return false;
 }
 
+/* ---------- Neighborhood requests ----------
+   All groups on the server share one request board. Matching happens
+   server-side on postal-code centroids; the origin group is never revealed. */
+async function fetchReq(){
+  if(Lager.mode !== 'server' || !Lager.gid) return false;
+  var r = await api('api/groups/' + Lager.gid + '/requests', {headers: pinHeader()});
+  if(r.ok && r.body){
+    var neste = {mine: r.body.mine || [], nearby: r.body.nearby || []};
+    var endret = JSON.stringify(neste) !== JSON.stringify(st.req);
+    st.req = neste;
+    return endret;
+  }
+  return false;
+}
+function megPerson(){
+  var meg = hentMeg();
+  return meg && st.data ? (st.data.people || []).find(function(p){ return p.id === meg; }) : null;
+}
+function fornavn(navn){ return String(navn || '').trim().split(/\s+/)[0]; }
+function gyldigPostnr(nr){ return /^\d{4}$/.test(String(nr || '').trim()); }
+
 /* ---------- Actions ---------- */
 var H = {};
 
-H.tab = function(v){ st.visning = v; st.bekreft = null; render(); };
+H.tab = function(v){
+  st.visning = v; st.bekreft = null; render();
+  if(v === 'etterlys') fetchReq().then(function(endret){ if(endret) render(); });
+};
 H.setFilter = function(f){ st.filter = (st.filter === f && f.indexOf('p:') === 0) ? 'alle' : f; render(); };
 H.sok = function(el){ st.sok = el.value; visListe(); };
 H.lukk = function(){
@@ -618,6 +936,7 @@ H.lukk = function(){
 };
 H.oppdater = async function(){
   var d = await hentData();
+  await fetchReq();
   if(d){ st.data = d; render(); toast('Oppdatert'); }
   else if(d === undefined){ toast(t('serverDown')); }
   else if(Lager.mode === 'server'){
@@ -632,7 +951,7 @@ H.backup = function(){
   a.href = URL.createObjectURL(blob);
   a.download = (CONFIG.storageKey || 'backup') + '-' + new Date().toISOString().slice(0,10) + '.json';
   a.click();
-  toast('Sikkerhetskopi lastet ned');
+  toast(t('backupDone'));
 };
 H.importBackup = function(inp){
   var fil = inp.files && inp.files[0];
@@ -642,17 +961,17 @@ H.importBackup = function(inp){
     try{
       var data = JSON.parse(e.target.result);
       if(!data || !Array.isArray(data.people) || !Array.isArray(data.tools)){
-        toast('Ugyldig sikkerhetskopi');
+        toast(t('backupBad'));
         return;
       }
-      if(!confirm('Erstatt all data med denne sikkerhetskopien? Dette kan ikke angres.')) return;
+      if(!confirm(t('restoreAsk'))) return;
       // Preserve log array if missing in backup
       if(!Array.isArray(data.log)) data.log = [];
       data.v = data.v || 1;
       // Use endre-style write so concurrent rev is handled
-      endre(function(){ return data; }, 'Sikkerhetskopi gjenopprettet');
+      endre(function(){ return data; }, t('restoreDone'));
     }catch(err){
-      toast('Kunne ikke lese filen');
+      toast(t('fileFail'));
     }
     inp.value = '';
   };
@@ -747,7 +1066,7 @@ H.oStart = function(){
     if(pin || CONFIG.pin) setPinOk(true);
     render();
   }).catch(function(){
-    st.lagrer = false; render(); toast('Kunne ikke lagre. Prøv igjen.');
+    st.lagrer = false; render(); toast(t('saveFail'));
   });
 };
 H.oRad = function(i, felt, el){ st.oppsett[i][felt] = el.value; oppdaterStartKnapp(); };
@@ -768,7 +1087,7 @@ H.leggMegTil = function(){
     leggLogg(d, {t:'pers', name:n});
     settMeg(p.id);
     return d;
-  }, n + ' er lagt til');
+  }, tf('addedName', n));
 };
 
 H.nytt = function(){ if(st.lagrer) return; st.modal = {type:'verktoy', id:null}; st.bekreft = null; render(); };
@@ -844,7 +1163,7 @@ H.lagreVerktoy = function(){
         if(t.holderId === gmlEier && eier !== gmlEier) t.holderId = eier;
       }
       return d;
-    }, 'Lagret');
+    }, t('saved'));
   }
 };
 H.slettVerktoy = function(id){
@@ -855,7 +1174,7 @@ H.slettVerktoy = function(id){
     d.tools = d.tools.filter(function(x){ return x.id !== id; });
     if(t) leggLogg(d, {t:'slett', tool:t.name, toolId:t.id, by:hentMeg()});
     return d;
-  }, 'Verktøyet er slettet');
+  }, t('toolDeleted'));
 };
 
 H.laan = function(id){ if(st.lagrer) return; st.modal = {type:'laan', id:id, ids:null}; render(); };
@@ -865,47 +1184,113 @@ H.laanFlere = function(){
   if(!ids.length) return;
   st.modal = {type:'laan', id:null, ids:ids}; render();
 };
+/* Hand a tool over. Clears any reservation the new holder had, and carries
+   the agreed return date (read from the loan sheet) onto every tool. */
+function utlaan(d, ids, pid, due, ext){
+  ids.forEach(function(id){
+    var vt = d.tools.find(function(x){ return x.id === id; });
+    if(!vt || (vt.holderId === pid && !ext)) return;
+    leggLogg(d, {t:'laan', tool:vt.name, toolId:vt.id, from:vt.holderId,
+                 to:pid, extName: ext ? ext.name : null});
+    vt.holderId = pid;
+    vt.since = naaISO();
+    if(ext) vt.ext = ext; else delete vt.ext;
+    if(due) vt.due = due; else delete vt.due;
+    vt.queue = (vt.queue || []).filter(function(q){ return q.personId !== pid; });
+  });
+  return d;
+}
+function lesForfall(){
+  var el = $('#l-due');
+  var v = el ? el.value.trim() : '';
+  return /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : '';
+}
 H.velgLaaner = function(tid, pid){
   var ids = [];
   if(st.modal && st.modal.ids && st.modal.ids.length) ids = st.modal.ids.slice();
   else if(st.modal && st.modal.id) ids = [st.modal.id];
   else if(tid) ids = [tid];
+  var due = lesForfall();
+  st.modal = null;
+  endre(function(d){ return utlaan(d, ids, pid, due, null); }, t('loanDone'));
+  st.selected = {};
+};
+H.visEksternt = function(){
+  var boks = $('#l-ext');
+  var pick = $('#l-pick');
+  if(boks) boks.hidden = false;
+  if(pick) pick.hidden = true;
+  var n = $('#l-extnavn');
+  if(n) n.focus();
+};
+H.laanUtEksternt = function(){
+  var navn = ($('#l-extnavn') || {}).value;
+  navn = (navn || '').trim();
+  if(!navn) return;
+  var notat = (($('#l-extnotat') || {}).value || '').trim();
+  var ids = [];
+  if(st.modal && st.modal.ids && st.modal.ids.length) ids = st.modal.ids.slice();
+  else if(st.modal && st.modal.id) ids = [st.modal.id];
+  var due = lesForfall();
   st.modal = null;
   endre(function(d){
-    ids.forEach(function(id){
-      var t = d.tools.find(function(x){ return x.id === id; });
-      if(t && t.holderId !== pid){
-        leggLogg(d, {t:'laan', tool:t.name, toolId:t.id, from:t.holderId, to:pid});
-        t.holderId = pid; t.since = naaISO();
-      }
-    });
-    return d;
-  }, 'Utlån registrert');
+    return utlaan(d, ids, EXT, due, {name: navn, note: notat});
+  }, t('loanDone'));
   st.selected = {};
 };
 H.laanTilMeg = function(id){
   if(st.lagrer) return;
   var meg = hentMeg();
   if(!meg){ st.modal = {type:'byttmeg', tvang:true}; render(); return; }
-  endre(function(d){
-    var t = d.tools.find(function(x){ return x.id === id; });
-    if(t && t.holderId !== meg){
-      leggLogg(d, {t:'laan', tool:t.name, toolId:t.id, from:t.holderId, to:meg});
-      t.holderId = meg; t.since = naaISO();
-    }
-    return d;
-  }, 'Utlån registrert');
+  endre(function(d){ return utlaan(d, [id], meg, '', null); }, t('loanDone'));
 };
 H.lever = function(id){
   if(st.lagrer) return;
+  var neste = null;
   endre(function(d){
-    var t = d.tools.find(function(x){ return x.id === id; });
-    if(t){
-      leggLogg(d, {t:'retur', tool:t.name, toolId:t.id, from:t.holderId, to:t.ownerId});
-      t.holderId = t.ownerId; t.since = naaISO();
+    var vt = d.tools.find(function(x){ return x.id === id; });
+    if(vt){
+      leggLogg(d, {t:'retur', tool:vt.name, toolId:vt.id, from:vt.holderId,
+                   to:vt.ownerId, extName: vt.ext ? vt.ext.name : null});
+      vt.holderId = vt.ownerId; vt.since = naaISO();
+      delete vt.ext; delete vt.due;
+      neste = (vt.queue || [])[0] || null;
     }
     return d;
-  }, 'Levert tilbake');
+  }, t('returnDone')).then(function(ok){
+    if(!ok || !neste) return;
+    var p = (st.data.people || []).find(function(x){ return x.id === neste.personId; });
+    if(p) toast(t('nextUp') + ': ' + p.name);
+  });
+};
+
+/* ----- Reservations (queue) ----- */
+H.reserver = function(id){
+  if(st.lagrer) return;
+  var meg = hentMeg();
+  if(!meg){ st.modal = {type:'byttmeg', tvang:true}; render(); return; }
+  endre(function(d){
+    var vt = d.tools.find(function(x){ return x.id === id; });
+    if(vt){
+      vt.queue = vt.queue || [];
+      if(!vt.queue.some(function(q){ return q.personId === meg; }))
+        vt.queue.push({id: uid(), personId: meg, created: naaISO()});
+    }
+    return d;
+  }, t('reserved'));
+};
+H.avreserver = function(id){
+  if(st.lagrer) return;
+  var meg = hentMeg();
+  endre(function(d){
+    var vt = d.tools.find(function(x){ return x.id === id; });
+    if(vt) vt.queue = (vt.queue || []).filter(function(q){ return q.personId !== meg; });
+    return d;
+  }, t('unreserved'));
+};
+H.laanTilNeste = function(id, pid){
+  if(st.lagrer) return;
+  endre(function(d){ return utlaan(d, [id], pid, '', null); }, t('loanDone'));
 };
 H.toggleSel = function(id){
   st.selected[id] = !st.selected[id];
@@ -913,23 +1298,26 @@ H.toggleSel = function(id){
   render();
 };
 H.clearSel = function(){ st.selected = {}; render(); };
-H.toggleLang = function(){
-  st.lang = st.lang === 'nb' ? 'en' : 'nb';
-  try{ localStorage.setItem(CONFIG.storageKey+':lang', st.lang); }catch(e){}
+H.setLang = function(v){
+  if(v !== 'nb' && v !== 'en') return;
+  if(st.lang === v) return;
+  st.lang = v;
+  try{ localStorage.setItem(CONFIG.storageKey+':lang', v); }catch(e){}
+  document.documentElement.lang = v === 'en' ? 'en' : 'nb';
   render();
 };
 H.exportCsv = function(){
   if(!st.data) return;
   var byId = personKart();
-  var rows = [['name','type','owner','holder','status','since','notes']];
-  (st.data.tools||[]).forEach(function(t){
-    var e = byId[t.ownerId], h = byId[t.holderId];
-    var home = t.holderId === t.ownerId;
+  var rows = [['name','type','owner','holder','status','since','due','notes']];
+  (st.data.tools||[]).forEach(function(v){
+    var e = byId[v.ownerId];
+    var home = erHjemme(v);
     rows.push([
-      t.name, t.type,
-      e ? e.name : '', h ? h.name : '',
+      v.name, v.type,
+      e ? e.name : '', home ? (e ? e.name : '') : holderNavn(v, byId),
       home ? 'home' : 'loan',
-      t.since || '', (t.notes||'').replace(/\n/g,' ')
+      v.since || '', v.due || '', (v.notes||'').replace(/\n/g,' ')
     ]);
   });
   var csv = rows.map(function(r){
@@ -983,7 +1371,8 @@ H.importCsv = function(inp){
     // Column mapping: header row (English or Norwegian) or positional (export order)
     var alias = { name:['name','navn','verktøy','verktoy'], type:['type','kategori'],
                   owner:['owner','eier'], holder:['holder','låner','laner'],
-                  status:['status'], since:['since','siden','dato'], notes:['notes','notat','notater'] };
+                  status:['status'], since:['since','siden','dato'],
+                  due:['due','frist','retur'], notes:['notes','notat','notater'] };
     var header = rows[0].map(function(h){ return String(h).trim().toLowerCase(); });
     var col = {};
     var hasHeader = header.indexOf('name') > -1 || header.indexOf('navn') > -1;
@@ -1034,15 +1423,17 @@ H.importCsv = function(inp){
           return x.name.trim().toLowerCase() === name.toLowerCase() && x.ownerId === owner.id;
         });
         if(duplicate){ skipped++; return; }
-        var type = field(r, 'type');
-        if(TYPER.indexOf(type) === -1) type = 'Annet';
+        var funnet = typeFinn(field(r, 'type'));
+        var type = funnet ? funnet.k : 'other';
         var holder = findOrAddPerson(field(r, 'holder'));
         var since = field(r, 'since');
         if(!since || isNaN(Date.parse(since))) since = naaISO();
         else since = new Date(since).toISOString();
+        var due = field(r, 'due');
+        if(!/^\d{4}-\d{2}-\d{2}$/.test(due)) due = '';
         d.tools.push({ id:uid(), name:name, type:type, ownerId:owner.id,
                        holderId:(holder || owner).id, notes:field(r, 'notes'),
-                       since:since, created:naaISO() });
+                       since:since, due:due, created:naaISO() });
         added++;
       });
       return d;
@@ -1063,25 +1454,144 @@ H.unlockPin = function(){
 };
 
 
+/* ----- Requests ("etterlysninger") ----- */
+H.nyEttersp = function(){
+  if(st.lagrer) return;
+  st.modal = {type:'ettersp'}; st.bekreft = null;
+  render();
+};
+H.reqScope = function(v){
+  var boks = $('#r-hood');
+  if(boks) boks.hidden = v !== 'hood';
+};
+H.lagreEttersp = async function(){
+  var txt = $('#r-text').value.trim();
+  if(!txt) return;
+  var megP = megPerson();
+  if(!megP) return;
+  var megId = megP.id;
+  var hood = Lager.mode === 'server' && !$('#r-hood').hidden;
+
+  if(hood){
+    var radius = parseInt(($('#r-radius') || {}).value, 10) || 10;
+    var postnr = gyldigPostnr(megP.postnr) ? megP.postnr : (($('#r-postnr') || {}).value || '').trim();
+    if(!gyldigPostnr(postnr)){ toast(t('unknownPostnr')); return; }
+    st.lagrer = true; visLagrer(true);
+    var r = await api('api/groups/' + Lager.gid + '/requests', {
+      method:'POST', headers: pinHeader({'Content-Type':'application/json'}),
+      body: JSON.stringify({text: txt, name: fornavn(megP.name), postnr: postnr, radiusKm: radius})
+    });
+    st.lagrer = false; visLagrer(false);
+    if(!r.ok || !r.body || !r.body.request){
+      toast(r.body && r.body.error === 'unknown postnr' ? t('unknownPostnr') : t('serverDown'));
+      return;   // keep the sheet open so the input can be fixed
+    }
+    var xid = r.body.request.id;
+    st.modal = null;
+    endre(function(d){
+      var p = d.people.find(function(x){ return x.id === megId; });
+      if(p && !gyldigPostnr(p.postnr)) p.postnr = postnr;
+      d.requests = d.requests || [];
+      d.requests.push({id: uid(), xid: xid, text: txt, byId: megId,
+                       scope:'hood', radiusKm: radius, created: naaISO()});
+      leggLogg(d, {t:'ettersp', by: megId, text: txt});
+      return d;
+    }, t('reqSaved')).then(function(){ fetchReq().then(function(){ render(); }); });
+    return;
+  }
+
+  st.modal = null;
+  endre(function(d){
+    d.requests = d.requests || [];
+    d.requests.push({id: uid(), xid: null, text: txt, byId: megId,
+                     scope:'group', created: naaISO()});
+    leggLogg(d, {t:'ettersp', by: megId, text: txt});
+    return d;
+  }, t('reqSaved'));
+};
+H.svarEttersp = function(rid){
+  if(st.lagrer) return;
+  st.modal = {type:'ettersvar', id: rid};
+  render();
+};
+H.sendSvar = async function(){
+  var m = st.modal;
+  if(!m || m.type !== 'ettersvar') return;
+  var note = $('#s-note').value.trim();
+  if(!note) return;
+  var megP = megPerson();
+  if(!megP) return;
+  var postnr = gyldigPostnr(megP.postnr) ? megP.postnr : (($('#s-postnr') || {}).value || '').trim();
+  if(!gyldigPostnr(postnr)){ toast(t('unknownPostnr')); return; }
+  st.lagrer = true; visLagrer(true);
+  var verktoy = (($('#s-tool') || {}).value || '').trim();
+  var r = await api('api/groups/' + Lager.gid + '/requests/' + m.id + '/respond', {
+    method:'POST', headers: pinHeader({'Content-Type':'application/json'}),
+    body: JSON.stringify({note: note, name: fornavn(megP.name), postnr: postnr, tool: verktoy})
+  });
+  st.lagrer = false; visLagrer(false);
+  if(!r.ok){
+    var feil = r.body && r.body.error;
+    toast(feil === 'unknown postnr' ? t('unknownPostnr')
+        : feil === 'full' ? t('respFull') : t('serverDown'));
+    return;
+  }
+  st.modal = null;
+  var megId = megP.id;
+  if(!gyldigPostnr(megP.postnr)){
+    endre(function(d){
+      var p = d.people.find(function(x){ return x.id === megId; });
+      if(p) p.postnr = postnr;
+      return d;
+    });
+  }
+  toast(t('replySent'));
+  fetchReq().then(function(){ render(); });
+};
+H.lukkEttersp = function(id){
+  if(st.bekreft !== 'r' + id){ st.bekreft = 'r' + id; render(); return; }
+  st.bekreft = null;
+  var r = ((st.data || {}).requests || []).find(function(x){ return x.id === id; });
+  if(r && r.xid && Lager.mode === 'server'){
+    api('api/groups/' + Lager.gid + '/requests/' + r.xid + '/close', {
+      method:'POST', headers: pinHeader()
+    }).then(function(){ fetchReq().then(function(){ render(); }); });
+  }
+  endre(function(d){
+    d.requests = (d.requests || []).filter(function(x){ return x.id !== id; });
+    return d;
+  }, t('reqClosed'));
+};
+H.toggleNabolag = function(el){
+  var paa = !!el.checked;
+  endre(function(d){
+    d.settings = d.settings || {};
+    d.settings.neighborhood = paa;
+    return d;
+  }).then(function(){ fetchReq().then(function(){ render(); }); });
+};
+
 H.nyPerson = function(){ st.modal = {type:'person', id:null}; st.bekreft = null; render(); };
 H.redigerPerson = function(id){ st.modal = {type:'person', id:id}; st.bekreft = null; render(); };
 H.lagrePerson = function(){
   var n = $('#p-navn').value.trim(), a = $('#p-adr').value.trim();
+  var nr = ($('#p-postnr') ? $('#p-postnr').value : '').trim();
   if(!n) return;
+  if(nr && !gyldigPostnr(nr)){ toast(t('unknownPostnr')); return; }
   var id = st.modal.id;
   st.modal = null;
   if(!id){
     endre(function(d){
-      d.people.push({ id:uid(), name:n, address:a, color:FARGER[d.people.length % FARGER.length] });
+      d.people.push({ id:uid(), name:n, address:a, postnr:nr, color:FARGER[d.people.length % FARGER.length] });
       leggLogg(d, {t:'pers', name:n});
       return d;
-    }, n + ' er lagt til');
+    }, tf('addedName', n));
   }else{
     endre(function(d){
       var p = d.people.find(function(x){ return x.id === id; });
-      if(p){ p.name = n; p.address = a; }
+      if(p){ p.name = n; p.address = a; p.postnr = nr; }
       return d;
-    }, 'Lagret');
+    }, t('saved'));
   }
 };
 H.slettPerson = function(id){
@@ -1089,8 +1599,12 @@ H.slettPerson = function(id){
   st.modal = null; st.bekreft = null;
   endre(function(d){
     d.people = d.people.filter(function(p){ return p.id !== id; });
+    // Drop any reservations they were holding, so no queue points at a ghost
+    (d.tools || []).forEach(function(v){
+      if(v.queue) v.queue = v.queue.filter(function(q){ return q.personId !== id; });
+    });
     return d;
-  }, 'Personen er fjernet');
+  }, t('personRemoved'));
 };
 
 window.H = H;
@@ -1107,13 +1621,26 @@ function ikon(navn, str){
     pin:'<path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>',
     blyant:'<path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/>',
     tilbake:'<path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-15-6.7L3 13"/>',
-    laas:'<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>'
+    laas:'<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+    rop:'<path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/>'
   }[navn];
   return '<svg width="' + (str||18) + '" height="' + (str||18) + '" viewBox="0 0 24 24" fill="none" ' +
     'stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
     d + '</svg>';
 }
 var sw = function(c){ return '<span class="vb-sw" style="background:' + esc(c) + '"></span>'; };
+
+/* Language switch. Shows both languages so the active one is obvious –
+   paaKort = true for the light setup/front-page cards. */
+function sprakVelger(paaKort){
+  var seg = function(kode, merke){
+    var paa = st.lang === kode;
+    return '<button' + (paa ? ' class="on"' : '') + ' aria-pressed="' + paa + '" ' +
+      'lang="' + kode + '" onclick="H.setLang(\'' + kode + '\')">' + merke + '</button>';
+  };
+  return '<div class="vb-langsw' + (paaKort ? ' kort' : '') + '" role="group" aria-label="' +
+    (st.lang === 'en' ? 'Language' : 'Språk') + '">' + seg('nb', 'NO') + seg('en', 'EN') + '</div>';
+}
 
 /* ---------- Rendering ---------- */
 function personKart(){
@@ -1167,17 +1694,21 @@ function render(){
 
   var innhold = '';
   if(st.visning === 'verktoy') innhold = htmlVerktoy(byId);
+  if(st.visning === 'etterlys') innhold = htmlEttersp(byId);
   if(st.visning === 'personer') innhold = htmlPersoner(byId, meg);
   if(st.visning === 'logg') innhold = htmlLogg(byId);
 
-  var fab = (st.visning === 'verktoy')
-    ? '<button class="vb-fab" onclick="H.nytt()">' + ikon('pluss') + ' ' + esc(t('newTool')) + '</button>' : '';
+  var fab = '';
+  if(st.visning === 'verktoy')
+    fab = '<button class="vb-fab" onclick="H.nytt()">' + ikon('pluss') + ' ' + esc(t('newTool')) + '</button>';
+  if(st.visning === 'etterlys')
+    fab = '<button class="vb-fab" onclick="H.nyEttersp()">' + ikon('pluss') + ' ' + esc(t('newReq')) + '</button>';
 
   var selN = Object.keys(st.selected).filter(function(k){ return st.selected[k]; }).length;
   var bulk = (st.visning === 'verktoy' && selN)
     ? '<div class="vb-bulk"><span class="vb-bulk-count">' + selN + ' ' + esc(t('selected')) + '</span>' +
         '<button class="vb-btn vb-primary" onclick="H.laanFlere()">' + esc(t('loanSelected')) + '</button>' +
-        '<button class="vb-btn vb-ghost" style="color:#fff;border-color:rgba(255,255,255,.35)" onclick="H.clearSel()">' +
+        '<button class="vb-btn vb-ghost" onclick="H.clearSel()">' +
           esc(t('clearSel')) + '</button></div>'
     : '';
 
@@ -1185,7 +1716,7 @@ function render(){
     '<header class="vb-head">' +
       '<div class="vb-logo"><span class="vb-logomark">' + ikon('skru', 15) + '</span>' + esc(CONFIG.name.toUpperCase()) + '</div>' +
       '<div class="vb-headright">' +
-        '<button class="vb-langbtn" onclick="H.toggleLang()">' + (st.lang === 'nb' ? 'EN' : 'NO') + '</button>' +
+        sprakVelger(false) +
         '<span id="spin" class="vb-spin" hidden></span>' +
         '<button class="vb-iconbtn vb-onhead" aria-label="Refresh" onclick="H.oppdater()">' + ikon('oppdater') + '</button>' +
         (Lager.mode === 'server'
@@ -1200,18 +1731,32 @@ function render(){
     banner +
     '<main class="vb-main">' + innhold + '</main>' +
     '<nav class="vb-nav">' +
-      tabKnapp('verktoy','skru', t('tools')) + tabKnapp('personer','folk', t('people')) + tabKnapp('logg','klokke', t('log')) +
+      tabKnapp('verktoy','skru', t('tools')) +
+      tabKnapp('etterlys','rop', t('reqTab'), antallEttersp()) +
+      tabKnapp('personer','folk', t('people')) +
+      tabKnapp('logg','klokke', t('log')) +
     '</nav>' +
     fab + bulk +
     '<div id="toast" class="vb-toast" hidden></div>' +
-    htmlModal(byId, megGyldig);
+    trygtModal(byId, megGyldig);
 
   if(st.lagrer) visLagrer(true);
 }
 
-function tabKnapp(v, ik, navn){
+function tabKnapp(v, ik, navn, badge){
   return '<button class="vb-tab' + (st.visning === v ? ' on' : '') + '" onclick="H.tab(\'' + v + '\')">' +
+    (badge ? '<span class="vb-tabbadge">' + badge + '</span>' : '') +
     ikon(ik, 19) + '<span>' + navn + '</span></button>';
+}
+/* Open requests worth noticing: neighborhood asks + replies to our own */
+function antallEttersp(){
+  var n = (st.req.nearby || []).length;
+  ((st.data && st.data.requests) || []).forEach(function(r){
+    if(!r.xid) return;
+    var x = (st.req.mine || []).find(function(m){ return m.id === r.xid; });
+    if(x) n += (x.responses || []).length;
+  });
+  return n;
 }
 
 /* ----- Front page (server mode): open a group with a PIN, or start a new one ----- */
@@ -1227,8 +1772,7 @@ function htmlLanding(){
     '<main class="vb-main">' +
       '<section class="vb-card vb-pinbox">' +
         '<div style="display:flex;justify-content:flex-end;margin-bottom:8px">' +
-          '<button class="vb-langbtn" style="color:var(--ink);border-color:var(--line)" onclick="H.toggleLang()">' +
-          (st.lang==='nb'?'EN':'NO') + '</button></div>' +
+          sprakVelger(true) + '</div>' +
         '<h2 class="vb-h2">' + esc(t('landingTitle')) + '</h2>' +
         '<p class="vb-muted vb-mb">' + esc(t('landingHint')) + '</p>' +
         '<input class="vb-inp" id="land-pin" type="password" maxlength="32" ' +
@@ -1272,8 +1816,7 @@ function htmlOppsett(){
     '<main class="vb-main">' +
       '<section class="vb-card">' +
         '<div style="display:flex;justify-content:flex-end;margin-bottom:8px">' +
-          '<button class="vb-langbtn" style="color:var(--ink);border-color:var(--line)" onclick="H.toggleLang()">' +
-          (st.lang==='nb'?'EN':'NO') + '</button></div>' +
+          sprakVelger(true) + '</div>' +
         '<h2 class="vb-h2">' + esc(t('setupTitle')) + '</h2>' +
         '<p class="vb-muted vb-mb">' + esc(t('setupHint')) + '</p>' +
         rader +
@@ -1309,7 +1852,7 @@ function oppdaterStartKnapp(){
   var pinOk = true;
   if(Lager.mode === 'server'){
     var p = (st.setupPin || '').trim();
-    pinOk = p.length >= 4 && p.length <= 8;   // the PIN is the key to the group
+    pinOk = p.length >= 4 && p.length <= 32;  // the PIN is the key to the group
   }
   k.disabled = antall < 2 || !pinOk;
 }
@@ -1326,6 +1869,41 @@ function dagerSiden(iso){
 function antallDager(iso){
   try{ return Math.floor((Date.now() - new Date(iso).getTime()) / 86400000); }
   catch(e){ return 0; }
+}
+/* Whole days from today to a 'YYYY-MM-DD' date. Negative = overdue. */
+function dagerTil(ymd){
+  if(!ymd) return null;
+  var d = new Date(ymd + 'T00:00:00');
+  if(isNaN(d.getTime())) return null;
+  var i = new Date();
+  i.setHours(0, 0, 0, 0);
+  return Math.round((d.getTime() - i.getTime()) / 86400000);
+}
+/* Due-date label, or '' when there is nothing worth saying */
+function forfallTekst(ymd){
+  var n = dagerTil(ymd);
+  if(n === null) return '';
+  if(n < 0) return Math.abs(n) + ' ' + t('days') + ' ' + t('overdue');
+  if(n === 0) return t('dueToday');
+  if(n === 1) return t('dueTomorrow');
+  return t('dueIn') + ' ' + n + ' ' + t('days');
+}
+/* Name of whoever holds the tool now – a member, or an outside borrower */
+function holderNavn(v, byId){
+  if(v.holderId === EXT) return (v.ext && v.ext.name) || t('extTag');
+  var p = byId[v.holderId];
+  return p ? p.name : '?';
+}
+function erHjemme(v){ return v.holderId === v.ownerId; }
+/* Tools I hold that are due within a day (or already overdue) */
+function forfallListe(){
+  var meg = hentMeg();
+  if(!meg || !st.data) return [];
+  return (st.data.tools || []).filter(function(v){
+    if(v.holderId !== meg || erHjemme(v) || !v.due) return false;
+    var n = dagerTil(v.due);
+    return n !== null && n <= 1;
+  });
 }
 
 function htmlVerktoy(byId){
@@ -1344,7 +1922,18 @@ function htmlVerktoy(byId){
       return chip('p:' + p.id, sw(p.color) + esc(p.name));
     }).join('');
 
-  return '<div class="vb-stats">' + tools.length + ' · ' + ute + ' ' + t('onLoan').toLowerCase() +
+  // Gentle reminder for tools I hold that are due back
+  var forfaller = forfallListe();
+  var paaminnelse = forfaller.length
+    ? '<button class="vb-remind" onclick="H.setFilter(\'mine\')">' + ikon('klokke',16) +
+        '<span>' + esc(forfaller.length === 1
+          ? t('remindOne')
+          : (st.lang==='en' ? 'You have ' : 'Du har ') + forfaller.length + ' ' + t('remindMany')) +
+        '</span><span class="vb-remind-link">' + esc(t('showMine')) + '</span></button>'
+    : '';
+
+  return paaminnelse +
+    '<div class="vb-stats">' + tools.length + ' · ' + ute + ' ' + t('onLoan').toLowerCase() +
     (selN ? ' · <b>' + selN + ' ' + t('selected') + '</b>' : '') + '</div>' +
     '<input class="vb-inp vb-search" placeholder="' + esc(t('search')) + '" value="' + esc(st.sok) +
       '" oninput="H.sok(this)">' +
@@ -1364,7 +1953,7 @@ function visListe(){
   var q = st.sok.trim().toLowerCase();
   var meg = hentMeg();
   var liste = tools.filter(function(t){
-    if(q && ((t.name + ' ' + t.type + ' ' + (t.notes || '')).toLowerCase().indexOf(q) === -1)) return false;
+    if(q && ((t.name + ' ' + typeNavn(t.type) + ' ' + (t.notes || '')).toLowerCase().indexOf(q) === -1)) return false;
     if(st.filter === 'hjemme') return t.holderId === t.ownerId;
     if(st.filter === 'ute') return t.holderId !== t.ownerId;
     if(st.filter === 'mine') return meg && t.holderId === meg && t.ownerId !== meg;
@@ -1388,24 +1977,58 @@ function visListe(){
 
   var longDays = CONFIG.longLoanDays || 14;
   boks.innerHTML = '<div class="vb-list grid">' + liste.map(function(v){
-    var eier = byId[v.ownerId], hos = byId[v.holderId];
-    var hjemme = v.holderId === v.ownerId;
+    var eier = byId[v.ownerId];
+    var hjemme = erHjemme(v);
     var dager = antallDager(v.since);
     var lenge = !hjemme && dager >= longDays;
+    var ekstern = v.holderId === EXT;
     var status = hjemme
       ? t('home') + ' · ' + esc(eier ? eier.name : '?')
-      : esc(hos ? hos.name : '?') + ' · ' + dagerSiden(v.since) +
+      : esc(holderNavn(v, byId)) + ' · ' + dagerSiden(v.since) +
         (lenge ? ' · ' + t('longLoan') : '');
+
+    // Agreed return date gets its own tag so it reads before the loan age
+    var forfall = !hjemme ? forfallTekst(v.due) : '';
+    var forsent = forfall && dagerTil(v.due) < 0;
+    var forfallTag = forfall
+      ? '<span class="vb-tagg ' + (forsent ? 'lenge' : 'frist') + '">' + esc(forfall) + '</span>'
+      : '';
+    var eksternTag = ekstern
+      ? '<span class="vb-tagg ekstern">' + esc(t('extTag')) + '</span>' : '';
+
+    var kø = v.queue || [];
+    var minKø = meg && kø.some(function(q){ return q.personId === meg; });
+    var køLinje = kø.length
+      ? '<div class="vb-queue">' + ikon('klokke',13) + ' ' + kø.length + ' ' + esc(t('inQueue')) + ': ' +
+          kø.map(function(q){
+            var p = byId[q.personId];
+            return esc(p ? p.name : '?');
+          }).join(' → ') + '</div>'
+      : '';
+
     var sel = !!st.selected[v.id];
-        var handling = '';
+    var handling = '';
     if(hjemme){
-      handling = '<button class="vb-btn vb-primary vb-small" onclick="H.laan(\'' + v.id + '\')">' + esc(t('loanOut')) + '</button>';
+      var neste = kø[0] && byId[kø[0].personId];
+      if(neste){
+        handling = '<button class="vb-btn vb-primary vb-small" onclick="H.laanTilNeste(\'' + v.id + '\',\'' +
+          kø[0].personId + '\')">' + esc(t('loanToNext') + ' ' + neste.name) + '</button>';
+      }else{
+        handling = '<button class="vb-btn vb-primary vb-small" onclick="H.laan(\'' + v.id + '\')">' + esc(t('loanOut')) + '</button>';
+      }
       if(meg && v.holderId !== meg){
         handling += '<button class="vb-btn vb-ghost vb-small" onclick="H.laanTilMeg(\'' + v.id + '\')">' + esc(t('loanToMe')) + '</button>';
       }
     } else {
       handling = '<button class="vb-btn vb-return vb-small" onclick="H.lever(\'' + v.id + '\')">' +
           ikon('tilbake',15) + ' ' + esc(t('returnBtn')) + '</button>';
+      if(meg && v.holderId !== meg){
+        handling += minKø
+          ? '<button class="vb-btn vb-ghost vb-small" onclick="H.avreserver(\'' + v.id + '\')">' +
+              esc(t('unreserve')) + '</button>'
+          : '<button class="vb-btn vb-ghost vb-small" onclick="H.reserver(\'' + v.id + '\')">' +
+              esc(t('reserve')) + '</button>';
+      }
     }
     var bilde = v.img
       ? '<img class="vb-toolimg" src="' + esc(v.img) + '" alt="">'
@@ -1420,9 +2043,11 @@ function visListe(){
           '<div class="vb-ownerline">' + esc(t('owner')) + ': ' + sw(eier ? eier.color : '#999') + ' ' +
             esc(eier ? eier.name : '?') + '</div></div>' +
         '</div>' +
-        '<span class="vb-type">' + esc(v.type) + '</span></div>' +
+        '<span class="vb-type">' + esc(typeNavn(v.type)) + '</span></div>' +
       '<div class="vb-tagrow"><span class="vb-tagg ' + (hjemme ? 'hjemme' : (lenge ? 'lenge' : 'ute')) + '">' +
-        status + '</span></div>' +
+        status + '</span>' + forfallTag + eksternTag + '</div>' +
+      køLinje +
+      (ekstern && v.ext && v.ext.note ? '<p class="vb-notes">' + esc(v.ext.note) + '</p>' : '') +
       (v.notes ? '<p class="vb-notes">' + esc(v.notes) + '</p>' : '') +
       '<div class="vb-toolactions" style="flex-wrap:wrap;gap:8px">' + handling +
         '<button class="vb-iconbtn" aria-label="' + esc(t('history')) + '" onclick="H.visHistorikk(\'' + v.id + '\')">' +
@@ -1432,6 +2057,81 @@ function visListe(){
       '</div>' +
     '</article>';
   }).join('') + '</div>';
+}
+
+/* ----- Requests tab ----- */
+function htmlEttersp(byId){
+  var onServer = Lager.mode === 'server';
+  var reqs = (st.data.requests || []).slice().reverse();
+  var hoodOn = !!(st.data.settings && st.data.settings.neighborhood);
+
+  var toggle = onServer
+    ? '<label class="vb-card vb-hoodtoggle">' +
+        '<input type="checkbox"' + (hoodOn ? ' checked' : '') + ' onchange="H.toggleNabolag(this)">' +
+        '<span><b>' + esc(t('hoodToggle')) + '</b>' +
+        '<span class="vb-finetext" style="display:block;margin-top:3px">' + esc(t('hoodToggleHint')) + '</span></span>' +
+      '</label>'
+    : '';
+
+  var mineHtml;
+  if(!reqs.length){
+    mineHtml = '<div class="vb-empty"><div class="vb-empty-ico">' + ikon('rop',26) + '</div>' +
+      '<p><b>' + esc(t('reqNone')) + '</b><br>' + esc(t('reqNoneHint')) + '</p>' +
+      '<button class="vb-btn vb-primary vb-small" onclick="H.nyEttersp()">' + esc(t('newReq')) + '</button></div>';
+  }else{
+    mineHtml = reqs.map(function(r){
+      var p = byId[r.byId];
+      var x = r.xid ? (st.req.mine || []).find(function(m){ return m.id === r.xid; }) : null;
+      var scopeChip = '<span class="vb-type">' +
+        (r.scope === 'hood' ? esc(t('hood')) + ' · ' + (r.radiusKm || '?') + ' km' : esc(t('groupOnly'))) + '</span>';
+      var svar = '';
+      if(r.scope === 'hood'){
+        var resp = x ? (x.responses || []) : [];
+        svar = resp.length
+          ? '<div class="vb-hist">' + resp.map(function(s){
+              return '<div class="vb-resp"><b>' + esc(s.name) + '</b> · ' + esc(s.postnr + ' ' + s.place) +
+                ' · ca. ' + s.distKm + ' ' + esc(t('kmAway')) +
+                (s.tool ? '<div class="vb-resp-tool">' + ikon('skru',13) + ' ' + esc(t('canLendTool')) +
+                  ': «' + esc(s.tool) + '»</div>' : '') +
+                '<div class="vb-notes" style="margin-top:3px">' + esc(s.note) + '</div></div>';
+            }).join('') + '</div>'
+          : '<p class="vb-finetext">' + esc(t('noReplies')) + '</p>';
+      }
+      return '<article class="vb-card">' +
+        '<div class="vb-toolrow"><h3 class="vb-toolname" style="font-size:15px">«' + esc(r.text) + '»</h3>' + scopeChip + '</div>' +
+        '<div class="vb-req-meta">' + sw(p ? p.color : '#999') + ' ' + esc(p ? p.name : '?') + ' · ' + fmtDato(r.created) + '</div>' +
+        svar +
+        '<div class="vb-toolactions">' +
+          '<button class="vb-btn vb-dangertxt vb-small' + (st.bekreft === 'r' + r.id ? ' bekreft' : '') +
+            '" onclick="H.lukkEttersp(\'' + r.id + '\')">' +
+            (st.bekreft === 'r' + r.id ? esc(t('closeReqAsk')) : esc(t('closeReq'))) + '</button>' +
+        '</div>' +
+      '</article>';
+    }).join('');
+  }
+
+  var nearbyHtml = '';
+  if(onServer && hoodOn){
+    var nb = st.req.nearby || [];
+    nearbyHtml = '<h3 class="vb-sechead">' + esc(t('reqNearbyTitle')) + '</h3>' +
+      (nb.length
+        ? '<div class="vb-list">' + nb.map(function(r){
+            return '<article class="vb-card">' +
+              '<div class="vb-toolrow"><h3 class="vb-toolname" style="font-size:15px">«' + esc(r.text) + '»</h3></div>' +
+              '<div class="vb-req-meta">' + esc(r.name) + ' · ' + esc(r.postnr + ' ' + r.place) +
+                ' · ca. ' + r.distKm + ' ' + esc(t('kmAway')) + ' · ' + fmtDato(r.created) + '</div>' +
+              '<div class="vb-toolactions"><button class="vb-btn vb-primary vb-small" ' +
+                'onclick="H.svarEttersp(\'' + r.id + '\')">' + esc(t('canLend')) + '</button></div>' +
+            '</article>';
+          }).join('') + '</div>'
+        : '<p class="vb-muted">' + esc(t('reqNearbyNone')) + '</p>');
+  }
+
+  return '<p class="vb-muted vb-mb" style="margin-top:4px">' + esc(t('reqIntro')) + '</p>' +
+    toggle +
+    '<h3 class="vb-sechead">' + esc(t('reqMineTitle')) + '</h3>' +
+    '<div class="vb-list">' + mineHtml + '</div>' +
+    nearbyHtml;
 }
 
 /* ----- People tab ----- */
@@ -1444,41 +2144,46 @@ function htmlPersoner(byId, meg){
     return '<article class="vb-card">' +
       '<div class="vb-toolrow">' +
         '<h3 class="vb-toolname">' + sw(p.color) + ' ' + esc(p.name) +
-          (p.id === meg ? '<span class="vb-you">(deg)</span>' : '') + '</h3>' +
-        '<button class="vb-iconbtn" aria-label="Rediger" onclick="H.redigerPerson(\'' + p.id + '\')">' +
+          (p.id === meg ? '<span class="vb-you">' + esc(t('youTag')) + '</span>' : '') + '</h3>' +
+        '<button class="vb-iconbtn" aria-label="' + esc(t('edit')) + '" onclick="H.redigerPerson(\'' + p.id + '\')">' +
           ikon('blyant',17) + '</button>' +
       '</div>' +
-      (p.address ? '<div class="vb-addr">' + ikon('pin',14) + ' ' + esc(p.address) + '</div>' : '') +
-      '<div class="vb-counts">Eier ' + eier.length + ' · har ' + harLaant.length + ' lånt</div>' +
-      (harLaant.length ? '<p class="vb-notes">Har lånt: ' + harLaant.map(function(t){
-          var e = byId[t.ownerId];
-          return esc(t.name) + ' (fra ' + esc(e ? e.name : '?') + ')';
+      (p.address ? '<div class="vb-addr">' + ikon('pin',14) + ' ' + esc(p.address) +
+        (p.postnr ? ', ' + esc(p.postnr) : '') + '</div>' : '') +
+      '<div class="vb-counts">' + esc(tf('ownsCount', eier.length, harLaant.length)) + '</div>' +
+      (harLaant.length ? '<p class="vb-notes">' + esc(t('borrowedList')) + ': ' + harLaant.map(function(v){
+          var e = byId[v.ownerId];
+          return esc(v.name) + ' (' + esc(t('fromWho')) + ' ' + esc(e ? e.name : '?') + ')';
         }).join(', ') + '</p>' : '') +
-      (laantBort.length ? '<p class="vb-notes">Lånt bort: ' + laantBort.map(function(t){
-          var h = byId[t.holderId];
-          return esc(t.name) + ' → ' + esc(h ? h.name : '?');
+      (laantBort.length ? '<p class="vb-notes">' + esc(t('lentOutList')) + ': ' + laantBort.map(function(v){
+          return esc(v.name) + ' → ' + esc(holderNavn(v, byId));
         }).join(', ') + '</p>' : '') +
     '</article>';
   }).join('');
   return '<div class="vb-list">' + kort +
-    '<button class="vb-btn vb-ghost" onclick="H.nyPerson()">' + ikon('pluss',16) + ' Legg til person</button></div>';
+    '<button class="vb-btn vb-ghost" onclick="H.nyPerson()">' + ikon('pluss',16) + ' ' +
+      esc(t('addPersonBtn')) + '</button></div>';
 }
 
 /* ----- Log tab ----- */
 function htmlLogg(byId){
   var logg = (st.data.log || []).slice().reverse();
-  var n = function(id){ var p = byId[id]; return esc(p ? p.name : (st.lang==='en'?'unknown':'ukjent')); };
+  var n = function(id, e){
+    if(id === EXT) return esc((e && e.extName) || t('extTag'));
+    var p = byId[id];
+    return esc(p ? p.name : (st.lang==='en'?'unknown':'ukjent'));
+  };
   var liste = logg.length === 0
     ? '<div class="vb-empty"><div class="vb-empty-ico">' + ikon('klokke',26) +
-      '</div><p><b>' + (st.lang==='en'?'No events yet':'Ingen hendelser ennå') + '</b><br>' +
-      (st.lang==='en'?'Loans and new tools show up here.':'Utlån og nye verktøy havner her.') + '</p></div>'
+      '</div><p><b>' + esc(t('logEmpty')) + '</b><br>' + esc(t('logEmptyHint')) + '</p></div>'
     : '<div class="vb-loglist">' + logg.map(function(e){
         var tekst = '';
         if(e.t === 'ny') tekst = (e.by && byId[e.by] ? n(e.by) + (st.lang==='en'?' added ':' la til ') : (st.lang==='en'?'Added ':'La til ')) + '«' + esc(e.tool) + '»';
-        if(e.t === 'laan') tekst = '«' + esc(e.tool) + '»: ' + n(e.from) + ' → ' + n(e.to);
-        if(e.t === 'retur') tekst = '«' + esc(e.tool) + '» ' + (st.lang==='en'?'returned to ':'levert tilbake til ') + n(e.to);
+        if(e.t === 'laan') tekst = '«' + esc(e.tool) + '»: ' + n(e.from, e) + ' → ' + n(e.to, e);
+        if(e.t === 'retur') tekst = '«' + esc(e.tool) + '» ' + (st.lang==='en'?'returned to ':'levert tilbake til ') + n(e.to, e);
         if(e.t === 'slett') tekst = '«' + esc(e.tool) + '» ' + (st.lang==='en'?'was deleted':'ble slettet');
         if(e.t === 'pers') tekst = esc(e.name) + (st.lang==='en'?' joined':' ble med');
+        if(e.t === 'ettersp') tekst = n(e.by) + ' ' + esc(t('looksFor')) + ': «' + esc(e.text) + '»';
         return '<div class="vb-logrow t-' + esc(e.t) + '"><span class="vb-logtext">' + tekst +
           '</span><span class="vb-logdate">' + fmtDato(e.date) + '</span></div>';
       }).join('') + '</div>';
@@ -1511,6 +2216,21 @@ function ark(tittel, indre, kanLukke){
     '</div></div>';
 }
 
+/* A sheet that fails to build must not take the app down with it: without
+   this, the exception escapes render(), #app is never reassigned, and every
+   later render throws again on the same modal – the app looks frozen and only
+   a reload helps. Drop the sheet, keep the app alive, and say so. */
+function trygtModal(byId, megGyldig){
+  try{
+    return htmlModal(byId, megGyldig);
+  }catch(e){
+    if(window.console && console.error) console.error('modal', e);
+    st.modal = null;
+    setTimeout(function(){ toast(t('sheetFail')); }, 0);
+    return '';
+  }
+}
+
 function htmlModal(byId, megGyldig){
   var people = st.data.people || [];
   var tools = st.data.tools || [];
@@ -1529,49 +2249,53 @@ function htmlModal(byId, megGyldig){
     }).join('');
     var leggTil = m.leggTil
       ? '<div class="vb-mt">' +
-          felt('Navn', '<input class="vb-inp" id="m-navn">') +
-          felt('Adresse', '<input class="vb-inp" id="m-adr">') +
-          '<button class="vb-btn vb-primary" onclick="H.leggMegTil()">Legg til og velg meg</button>' +
+          felt(esc(t('name')), '<input class="vb-inp" id="m-navn">') +
+          felt(esc(t('address')), '<input class="vb-inp" id="m-adr">') +
+          '<button class="vb-btn vb-primary" onclick="H.leggMegTil()">' + esc(t('addAndPick')) + '</button>' +
         '</div>'
-      : '<button class="vb-btn vb-ghost vb-mt" onclick="H.visLeggMeg()">Jeg står ikke på lista – legg meg til</button>';
-    return ark('Hvem er du?',
-      '<p class="vb-muted vb-mb">Valget lagres bare på denne enheten, slik at knappene passer deg.</p>' +
+      : '<button class="vb-btn vb-ghost vb-mt" onclick="H.visLeggMeg()">' + esc(t('notOnList')) + '</button>';
+    return ark(esc(t('whoAreYou')),
+      '<p class="vb-muted vb-mb">' + esc(t('pickPersonLong')) + '</p>' +
       '<div class="vb-pickgrid">' + valg + '</div>' + leggTil,
       !m.tvang);
   }
 
   if(m.type === 'verktoy'){
-    var t = m.id ? tools.find(function(x){ return x.id === m.id; }) : null;
-    if(m.id && !t) return '';
+    // Named vt, not t: a "var t" here would shadow the i18n function t()
+    // for the whole of htmlModal (var hoisting) and break the other sheets.
+    var vt = m.id ? tools.find(function(x){ return x.id === m.id; }) : null;
+    if(m.id && !vt) return '';
     var meg = hentMeg();
-    var valgtEier = t ? t.ownerId : (megGyldig ? meg : (people[0] && people[0].id));
+    var valgtEier = vt ? vt.ownerId : (megGyldig ? meg : (people[0] && people[0].id));
+    var valgtType = (typeFinn(vt ? vt.type : '') || TYPER[0]).k;
     var typeValg = TYPER.map(function(x){
-      return '<option value="' + esc(x) + '"' + ((t ? t.type : TYPER[0]) === x ? ' selected' : '') + '>' + esc(x) + '</option>';
+      return '<option value="' + esc(x.k) + '"' + (valgtType === x.k ? ' selected' : '') + '>' +
+        esc(x[st.lang === 'en' ? 'en' : 'nb']) + '</option>';
     }).join('');
     var eierValg = people.map(function(p){
       return '<option value="' + p.id + '"' + (valgtEier === p.id ? ' selected' : '') + '>' + esc(p.name) + '</option>';
     }).join('');
-    var slett = t
-      ? '<button class="vb-btn vb-dangertxt' + (st.bekreft === 'v' + t.id ? ' bekreft' : '') +
-          '" onclick="H.slettVerktoy(\'' + t.id + '\')">' +
-          (st.bekreft === 'v' + t.id ? 'Trykk igjen for å slette' : 'Slett verktøyet') + '</button>'
+    var slett = vt
+      ? '<button class="vb-btn vb-dangertxt' + (st.bekreft === 'v' + vt.id ? ' bekreft' : '') +
+          '" onclick="H.slettVerktoy(\'' + vt.id + '\')">' +
+          esc(st.bekreft === 'v' + vt.id ? t('tapDelete') : t('deleteTool')) + '</button>'
       : '';
-    var bildePreview = t && t.img
-      ? '<img id="f-img-preview" src="' + esc(t.img) + '" style="width:80px;height:80px;object-fit:cover;border-radius:10px;margin-top:6px;display:block">'
+    var bildePreview = vt && vt.img
+      ? '<img id="f-img-preview" src="' + esc(vt.img) + '" style="width:80px;height:80px;object-fit:cover;border-radius:10px;margin-top:6px;display:block">'
       : '<img id="f-img-preview" hidden style="width:80px;height:80px;object-fit:cover;border-radius:10px;margin-top:6px;display:block">';
-    var bildeFjern = (t && t.img) || st._tempImg
-      ? '<button type="button" class="vb-btn vb-ghost vb-small" style="margin-top:6px" onclick="H.fjernBilde()">Fjern bilde</button>'
-      : '<button type="button" id="f-img-fjern" class="vb-btn vb-ghost vb-small" style="margin-top:6px" hidden onclick="H.fjernBilde()">Fjern bilde</button>';
-    return ark(t ? 'Rediger verktøy' : 'Nytt verktøy',
-      felt('Navn på verktøyet', '<input class="vb-inp" id="f-navn" placeholder="F.eks. Bosch drill 18V" value="' +
-        esc(t ? t.name : '') + '">') +
-      felt('Type', '<select class="vb-inp" id="f-type">' + typeValg + '</select>') +
-      felt('Eier', '<select class="vb-inp" id="f-eier">' + eierValg + '</select>') +
-      felt('Bilde (valgfritt)', '<input type="file" id="f-img" accept="image/*" class="vb-inp" onchange="H.forhandsvisBilde(this)">' + bildePreview + bildeFjern) +
-      felt('Notater (valgfritt)', '<textarea class="vb-inp" id="f-notat" rows="2" ' +
-        'placeholder="Batteri, tilbehør, tilstand …">' + esc(t ? t.notes : '') + '</textarea>') +
+    var bildeFjern = (vt && vt.img) || st._tempImg
+      ? '<button type="button" class="vb-btn vb-ghost vb-small" style="margin-top:6px" onclick="H.fjernBilde()">' + esc(t('photoRemove')) + '</button>'
+      : '<button type="button" id="f-img-fjern" class="vb-btn vb-ghost vb-small" style="margin-top:6px" hidden onclick="H.fjernBilde()">' + esc(t('photoRemove')) + '</button>';
+    return ark(esc(vt ? t('editTool') : t('newTool')),
+      felt(esc(t('toolName')), '<input class="vb-inp" id="f-navn" placeholder="' + esc(t('toolNamePh')) +
+        '" value="' + esc(vt ? vt.name : '') + '">') +
+      felt(esc(t('typeLbl')), '<select class="vb-inp" id="f-type">' + typeValg + '</select>') +
+      felt(esc(t('owner')), '<select class="vb-inp" id="f-eier">' + eierValg + '</select>') +
+      felt(esc(t('photoLbl')), '<input type="file" id="f-img" accept="image/*" class="vb-inp" onchange="H.forhandsvisBilde(this)">' + bildePreview + bildeFjern) +
+      felt(esc(t('notesLbl')), '<textarea class="vb-inp" id="f-notat" rows="2" ' +
+        'placeholder="' + esc(t('notesPh')) + '">' + esc(vt ? vt.notes : '') + '</textarea>') +
       '<div class="vb-sheet-actions">' +
-        '<button class="vb-btn vb-primary" onclick="H.lagreVerktoy()">Lagre</button>' + slett +
+        '<button class="vb-btn vb-primary" onclick="H.lagreVerktoy()">' + esc(t('save')) + '</button>' + slett +
       '</div>');
   }
 
@@ -1582,19 +2306,34 @@ function htmlModal(byId, megGyldig){
     var exclude = tls.length === 1 ? tls[0].holderId : null;
     var andre = people.filter(function(p){ return p.id !== exclude; });
     var title = tls.length === 1
-      ? (st.lang==='en' ? ('Who gets «' + tls[0].name + '»?') : ('Hvem får «' + tls[0].name + '»?'))
-      : (st.lang==='en' ? ('Loan ' + tls.length + ' tools to…') : ('Lån ut ' + tls.length + ' verktøy til…'));
+      ? tf('whoGets', tls[0].name)
+      : tf('loanMany', tls.length);
     var knapper = andre.length
       ? andre.map(function(p){
           return '<button class="vb-pick" onclick="H.velgLaaner(null,\'' + p.id + '\')">' + sw(p.color) +
             '<span class="vb-pick-name">' + esc(p.name) + '</span>' +
             (p.address ? '<span class="vb-pick-addr">' + esc(p.address) + '</span>' : '') + '</button>';
         }).join('')
-      : '<p class="vb-muted">' + (st.lang==='en'?'No other people yet.':'Ingen andre personer å låne ut til ennå.') + '</p>';
+      : '<p class="vb-muted">' + esc(t('noOthers')) + '</p>';
     return ark(esc(title),
-      '<p class="vb-muted vb-mb">' + (st.lang==='en'?'Tools move to the person you pick.':'Verktøyet flyttes til personen du velger.') + '</p>' +
-      (tls.length > 1 ? '<p class="vb-notes vb-mb">' + tls.map(function(t){ return esc(t.name); }).join(', ') + '</p>' : '') +
-      '<div class="vb-pickgrid">' + knapper + '</div>');
+      '<p class="vb-muted vb-mb">' + esc(t('toolsMove')) + '</p>' +
+      (tls.length > 1 ? '<p class="vb-notes vb-mb">' + tls.map(function(x){ return esc(x.name); }).join(', ') + '</p>' : '') +
+      felt(esc(t('due')), '<input class="vb-inp" id="l-due" type="date" min="' +
+        new Date().toISOString().slice(0,10) + '">') +
+      '<p class="vb-finetext" style="margin-top:-6px">' + esc(t('dueHint')) + '</p>' +
+      '<div id="l-pick" class="vb-mt">' +
+        '<div class="vb-pickgrid">' + knapper + '</div>' +
+        '<button class="vb-btn vb-ghost vb-mt" onclick="H.visEksternt()">' +
+          ikon('pin',16) + ' ' + esc(t('extLoan')) + '</button>' +
+      '</div>' +
+      '<div id="l-ext" hidden class="vb-mt">' +
+        '<p class="vb-finetext" style="margin-top:0">' + esc(t('extLoanHint')) + '</p>' +
+        felt(esc(t('extName')), '<input class="vb-inp" id="l-extnavn" maxlength="60" placeholder="' +
+          esc(t('extNamePh')) + '">') +
+        felt(esc(t('extNote')), '<textarea class="vb-inp" id="l-extnotat" rows="2" maxlength="300" placeholder="' +
+          esc(t('extNotePh')) + '"></textarea>') +
+        '<button class="vb-btn vb-primary" onclick="H.laanUtEksternt()">' + esc(t('extRegister')) + '</button>' +
+      '</div>');
   }
 
   if(m.type === 'historikk'){
@@ -1603,18 +2342,89 @@ function htmlModal(byId, megGyldig){
     var rows = (st.data.log || []).filter(function(e){
       return e.toolId === th.id || e.tool === th.name;
     }).slice().reverse();
-    var n2 = function(id){ var p = byId[id]; return esc(p ? p.name : '?'); };
+    var n2 = function(id, e){
+      if(id === EXT) return esc((e && e.extName) || t('extTag'));
+      var p = byId[id];
+      return esc(p ? p.name : '?');
+    };
     var body = rows.length === 0
       ? '<p class="vb-muted">' + esc(t('noHistory')) + '</p>'
       : '<div class="vb-hist">' + rows.map(function(e){
           var tekst = '';
-          if(e.t === 'ny') tekst = (st.lang==='en'?'Added':'Lagt til');
-          if(e.t === 'laan') tekst = n2(e.from) + ' → ' + n2(e.to);
-          if(e.t === 'retur') tekst = (st.lang==='en'?'Returned to ':'Tilbake til ') + n2(e.to);
-          if(e.t === 'slett') tekst = (st.lang==='en'?'Deleted':'Slettet');
+          if(e.t === 'ny') tekst = esc(t('addedShort'));
+          if(e.t === 'laan') tekst = n2(e.from, e) + ' → ' + n2(e.to, e);
+          if(e.t === 'retur') tekst = (st.lang==='en'?'Returned to ':'Tilbake til ') + n2(e.to, e);
+          if(e.t === 'slett') tekst = esc(t('deleted'));
           return '<div class="vb-hist-row"><span>' + tekst + '</span><span class="vb-logdate">' + fmtDato(e.date) + '</span></div>';
         }).join('') + '</div>';
     return ark(esc(t('history')) + ' – ' + esc(th.name), body);
+  }
+
+  if(m.type === 'ettersp'){
+    var megP = megPerson();
+    var harNr = megP && gyldigPostnr(megP.postnr);
+    var radiusValg = [5, 10, 25, 50].map(function(km){
+      return '<option value="' + km + '"' + (km === 10 ? ' selected' : '') + '>' + km + ' km</option>';
+    }).join('');
+    var hoodBoks = '';
+    if(Lager.mode === 'server'){
+      hoodBoks =
+        felt(esc(t('reqScope')),
+          '<div class="vb-radios">' +
+            '<label><input type="radio" name="r-scope" value="group" checked onchange="H.reqScope(this.value)"> ' +
+              esc(t('reqScopeGroup')) + '</label>' +
+            '<label><input type="radio" name="r-scope" value="hood" onchange="H.reqScope(this.value)"> ' +
+              esc(t('reqScopeHood')) + '</label>' +
+          '</div>') +
+        '<p class="vb-finetext" style="margin-top:-6px">' + esc(t('reqScopeHint')) + '</p>' +
+        '<div id="r-hood" hidden class="vb-mt">' +
+          felt(esc(t('reqRadius')), '<select class="vb-inp" id="r-radius">' + radiusValg + '</select>') +
+          (harNr
+            ? '<p class="vb-muted vb-mb">' + esc(t('reqFrom')) + ': <b>' +
+                esc((megP.address ? megP.address + ', ' : '') + megP.postnr) + '</b> (' + esc(t('reqFromEdit')) + ')</p>'
+            : felt(esc(t('postnr')), '<input class="vb-inp" id="r-postnr" inputmode="numeric" maxlength="4" placeholder="4630">') +
+              '<p class="vb-finetext" style="margin-top:-6px">' + esc(t('reqNeedPostnr')) + '</p>') +
+          '<p class="vb-finetext"><b>' + esc(t('reqPickup')) + '</b> ' + esc(t('reqPrivacy')) + '</p>' +
+        '</div>';
+    }
+    return ark(esc(t('newReq')),
+      felt(esc(t('reqWhat')), '<textarea class="vb-inp" id="r-text" rows="2" maxlength="280" placeholder="' +
+        esc(t('reqPh')) + '"></textarea>') +
+      hoodBoks +
+      '<div class="vb-sheet-actions">' +
+        '<button class="vb-btn vb-primary" onclick="H.lagreEttersp()">' + esc(t('publish')) + '</button>' +
+      '</div>');
+  }
+
+  if(m.type === 'ettersvar'){
+    var rq = (st.req.nearby || []).find(function(x){ return x.id === m.id; });
+    if(!rq) return '';
+    var megP2 = megPerson();
+    var harNr2 = megP2 && gyldigPostnr(megP2.postnr);
+    // Offer the tools that are actually at home right now
+    var mine = tools.filter(function(x){ return erHjemme(x); })
+      .sort(function(a, b){ return a.name.localeCompare(b.name, st.lang==='en'?'en':'nb'); });
+    var toolValg = mine.length
+      ? felt(esc(t('respTool')), '<select class="vb-inp" id="s-tool">' +
+          '<option value="">' + esc(t('respToolNone')) + '</option>' +
+          mine.map(function(x){
+            return '<option value="' + esc(x.name) + '">' + esc(x.name) + '</option>';
+          }).join('') + '</select>')
+      : '';
+
+    return ark(esc(t('canLend')),
+      '<p class="vb-muted vb-mb">«' + esc(rq.text) + '» – ' + esc(rq.name) + ' · ' +
+        esc(rq.postnr + ' ' + rq.place) + ' · ca. ' + rq.distKm + ' ' + esc(t('kmAway')) + '</p>' +
+      '<p class="vb-finetext vb-mb">' + esc(t('respHint')) + '</p>' +
+      toolValg +
+      felt(esc(t('yourReply')), '<textarea class="vb-inp" id="s-note" rows="3" maxlength="500" placeholder="' +
+        esc(t('respPh')) + '"></textarea>') +
+      (harNr2 ? '' :
+        felt(esc(t('postnr')), '<input class="vb-inp" id="s-postnr" inputmode="numeric" maxlength="4" placeholder="4630">')) +
+      '<p class="vb-finetext">' + esc(t('respShared')) + '</p>' +
+      '<div class="vb-sheet-actions">' +
+        '<button class="vb-btn vb-primary" onclick="H.sendSvar()">' + esc(t('sendReply')) + '</button>' +
+      '</div>');
   }
 
   if(m.type === 'person'){
@@ -1624,17 +2434,20 @@ function htmlModal(byId, megGyldig){
     var slettP = '';
     if(p){
       slettP = harVerktoy
-        ? '<button class="vb-btn vb-dangertxt" disabled>Kan ikke fjernes – flytt eller slett verktøyene først</button>'
+        ? '<button class="vb-btn vb-dangertxt" disabled>' + esc(t('cantRemove')) + '</button>'
         : '<button class="vb-btn vb-dangertxt' + (st.bekreft === 'p' + p.id ? ' bekreft' : '') +
             '" onclick="H.slettPerson(\'' + p.id + '\')">' +
-            (st.bekreft === 'p' + p.id ? 'Trykk igjen for å fjerne' : 'Fjern personen') + '</button>';
+            esc(st.bekreft === 'p' + p.id ? t('tapRemove') : t('removePerson')) + '</button>';
     }
-    return ark(p ? 'Rediger person' : 'Ny person',
-      felt('Navn', '<input class="vb-inp" id="p-navn" value="' + esc(p ? p.name : '') + '">') +
-      felt('Adresse', '<input class="vb-inp" id="p-adr" placeholder="Gate og nummer" value="' +
-        esc(p ? p.address : '') + '">') +
+    return ark(esc(p ? t('editPerson') : t('newPerson')),
+      felt(esc(t('name')), '<input class="vb-inp" id="p-navn" value="' + esc(p ? p.name : '') + '">') +
+      felt(esc(t('address')), '<input class="vb-inp" id="p-adr" placeholder="' + esc(t('addressPh')) +
+        '" value="' + esc(p ? p.address : '') + '">') +
+      felt(esc(t('postnr')), '<input class="vb-inp" id="p-postnr" inputmode="numeric" maxlength="4" ' +
+        'placeholder="4630" value="' + esc(p && p.postnr ? p.postnr : '') + '">') +
+      '<p class="vb-finetext" style="margin-top:-6px">' + esc(t('reqPrivacy')) + '</p>' +
       '<div class="vb-sheet-actions">' +
-        '<button class="vb-btn vb-primary" onclick="H.lagrePerson()">Lagre</button>' + slettP +
+        '<button class="vb-btn vb-primary" onclick="H.lagrePerson()">' + esc(t('save')) + '</button>' + slettP +
       '</div>');
   }
 
@@ -1647,6 +2460,7 @@ render = function(){
   var active = document.activeElement;
   var wasModal = !!st.modal;
   _render();
+  visToast();   // survives the DOM rebuild
   if(st.data && st.visning === 'verktoy') visListe();
   if(st.modal){
     var sheet = document.querySelector('.vb-sheet');
@@ -1669,9 +2483,14 @@ render = function(){
 (async function(){
   document.title = CONFIG.name;
   try{
+    // An explicit NO/EN choice always beats what the browser asked for
     var savedLang = localStorage.getItem(CONFIG.storageKey+':lang');
     if(savedLang === 'nb' || savedLang === 'en') st.lang = savedLang;
   }catch(e){}
+  document.documentElement.lang = st.lang === 'en' ? 'en' : 'nb';
+  // The boot screen is static markup, so translate it before the first await
+  var bootTekst = document.querySelector('#app .vb-muted');
+  if(bootTekst) bootTekst.textContent = t('loading');
 
   // Escape closes open modal; simple focus trap inside sheet
   document.addEventListener('keydown', function(e){
@@ -1698,6 +2517,8 @@ render = function(){
 
   st.data = await initLager();
   st.klar = true;
+  if(st.data && Lager.mode === 'server')
+    fetchReq().then(function(endret){ if(endret) render(); });
   if(!st.data){
     if(Lager.mode === 'server' && !Lager.gid){
       st.landing = true;   // front page: open a group with a PIN, or start a new one
@@ -1718,7 +2539,10 @@ render = function(){
       st.data = null; st.landing = true; render();
       return;
     }
-    if(d && JSON.stringify(d) !== JSON.stringify(st.data)){ st.data = d; render(); }
+    var endretData = d && JSON.stringify(d) !== JSON.stringify(st.data);
+    if(endretData) st.data = d;
+    var endretReq = await fetchReq();
+    if(endretData || endretReq) render();
   }
   document.addEventListener('visibilitychange', function(){
     if(document.visibilityState === 'visible') stille();
