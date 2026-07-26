@@ -94,7 +94,11 @@ Run through this before tagging a release or pushing to a public repo.
 - [ ] Grid shows 2–3 columns on wide screens
 
 ## Language & contrast
-- [ ] A first-time visitor (cleared storage) gets English
+- [ ] A first-time visitor (cleared storage) gets the browser's language: `nb`/`nn`/`no` → Norwegian, anything else → English
+- [ ] Browser preferring `en` before `nb` gets English (order is respected)
+- [ ] Detection is never stored – only an explicit NO/EN click is
+- [ ] An explicit choice survives a reload even when the browser asks for the other language
+- [ ] `CONFIG.autoLang = false` falls back to `CONFIG.defaultLang`
 - [ ] NO/EN switch shows both options; the active one is filled in and has `aria-pressed="true"`
 - [ ] Switching updates every tab, modal, toast and tool category
 - [ ] The choice survives reload, and `<html lang>` follows it

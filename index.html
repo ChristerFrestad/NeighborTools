@@ -342,7 +342,8 @@ var CONFIG = {
   shortName: 'NeighborTools',     // Short variant
   tagline: 'Shared tools with your neighbors – no login needed.',
   storageKey: 'neighbortools',    // Internal storage prefix (do not change after first use)
-  defaultLang: 'en',              // 'nb' or 'en' – the language a first-time visitor sees
+  autoLang: true,                 // Match the browser's language on first visit
+  defaultLang: 'en',              // Fallback when autoLang finds no match (or is off)
   longLoanDays: 14,               // highlight loans older than this
   // Optional default PIN (also settable in app setup / settings). Leave '' for no PIN.
   pin: ''
@@ -461,7 +462,8 @@ var I18N = {
     restoreAsk: 'Erstatt all data med denne sikkerhetskopien? Dette kan ikke angres.',
     restoreDone: 'Sikkerhetskopi gjenopprettet', fileFail: 'Kunne ikke lese filen',
     logEmpty: 'Ingen hendelser ennå', logEmptyHint: 'Utlån og nye verktøy havner her.',
-    deleted: 'Slettet', addedShort: 'Lagt til'
+    deleted: 'Slettet', addedShort: 'Lagt til',
+    sheetFail: 'Noe gikk galt – prøv igjen.'
   },
   en: {
     tools: 'Tools', people: 'People', log: 'Log',
@@ -574,7 +576,8 @@ var I18N = {
     restoreAsk: 'Replace all data with this backup? This cannot be undone.',
     restoreDone: 'Backup restored', fileFail: 'Could not read the file',
     logEmpty: 'No events yet', logEmptyHint: 'Loans and new tools show up here.',
-    deleted: 'Deleted', addedShort: 'Added'
+    deleted: 'Deleted', addedShort: 'Added',
+    sheetFail: 'Something went wrong – please try again.'
   }
 };
 /* t() with {0}/{1} placeholders filled in */
@@ -585,8 +588,30 @@ function tf(key){
   return s;
 }
 function t(key){
-  var lang = (st && st.lang) || CONFIG.defaultLang || 'nb';
-  return (I18N[lang] && I18N[lang][key]) || (I18N.nb[key]) || key;
+  var lang = (st && st.lang) || CONFIG.defaultLang || 'en';
+  return (I18N[lang] && I18N[lang][key]) || (I18N.en[key]) || key;
+}
+
+/* Language for a first-time visitor: the first of the browser's preferred
+   languages we actually speak, otherwise CONFIG.defaultLang. Only ever a
+   default – an explicit NO/EN choice is stored and always wins. */
+function fallbackSprak(){
+  return CONFIG.defaultLang === 'nb' ? 'nb' : 'en';
+}
+function oppdagSprak(){
+  if(!CONFIG.autoLang) return fallbackSprak();
+  try{
+    var liste = (navigator.languages && navigator.languages.length)
+      ? navigator.languages
+      : [navigator.language || navigator.userLanguage];
+    for(var i = 0; i < liste.length; i++){
+      // Compare the language subtag only: 'nb-NO' -> 'nb', 'en-GB' -> 'en'
+      var kode = String(liste[i] || '').toLowerCase().split('-')[0];
+      if(kode === 'nb' || kode === 'nn' || kode === 'no') return 'nb';
+      if(kode === 'en') return 'en';
+    }
+  }catch(e){}
+  return fallbackSprak();
 }
 
 var KEY = CONFIG.storageKey + ':data';
@@ -796,7 +821,7 @@ function setPinOk(ok){
 var st = {
   klar:false, data:null, visning:'verktoy', filter:'alle', sok:'',
   modal:null, lagrer:false, oppsett:null, bekreft:null,
-  lang: CONFIG.defaultLang || 'nb',
+  lang: oppdagSprak(),   // a stored choice replaces this during boot
   selected: {},
   pinOk: false,
   landing: false,     // front page: open an existing group or start a new one
@@ -1713,7 +1738,7 @@ function render(){
     '</nav>' +
     fab + bulk +
     '<div id="toast" class="vb-toast" hidden></div>' +
-    htmlModal(byId, megGyldig);
+    trygtModal(byId, megGyldig);
 
   if(st.lagrer) visLagrer(true);
 }
@@ -2191,6 +2216,21 @@ function ark(tittel, indre, kanLukke){
     '</div></div>';
 }
 
+/* A sheet that fails to build must not take the app down with it: without
+   this, the exception escapes render(), #app is never reassigned, and every
+   later render throws again on the same modal – the app looks frozen and only
+   a reload helps. Drop the sheet, keep the app alive, and say so. */
+function trygtModal(byId, megGyldig){
+  try{
+    return htmlModal(byId, megGyldig);
+  }catch(e){
+    if(window.console && console.error) console.error('modal', e);
+    st.modal = null;
+    setTimeout(function(){ toast(t('sheetFail')); }, 0);
+    return '';
+  }
+}
+
 function htmlModal(byId, megGyldig){
   var people = st.data.people || [];
   var tools = st.data.tools || [];
@@ -2443,10 +2483,14 @@ render = function(){
 (async function(){
   document.title = CONFIG.name;
   try{
+    // An explicit NO/EN choice always beats what the browser asked for
     var savedLang = localStorage.getItem(CONFIG.storageKey+':lang');
     if(savedLang === 'nb' || savedLang === 'en') st.lang = savedLang;
   }catch(e){}
   document.documentElement.lang = st.lang === 'en' ? 'en' : 'nb';
+  // The boot screen is static markup, so translate it before the first await
+  var bootTekst = document.querySelector('#app .vb-muted');
+  if(bootTekst) bootTekst.textContent = t('loading');
 
   // Escape closes open modal; simple focus trap inside sheet
   document.addEventListener('keydown', function(e){

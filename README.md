@@ -32,8 +32,9 @@ Built for real life: housing co-ops, friends who share gear, tool libraries, cab
 - Backup download / restore + **CSV export and import**
 - **Several tool groups on one server** – the PIN is the key to the group
 - PIN checked server-side and stored hashed (PBKDF2)
-- **Norwegian / English** – full UI in both languages, English by default,
-  switched with a NO/EN control that shows which one is active
+- **Norwegian / English** – full UI in both languages. A first-time visitor
+  gets the language their browser asks for (English if it asks for neither);
+  the NO/EN control shows which one is active, and an explicit choice sticks
 - Dark mode (system)
 - Installable PWA (Add to Home Screen)
 - Store-like **responsive grid**
@@ -118,7 +119,8 @@ var CONFIG = {
   shortName: 'NeighborTools',
   tagline: 'Shared tools with your neighbors – no login needed.',
   storageKey: 'neighbortools',
-  defaultLang: 'en',   // 'en' or 'nb' – what a first-time visitor sees
+  autoLang: true,      // match the browser's language on the first visit
+  defaultLang: 'en',   // fallback when autoLang finds no match (or is off)
   longLoanDays: 14,
   pin: ''   // only used without a server (offline / artifact mode)
 };
