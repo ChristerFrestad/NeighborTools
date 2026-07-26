@@ -1541,35 +1541,35 @@ function htmlModal(byId, megGyldig){
   }
 
   if(m.type === 'verktoy'){
-    var t = m.id ? tools.find(function(x){ return x.id === m.id; }) : null;
-    if(m.id && !t) return '';
+    var vt = m.id ? tools.find(function(x){ return x.id === m.id; }) : null;
+    if(m.id && !vt) return '';
     var meg = hentMeg();
-    var valgtEier = t ? t.ownerId : (megGyldig ? meg : (people[0] && people[0].id));
+    var valgtEier = vt ? vt.ownerId : (megGyldig ? meg : (people[0] && people[0].id));
     var typeValg = TYPER.map(function(x){
-      return '<option value="' + esc(x) + '"' + ((t ? t.type : TYPER[0]) === x ? ' selected' : '') + '>' + esc(x) + '</option>';
+      return '<option value="' + esc(x) + '"' + ((vt ? vt.type : TYPER[0]) === x ? ' selected' : '') + '>' + esc(x) + '</option>';
     }).join('');
     var eierValg = people.map(function(p){
       return '<option value="' + p.id + '"' + (valgtEier === p.id ? ' selected' : '') + '>' + esc(p.name) + '</option>';
     }).join('');
-    var slett = t
-      ? '<button class="vb-btn vb-dangertxt' + (st.bekreft === 'v' + t.id ? ' bekreft' : '') +
-          '" onclick="H.slettVerktoy(\'' + t.id + '\')">' +
-          (st.bekreft === 'v' + t.id ? 'Trykk igjen for å slette' : 'Slett verktøyet') + '</button>'
+    var slett = vt
+      ? '<button class="vb-btn vb-dangertxt' + (st.bekreft === 'v' + vt.id ? ' bekreft' : '') +
+          '" onclick="H.slettVerktoy(\'' + vt.id + '\')">' +
+          (st.bekreft === 'v' + vt.id ? 'Trykk igjen for å slette' : 'Slett verktøyet') + '</button>'
       : '';
-    var bildePreview = t && t.img
-      ? '<img id="f-img-preview" src="' + esc(t.img) + '" style="width:80px;height:80px;object-fit:cover;border-radius:10px;margin-top:6px;display:block">'
+    var bildePreview = vt && vt.img
+      ? '<img id="f-img-preview" src="' + esc(vt.img) + '" style="width:80px;height:80px;object-fit:cover;border-radius:10px;margin-top:6px;display:block">'
       : '<img id="f-img-preview" hidden style="width:80px;height:80px;object-fit:cover;border-radius:10px;margin-top:6px;display:block">';
-    var bildeFjern = (t && t.img) || st._tempImg
+    var bildeFjern = (vt && vt.img) || st._tempImg
       ? '<button type="button" class="vb-btn vb-ghost vb-small" style="margin-top:6px" onclick="H.fjernBilde()">Fjern bilde</button>'
       : '<button type="button" id="f-img-fjern" class="vb-btn vb-ghost vb-small" style="margin-top:6px" hidden onclick="H.fjernBilde()">Fjern bilde</button>';
-    return ark(t ? 'Rediger verktøy' : 'Nytt verktøy',
+    return ark(vt ? 'Rediger verktøy' : 'Nytt verktøy',
       felt('Navn på verktøyet', '<input class="vb-inp" id="f-navn" placeholder="F.eks. Bosch drill 18V" value="' +
-        esc(t ? t.name : '') + '">') +
+        esc(vt ? vt.name : '') + '">') +
       felt('Type', '<select class="vb-inp" id="f-type">' + typeValg + '</select>') +
       felt('Eier', '<select class="vb-inp" id="f-eier">' + eierValg + '</select>') +
       felt('Bilde (valgfritt)', '<input type="file" id="f-img" accept="image/*" class="vb-inp" onchange="H.forhandsvisBilde(this)">' + bildePreview + bildeFjern) +
       felt('Notater (valgfritt)', '<textarea class="vb-inp" id="f-notat" rows="2" ' +
-        'placeholder="Batteri, tilbehør, tilstand …">' + esc(t ? t.notes : '') + '</textarea>') +
+        'placeholder="Batteri, tilbehør, tilstand …">' + esc(vt ? vt.notes : '') + '</textarea>') +
       '<div class="vb-sheet-actions">' +
         '<button class="vb-btn vb-primary" onclick="H.lagreVerktoy()">Lagre</button>' + slett +
       '</div>');
