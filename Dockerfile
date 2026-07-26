@@ -3,7 +3,8 @@ FROM python:3.12-slim
 WORKDIR /app
 
 # App is a single index.html + server + PWA files
-COPY server.py index.html manifest.webmanifest sw.js ./
+# postnummer.json: postal-code coordinates for neighborhood requests
+COPY server.py index.html manifest.webmanifest sw.js postnummer.json ./
 
 # Data lives here (mounted as volume in Portainer)
 RUN mkdir -p /data

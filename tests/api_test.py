@@ -142,6 +142,84 @@ def main():
     assert code == 404, code
     print("OK unknown group / traversal")
 
+    # ---- Neighborhood requests -------------------------------------------
+    # Group 1 (Kristiansand) asks within 10 km; group 2 (also Kristiansand)
+    # opts in and replies; a group that has not opted in sees nothing.
+
+    # Validation first
+    code, err = req("POST", f"/api/groups/{gid}/requests",
+                    {"text": "Tile cutter", "name": "Ada", "postnr": "9999",
+                     "radiusKm": 10}, pin="123456")
+    assert code == 400 and err.get("error") == "unknown postnr", (code, err)
+    code, err = req("POST", f"/api/groups/{gid}/requests",
+                    {"text": "Tile cutter", "name": "Ada", "postnr": "4630",
+                     "radiusKm": 7}, pin="123456")
+    assert code == 400 and err.get("error") == "invalid radius", (code, err)
+    code, _ = req("POST", f"/api/groups/{gid}/requests",
+                  {"text": "x", "name": "Ada", "postnr": "4630", "radiusKm": 10})
+    assert code == 401, code
+    print("OK request validation")
+
+    code, cr = req("POST", f"/api/groups/{gid}/requests",
+                   {"text": "Tile cutter for the weekend", "name": "Ada",
+                    "postnr": "4630", "radiusKm": 10}, pin="123456")
+    assert code == 201 and cr["request"]["id"], cr
+    assert "lat" not in cr["request"] and "gid" not in cr["request"], cr
+    rid = cr["request"]["id"]
+    print("OK create request")
+
+    # Group 2 has not opted in: sees nothing
+    code, lst = req("GET", f"/api/groups/{gid2}/requests", pin="4321")
+    assert code == 200 and lst["nearby"] == [] and lst["mine"] == [], lst
+    print("OK neighborhood is opt-in")
+
+    # Group 2 opts in with a member postal code ~2 km away
+    code, d4 = req("GET", f"/api/groups/{gid2}/data", pin="4321")
+    g2 = d4["data"]
+    g2["people"][0]["postnr"] = "4633"
+    g2["settings"] = {"neighborhood": True}
+    code, _ = req("POST", f"/api/groups/{gid2}/data",
+                  {"rev": g2["rev"], "data": g2}, pin="4321")
+    assert code == 200, code
+    code, lst = req("GET", f"/api/groups/{gid2}/requests", pin="4321")
+    assert code == 200 and len(lst["nearby"]) == 1, lst
+    seen = lst["nearby"][0]
+    assert seen["id"] == rid and "gid" not in seen and "lat" not in seen, seen
+    assert seen["distKm"] <= 10 and seen["place"], seen
+    print("OK nearby matching within radius")
+
+    # Replying: own group is rejected, out-of-range is rejected
+    code, err = req("POST", f"/api/groups/{gid}/requests/{rid}/respond",
+                    {"note": "I have one", "name": "Bo", "postnr": "4630"},
+                    pin="123456")
+    assert code == 400 and err.get("error") == "own request", (code, err)
+    code, err = req("POST", f"/api/groups/{gid2}/requests/{rid}/respond",
+                    {"note": "Too far away", "name": "Cyd", "postnr": "0150"},
+                    pin="4321")
+    assert code == 403 and err.get("error") == "out of range", (code, err)
+    code, _ = req("POST", f"/api/groups/{gid2}/requests/{rid}/respond",
+                  {"note": "I have one – call 900 00 000", "name": "Cyd",
+                   "postnr": "4633", "tool": "Bosch tile cutter"}, pin="4321")
+    assert code == 201, code
+    print("OK reply")
+
+    # The requester's group sees the reply, including the offered tool
+    code, lst = req("GET", f"/api/groups/{gid}/requests", pin="123456")
+    assert code == 200 and len(lst["mine"]) == 1, lst
+    resp = lst["mine"][0]["responses"]
+    assert len(resp) == 1 and resp[0]["name"] == "Cyd" and resp[0]["distKm"] <= 10, resp
+    assert resp[0]["tool"] == "Bosch tile cutter", resp
+    print("OK reply visible to requester")
+
+    # Closing: only the origin group may close
+    code, _ = req("POST", f"/api/groups/{gid2}/requests/{rid}/close", pin="4321")
+    assert code == 403, code
+    code, _ = req("POST", f"/api/groups/{gid}/requests/{rid}/close", pin="123456")
+    assert code == 200, code
+    code, lst = req("GET", f"/api/groups/{gid2}/requests", pin="4321")
+    assert code == 200 and lst["nearby"] == [], lst
+    print("OK close request")
+
     for path in ["/", "/manifest.webmanifest", "/sw.js"]:
         urllib.request.urlopen(BASE + path)
     print("OK static")
