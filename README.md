@@ -1,4 +1,4 @@
-# NeighborTools
+# Neighbor-Tools
 
 **Keep track of shared tools – without spreadsheets, group chats, or accounts.**
 
@@ -39,6 +39,7 @@ Built for real life: housing co-ops, friends who share gear, tool libraries, cab
 - Installable PWA (Add to Home Screen)
 - Store-like **responsive grid**
 - Whitelabel via `CONFIG`
+- **Contribute** button in the header → opens this GitHub repo so anyone can improve the app
 - Docker / Portainer ready
 
 UI: Norwegian + English  
@@ -115,16 +116,19 @@ Edit the top of `index.html`:
 
 ```js
 var CONFIG = {
-  name: 'NeighborTools',
-  shortName: 'NeighborTools',
+  name: 'Neighbor-Tools',
+  shortName: 'Neighbor-Tools',
   tagline: 'Shared tools with your neighbors – no login needed.',
   storageKey: 'neighbortools',
   autoLang: true,      // match the browser's language on the first visit
   defaultLang: 'en',   // fallback when autoLang finds no match (or is off)
   longLoanDays: 14,
-  pin: ''   // only used without a server (offline / artifact mode)
+  pin: '',             // only used without a server (offline / artifact mode)
+  githubUrl: 'https://github.com/ChristerFrestad/NeighborTools'
 };
 ```
+
+The logo and page title update automatically from `CONFIG.name`.
 
 ---
 
