@@ -87,6 +87,7 @@ var I18N = {
     typeHint: 'Ser ut som {0}',
     typeHintUse: 'Bruk',
     theme: 'Utseende', themeSystem: 'System', themeLight: 'Lys', themeDark: 'Mørk',
+    settings: 'Innstillinger',
     openGroup: 'Åpne samarbeid',
     newGroup: 'Start nytt verktøysamarbeid',
     or: 'eller',
@@ -216,6 +217,7 @@ var I18N = {
     typeHint: 'Looks like {0}',
     typeHintUse: 'Use',
     theme: 'Appearance', themeSystem: 'System', themeLight: 'Light', themeDark: 'Dark',
+    settings: 'Settings',
     openGroup: 'Open group',
     newGroup: 'Start a new tool group',
     or: 'or',
@@ -1684,9 +1686,11 @@ function render(){
 
   var megNavn = megGyldig ? byId[meg].name : (st.lang==='en'?'You':'Velg deg');
   var meMenu = st.meOpen
-    ? '<div class="nt-memenu">' +
-        '<div class="nt-setrow">' + sprakVelger(true) + '</div>' +
+    ? '<div class="nt-memenu" role="dialog" aria-label="' + esc(t('settings')) + '">' +
+        '<p class="vb-lbl">' + esc(t('theme')) + '</p>' +
         '<div class="nt-setrow">' + temaVelger() + '</div>' +
+        '<p class="vb-lbl" style="margin-top:12px">' + (st.lang==='en'?'Language':'Språk') + '</p>' +
+        '<div class="nt-setrow">' + sprakVelger(true) + '</div>' +
         '<button class="vb-btn vb-ghost vb-small" onclick="H.oppdater()">' + ikon('oppdater',16) + ' ' + esc(t('updated')) + '</button>' +
         (Lager.mode === 'server'
           ? '<button class="vb-btn vb-ghost vb-small" onclick="H.switchGroup()">' + ikon('laas',16) + ' ' + esc(t('switchGroup')) + '</button>'
@@ -1710,14 +1714,11 @@ function render(){
         railKnapp('personer', t('people')) +
         railKnapp('logg', t('log')) +
       '</nav>' +
-      '<div class="nt-railme">' +
+      '<button type="button" class="nt-railme" onclick="H.toggleMe()">' +
         (megGyldig ? avatarHtml(byId[meg]) : '<span class="nt-av">?</span>') +
-        '<div><b>' + esc(megNavn) + '</b><div class="nt-setrow" style="margin-top:6px">' + sprakVelger(true) + '</div>' +
-          '<div class="nt-setrow" style="margin-top:6px">' + temaVelger() + '</div></div>' +
-      '</div>' +
-      (Lager.mode === 'server'
-        ? '<button class="vb-btn vb-ghost vb-small" onclick="H.switchGroup()">' + esc(t('switchGroup')) + '</button>'
-        : '') +
+        '<span class="nt-railme-txt"><b>' + esc(megNavn) + '</b>' +
+          '<span class="vb-muted">' + esc(t('settings')) + '</span></span>' +
+      '</button>' +
     '</aside>' +
     '<div class="nt-appcol">' +
     '<header class="vb-head">' +
@@ -2600,7 +2601,7 @@ render = function(){
       btn.appendChild(s);
       setTimeout(function(){ if(s.parentNode) s.parentNode.removeChild(s); }, 520);
     }
-    if(st.meOpen && !(e.target.closest && (e.target.closest('.nt-memenu') || e.target.closest('.vb-mechip')))){
+    if(st.meOpen && !(e.target.closest && (e.target.closest('.nt-memenu') || e.target.closest('.vb-mechip') || e.target.closest('.nt-railme')))){
       st.meOpen = false;
       var menu = document.querySelector('.nt-memenu');
       if(menu) menu.remove();
