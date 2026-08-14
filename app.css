@@ -90,12 +90,23 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .vb-stats{font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums;margin:2px 0 10px}
 
 /* Search + segment */
-.nt-search{position:relative;margin-bottom:12px}
-.nt-search svg{position:absolute;left:0;top:50%;transform:translateY(-50%);color:var(--muted)}
+.nt-find{display:flex;flex-wrap:wrap;gap:8px;align-items:stretch;margin-bottom:12px}
+.nt-search{position:relative;flex:1 1 220px;min-width:0;margin:0}
+.nt-search svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none}
 .nt-search .vb-inp{
-  padding:11px 8px 11px 28px;border:0;border-bottom:1.5px solid var(--line);border-radius:0;background:transparent;
+  padding:11px 36px 11px 36px;border:1.5px solid var(--line);border-radius:10px;background:var(--card);
 }
-.nt-search .vb-inp:focus{border-bottom-color:var(--accent)}
+.nt-search .vb-inp:focus{border-color:var(--accent)}
+.nt-search-clear{
+  position:absolute;right:6px;top:50%;transform:translateY(-50%);
+  width:28px;height:28px;border-radius:8px;color:var(--muted);font-size:18px;line-height:1;
+}
+.nt-search-clear:hover{background:var(--accent-tint);color:var(--ink)}
+#nt-sok:placeholder-shown + .nt-search-clear{display:none}
+.nt-type,.nt-owner{
+  flex:0 1 160px;width:auto;margin:0;padding:8px 10px;border:1.5px solid var(--line);border-radius:10px;
+  background:var(--card);color:var(--ink);font:inherit;
+}
 .nt-seg{display:flex;gap:2px;position:relative;margin-bottom:12px}
 .nt-seg button{flex:1;padding:7px 6px;border-radius:8px;font-size:13px;font-weight:600;color:var(--muted);position:relative;z-index:1}
 .nt-seg button.on{color:var(--bg)}
@@ -103,10 +114,8 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   position:absolute;top:0;bottom:0;width:25%;background:var(--ink);border-radius:8px;
   transition:transform var(--t-mid) var(--ease-out);pointer-events:none;
 }
-.nt-owner{
-  width:100%;margin-bottom:12px;padding:8px 10px;border:1.5px solid var(--line);border-radius:10px;
-  background:var(--card);color:var(--ink);font:inherit;
-}
+.nt-fig-check{position:absolute;top:10px;right:10px;z-index:2;box-shadow:0 1px 4px rgba(28,22,18,.15)}
+.nt-tool.is-sel{outline:2px solid var(--accent);outline-offset:-2px}
 
 /* Cards / lists */
 .vb-list{display:flex;flex-direction:column;gap:12px}
@@ -198,6 +207,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .vb-inp:focus{outline:none;border-color:var(--accent)}
 textarea.vb-inp{resize:vertical}
 select.vb-inp{appearance:auto}
+#f-typehint .nt-textbtn{margin-left:6px}
 .vb-field{display:block;margin-bottom:12px}
 .vb-lbl{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px}
 .nt-float{position:relative;display:block}

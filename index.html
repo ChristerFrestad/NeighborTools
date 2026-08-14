@@ -78,10 +78,14 @@ var I18N = {
     pinLabel: 'PIN til samarbeidet',
     havePin: 'Har du PIN?',
     havePinHint: 'Naboene dine har gitt deg en nøkkel. Skriv den inn — så er du inne.',
-    selectMode: 'Velg',
-    ownerFilter: 'Eier',
+    selectMode: 'Velg', doneSelect: 'Ferdig',
+    ownerFilter: 'Eier', typeFilter: 'Type',
+    searchPh: 'Søk navn, eier, type …',
+    hits: 'treff',
     more: 'Mer',
     exportMenu: 'Eksporter',
+    typeHint: 'Ser ut som {0}',
+    typeHintUse: 'Bruk',
     theme: 'Utseende', themeSystem: 'System', themeLight: 'Lys', themeDark: 'Mørk',
     openGroup: 'Åpne samarbeid',
     newGroup: 'Start nytt verktøysamarbeid',
@@ -203,10 +207,14 @@ var I18N = {
     pinLabel: 'Group PIN',
     havePin: 'Have a PIN?',
     havePinHint: 'Your neighbors gave you a key. Enter it — and you are in.',
-    selectMode: 'Select',
-    ownerFilter: 'Owner',
+    selectMode: 'Select', doneSelect: 'Done',
+    ownerFilter: 'Owner', typeFilter: 'Type',
+    searchPh: 'Search name, owner, type …',
+    hits: 'matches',
     more: 'More',
     exportMenu: 'Export',
+    typeHint: 'Looks like {0}',
+    typeHintUse: 'Use',
     theme: 'Appearance', themeSystem: 'System', themeLight: 'Light', themeDark: 'Dark',
     openGroup: 'Open group',
     newGroup: 'Start a new tool group',
@@ -349,6 +357,7 @@ var EXT = '__ext';
 var TYPER = [
   {k:'drill',   nb:'Drill & skru',      en:'Drill & drive'},
   {k:'saw',     nb:'Sag',               en:'Saws'},
+  {k:'shape',   nb:'Fres & form',       en:'Router & shape'},
   {k:'grind',   nb:'Sliping & kutting', en:'Grinding & cutting'},
   {k:'hand',    nb:'Håndverktøy',       en:'Hand tools'},
   {k:'measure', nb:'Måleverktøy',       en:'Measuring'},
@@ -357,16 +366,165 @@ var TYPER = [
   {k:'paint',   nb:'Maling & tapet',    en:'Paint & wallpaper'},
   {k:'car',     nb:'Bil & mek',         en:'Car & mechanics'},
   {k:'electro', nb:'Elektro',           en:'Electrical'},
+  {k:'power',   nb:'Batteri & lader',   en:'Batteries & chargers'},
+  {k:'air',     nb:'Kompressor & luft', en:'Compressor & air'},
+  {k:'fasten',  nb:'Spiker & stift',    en:'Nailing & stapling'},
+  {k:'winter',  nb:'Vinter & snø',      en:'Winter & snow'},
   {k:'other',   nb:'Annet',             en:'Other'}
 ];
 /* Accepts a key or a label in either language */
+/* Shop/forum lexicon (NO+EN). Not derived from one group's list.
+   Matching prefers the longest token that starts on a word boundary. */
+var TYPE_ALIAS = [
+  {k:'shape', a:[
+    'overfres','håndoverfres','håndoverfreser','lamellfres','notfres','kantfres','profilfres',
+    'bordfres','fresemaskin','spindel','kantlister','avretterhøvel','tykkelseshøvel','overhøvel',
+    'håndhøvel','elektrohøvel','høvelmaskin','router','plunge router','trimmer router',
+    'biscuit joiner','plate joiner','lamello','spindle moulder','thicknesser','surface planer',
+    'benchtop planer','hand planer','electric planer','jointer'
+  ]},
+  {k:'saw', a:[
+    'kapp- og gjærsag','kapp og gjærsag','gjærsag','gjaersag','geringsag','kappsag',
+    'dykksag','bajonettsag','tigersag','stikksag','sirkelsag','håndsirkelsag','bordssag',
+    'bordssag','båndsag','kjedesag','motorsag','pussag','gjæringssag','kappskinne','styreskinne',
+    'sagbord','sagsverd','circular saw','mitre saw','miter saw','chop saw','plunge saw',
+    'track saw','table saw','jigsaw','stichsäge','reciprocating saw','recip saw','sabre saw',
+    'sabel sag','bandsaw','band saw','chainsaw','chain saw','cut-off saw','radial arm'
+  ]},
+  {k:'drill', a:[
+    'slagskrutrekker','slagtrekker','muttertrekker','skrudrill','boremaskin','drillmaskin',
+    'borhammer','slagborhammer','meiselhammer','kombihammer','sds-max','sds-plus','sds max',
+    'bor- og bits','bitssett','borsett','drillchuck','slagbor','skrumaskin',
+    'impact driver','impact wrench','hammer drill','rotary hammer','combi drill',
+    'cordless drill','drill driver','screw gun','nutrunner','percussion drill'
+  ]},
+  {k:'grind', a:[
+    'vinkelsliper','vinkelslipemaskin','eksentersliper','båndsliper','plansliper','deltasliper',
+    'giraffsliper','veggsliper','betongsliper','røsliper','poleringsmaskin','poleringsmaskin',
+    'kappeskive','kappemaskin','gjærekutter','multimaskin','oscillerende','fein multimaster',
+    'angle grinder','die grinder','orbital sander','random orbit','belt sander','sheet sander',
+    'detail sander','drywall sander','concrete grinder','cut-off tool','cutoff tool',
+    'oscillating multi','multitool'
+  ]},
+  {k:'fasten', a:[
+    'dykkertpistol','dykkert','finishpistol','spikerpistol','spikerpistol','stiftepistol',
+    'stiftemaskin','klammerpistol','klammepistol','spikerverktoy','naglemaskin',
+    'brad nailer','finish nailer','framing nailer','roofing nailer','staple gun',
+    'stapler gun','pin nailer','coil nailer'
+  ]},
+  {k:'hand', a:[
+    'snekkerhammer','listhammer','klørhammer','dødslagshammer','klubbe','brekkjern','kofot',
+    'stemjern','meisel','unbrakonøkkel','insektsnøkkel','pipenøkkel','fastnøkkel','skiftenøkkel',
+    'momentnøkkel hånd','avbitertang','kombinasjonstang','låsetang','spidstang','avisolering',
+    'hurtigtvinge','limklemme','skrutvinge','tvinger','håndsag','japansag','kniv stanley',
+    'tapetkniv','stanleykniv','skrutrekker sett','bits holder',
+    'claw hammer','ball peen','pry bar','crowbar','chisel','hex key','allen key',
+    'combination wrench','adjustable wrench','locking pliers','vice grip','clamp',
+    'bar clamp','speed clamp','utility knife','block plane'
+  ]},
+  {k:'measure', a:[
+    'rettholt','vaterpass','krysslaser','linjelaser','rotasjonslaser','avstandsmåler',
+    'lasermåler','tommestokk','målebånd','rullbånd','stikkmål','skyvelære','mikrometer',
+    'vinkelhake','snekker-vinkel','kombinationsvinkel','krittsnor','merkesnor','snappline',
+    'merkeblyant','oppmerking','nivelleringslaser','stativ til laser','tripod',
+    'spirit level','laser level','tape measure','folding rule','caliper','combination square',
+    'speed square','chalk line','stud finder','distance meter','range finder'
+  ]},
+  {k:'garden', a:[
+    'hekksaks','hekkklipper','løvblåser','løvsuger','løvrydder','gresstrimmer','trådkutter',
+    'kantklipper','gressklipper','sitteklipper','robotklipper','jordfres','kultivator',
+    'greinsaks','grensag','ugressbrenner','høytrykksspyler','høytrykkvasker','terassevasker',
+    'hagepumpe','dam pumpe','hedge trimmer','leaf blower','leaf vac','string trimmer',
+    'line trimmer','brush cutter','lawn mower','ride-on','cultivator','tiller',
+    'pressure washer','power washer','pole saw','branch lopper'
+  ]},
+  {k:'winter', a:[
+    'snøkaster','snøfres','snøskuffe','snøskuffe','isskrape','takskrape','isøks',
+    'snøblåser','snøfreser','snøplog','snowblower','snow blower','snow thrower',
+    'snowthrower','snow shovel','ice scraper','roof rake'
+  ]},
+  {k:'air', a:[
+    'kompressor','trykkluftskompressor','trykkluft','luftslange','trykkslange','blåsepistol',
+    'luftpistol','dekkpumpe stasjonær','trykkregulator','compressor','air compressor',
+    'pneumatic hose','blow gun','inflation gun','air tank'
+  ]},
+  {k:'power', a:[
+    'batteripakke','batteri og lader','twin-lader','twinpack','dobbeltlader','hurtiglader',
+    'batterilader','li-ion batteri','litiumbatteri','pxc','power-x-change','power x change',
+    'one+ batteri','lxt batteri','m18 batteri','18v batteri','4,0 ah','4.0 ah','5,0 ah',
+    'batteriadapter','ladeadapter','makita til ryobi','ryobi adapter',
+    'battery pack','dual charger','rapid charger','starter kit battery'
+  ]},
+  {k:'ladder', a:[
+    'trappestige','skyvestige','trekkstige','kombistige','plattformstige','anleggsstige',
+    'teleskopstige','rullestillas','foldestillas','arbeidsbukk','stigebein',
+    'step ladder','extension ladder','telescopic ladder','scaffold tower','trestle',
+    'platform ladder','multi-purpose ladder'
+  ]},
+  {k:'paint', a:[
+    'malerull','malerkost','malingssprøyte','hvlp','airless sprøyte','tapetbrett',
+    'tapetsaks','tapetspade','fugepistol','fugemasse pistol','sparklebrett',
+    'paint sprayer','paint roller','wallpaper steamer','caulking gun','filling knife'
+  ]},
+  {k:'car', a:[
+    'lavprofiljekk','gulvjekk','jekkestativ','akselbukk','hjulkryss','hjulmutter',
+    'momentnøkkel bil','oljefilteravdrager','startkabler','starthjelp','bilbatterilader',
+    'dekkskift','motorstøtte','floor jack','trolley jack','axle stand','jack stand',
+    'torque wrench','jumper cables','battery charger car','wheel brace','oil filter wrench'
+  ]},
+  {k:'electro', a:[
+    'multimeter','spenningsprøver','fasepen','avisoleringstang','kabeltrommel','skjøtekabel',
+    'crimpetang','kabelsko','jordingsmåler','rørkamer','kabeldetektor',
+    'voltage tester','wire stripper','cable reel','extension reel','crimping tool',
+    'continuity tester','clamp meter'
+  ]}
+];
+function typeAvNokkel(k){
+  for(var i = 0; i < TYPER.length; i++){
+    if(TYPER[i].k === k) return TYPER[i];
+  }
+  return null;
+}
 function typeFinn(v){
   var s = String(v == null ? '' : v).trim().toLowerCase();
   for(var i = 0; i < TYPER.length; i++){
     var x = TYPER[i];
     if(x.k === s || x.nb.toLowerCase() === s || x.en.toLowerCase() === s) return x;
   }
+  for(var j = 0; j < TYPE_ALIAS.length; j++){
+    var aliases = TYPE_ALIAS[j].a;
+    for(var k = 0; k < aliases.length; k++){
+      if(s === aliases[k]) return typeAvNokkel(TYPE_ALIAS[j].k);
+    }
+  }
   return null;
+}
+function aliasKant(raw, at, len){
+  var foran = at === 0 || /[\s\-/,.(+]/.test(raw.charAt(at - 1));
+  var etter = at + len >= raw.length || /[\s\-/,.)0-9+]/.test(raw.charAt(at + len));
+  return foran && etter;
+}
+function foreslaType(tekst){
+  var raw = String(tekst == null ? '' : tekst).toLowerCase();
+  if(!raw.trim()) return null;
+  var direkte = typeFinn(raw.trim());
+  if(direkte) return direkte;
+  var best = null, bestLen = 0, bestAt = 9999;
+  for(var i = 0; i < TYPE_ALIAS.length; i++){
+    var parts = TYPE_ALIAS[i].a;
+    for(var j = 0; j < parts.length; j++){
+      var a = parts[j];
+      if(a.length < 4) continue;
+      var at = raw.indexOf(a);
+      if(at === -1 || !aliasKant(raw, at, a.length)) continue;
+      if(a.length > bestLen || (a.length === bestLen && at < bestAt)){
+        bestLen = a.length;
+        bestAt = at;
+        best = typeAvNokkel(TYPE_ALIAS[i].k);
+      }
+    }
+  }
+  return best;
 }
 /* Label in the current language; unknown values pass through unchanged */
 function typeNavn(v){
@@ -549,7 +707,7 @@ var st = {
   modal:null, lagrer:false, oppsett:null, bekreft:null,
   lang: oppdagSprak(),   // a stored choice replaces this during boot
   selected: {}, selectMode: false, meOpen: false, moreId: null,
-  theme: 'system',
+  theme: 'system', typeFilter: '',
   pinOk: false,
   landing: false,     // front page: open an existing group or start a new one
   landingError: '',   // message shown on the front page / setup screen
@@ -653,7 +811,9 @@ H.tab = function(v){
   if(v === 'etterlys') fetchReq().then(function(endret){ if(endret) render(); });
 };
 H.setFilter = function(f){ st.filter = (st.filter === f && f.indexOf('p:') === 0) ? 'alle' : f; render(); };
+H.setType = function(el){ st.typeFilter = el.value || ''; visListe(); };
 H.sok = function(el){ st.sok = el.value; visListe(); };
+H.tomSok = function(){ st.sok = ''; render(); };
 H.lukk = function(){
   st.modal = null; st.bekreft = null; render();
   if(st._focusBack && st._focusBack.focus){
@@ -817,8 +977,37 @@ H.leggMegTil = function(){
   }, tf('addedName', n));
 };
 
-H.nytt = function(){ if(st.lagrer) return; st.modal = {type:'verktoy', id:null}; st.bekreft = null; render(); };
-H.rediger = function(id){ st.modal = {type:'verktoy', id:id}; st.bekreft = null; render(); };
+H.nytt = function(){ if(st.lagrer) return; st.modal = {type:'verktoy', id:null}; st.bekreft = null; st._typeTouched = false; render(); };
+H.rediger = function(id){ st.modal = {type:'verktoy', id:id}; st.bekreft = null; st._typeTouched = true; render(); };
+H.rørType = function(){ st._typeTouched = true; var c = $('#f-typehint'); if(c) c.hidden = true; };
+H.brukTypeForslag = function(){
+  var hint = st._typeHint;
+  var sel = $('#f-type');
+  if(hint && sel) sel.value = hint.k;
+  st._typeTouched = true;
+  var c = $('#f-typehint');
+  if(c) c.hidden = true;
+};
+H.navnInput = function(el){
+  var hint = foreslaType((el.value || '') + ' ' + (($('#f-notat') && $('#f-notat').value) || ''));
+  st._typeHint = hint;
+  var sel = $('#f-type');
+  var chip = $('#f-typehint');
+  if(!chip) return;
+  if(hint && !st._typeTouched && sel){
+    sel.value = hint.k;
+    chip.hidden = false;
+    chip.innerHTML = esc(tf('typeHint', typeNavn(hint.k)));
+    return;
+  }
+  if(hint && sel && sel.value !== hint.k){
+    chip.hidden = false;
+    chip.innerHTML = esc(tf('typeHint', typeNavn(hint.k))) +
+      ' <button type="button" class="nt-textbtn" onclick="H.brukTypeForslag()">' + esc(t('typeHintUse')) + '</button>';
+    return;
+  }
+  chip.hidden = true;
+};
 H.forhandsvisBilde = function(inp){
   var fil = inp.files && inp.files[0];
   if(!fil) return;
@@ -1724,6 +1913,35 @@ function forfallTekst(ymd){
   return t('dueIn') + ' ' + n + ' ' + t('days');
 }
 /* Name of whoever holds the tool now – a member, or an outside borrower */
+function sokTreff(v, byId, q){
+  if(!q) return true;
+  var eier = byId[v.ownerId];
+  var holder = v.holderId === EXT ? ((v.ext && v.ext.name) || '') : ((byId[v.holderId] || {}).name || '');
+  var typeX = typeFinn(v.type);
+  var alias = '';
+  if(typeX){
+    for(var i = 0; i < TYPE_ALIAS.length; i++){
+      if(TYPE_ALIAS[i].k === typeX.k){ alias = TYPE_ALIAS[i].a.join(' '); break; }
+    }
+  }
+  var blob = [
+    v.name, typeNavn(v.type), v.type, alias, v.notes,
+    eier && eier.name, eier && eier.address,
+    holder, v.ext && v.ext.note
+  ].join(' ').toLowerCase();
+  return blob.indexOf(q) !== -1;
+}
+function sorterVerktoy(a, b){
+  var ah = erHjemme(a), bh = erHjemme(b);
+  if(ah !== bh) return ah ? 1 : -1;
+  if(!ah && !bh){
+    var ao = dagerTil(a.due), bo = dagerTil(b.due);
+    var aOver = ao !== null && ao < 0;
+    var bOver = bo !== null && bo < 0;
+    if(aOver !== bOver) return aOver ? -1 : 1;
+  }
+  return a.name.localeCompare(b.name, st.lang === 'en' ? 'en' : 'nb');
+}
 function holderNavn(v, byId){
   if(v.holderId === EXT) return (v.ext && v.ext.name) || t('extTag');
   var p = byId[v.holderId];
@@ -1773,16 +1991,29 @@ function htmlVerktoy(byId){
         '</span><span class="vb-remind-link">' + esc(t('showMine')) + '</span></button>'
     : '';
 
+  var typeSel = '<select class="nt-type" onchange="H.setType(this)" aria-label="' + esc(t('typeFilter')) + '">' +
+    '<option value="">' + esc(t('typeFilter')) + '</option>' +
+    TYPER.map(function(x){
+      return '<option value="' + esc(x.k) + '"' + (st.typeFilter === x.k ? ' selected' : '') + '>' +
+        esc(x[st.lang === 'en' ? 'en' : 'nb']) + '</option>';
+    }).join('') + '</select>';
+
   return paaminnelse +
-    '<div class="vb-stats">' + tools.length + ' · ' + ute + ' ' + t('onLoan').toLowerCase() +
+    '<div class="vb-stats">' + tools.length +
+    ' · <button class="nt-textbtn" onclick="H.setFilter(\'ute\')">' + ute + ' ' + t('onLoan').toLowerCase() + '</button>' +
     (selN ? ' · <b>' + selN + ' ' + t('selected') + '</b>' : '') +
-    ' · <button class="nt-textbtn" onclick="H.toggleSelMode()">' + esc(t('selectMode')) + '</button></div>' +
-    '<div class="nt-search">' +
-      '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3-3"/></svg>' +
-      '<input class="vb-inp" placeholder="' + esc(t('search')) + '" value="' + esc(st.sok) +
-      '" oninput="H.sok(this)">' +
+    ' · <button class="nt-textbtn" onclick="H.toggleSelMode()">' +
+      esc(st.selectMode ? t('doneSelect') : t('selectMode')) + '</button></div>' +
+    '<div class="nt-find">' +
+      '<div class="nt-search">' +
+        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3-3"/></svg>' +
+        '<input class="vb-inp" id="nt-sok" placeholder="' + esc(t('searchPh')) + '" value="' + esc(st.sok) +
+          '" oninput="H.sok(this)" autocomplete="off">' +
+        '<button class="nt-search-clear" type="button" onclick="H.tomSok()" aria-label="' + esc(t('showAll')) + '">×</button>' +
+      '</div>' +
+      typeSel + eierSel +
     '</div>' +
-    segHtml + eierSel +
+    segHtml +
     '<div id="liste"></div>';
 }
 function chip(f, innhold){
@@ -1799,13 +2030,14 @@ function visListe(){
   var meg = hentMeg();
   var selN = Object.keys(st.selected).filter(function(k){ return st.selected[k]; }).length;
   var liste = tools.filter(function(t){
-    if(q && ((t.name + ' ' + typeNavn(t.type) + ' ' + (t.notes || '')).toLowerCase().indexOf(q) === -1)) return false;
+    if(!sokTreff(t, byId, q)) return false;
+    if(st.typeFilter && !(typeFinn(t.type) && typeFinn(t.type).k === st.typeFilter)) return false;
     if(st.filter === 'hjemme') return t.holderId === t.ownerId;
     if(st.filter === 'ute') return t.holderId !== t.ownerId;
     if(st.filter === 'mine') return meg && t.holderId === meg && t.ownerId !== meg;
     if(st.filter.indexOf('p:') === 0) return t.ownerId === st.filter.slice(2);
     return true;
-  }).sort(function(a, b){ return a.name.localeCompare(b.name, st.lang==='en'?'en':'nb'); });
+  }).sort(sorterVerktoy);
 
   if(tools.length === 0){
     boks.innerHTML = '<div class="vb-empty"><div class="vb-empty-ico">' + ikon('skru',26) +
@@ -1822,7 +2054,10 @@ function visListe(){
   }
 
   var longDays = CONFIG.longLoanDays || 14;
-  boks.innerHTML = '<div class="vb-list grid">' + liste.map(function(v){
+  var treff = (q || st.typeFilter)
+    ? '<p class="vb-stats">' + liste.length + ' ' + esc(t('hits')) + '</p>'
+    : '';
+  boks.innerHTML = treff + '<div class="vb-list grid">' + liste.map(function(v){
     var eier = byId[v.ownerId];
     var hjemme = erHjemme(v);
     var dager = antallDager(v.since);
@@ -1879,8 +2114,8 @@ function visListe(){
     var fig = v.img
       ? '<span class="nt-fig-wrap"><img class="nt-fig-img" src="' + esc(v.img) + '" alt=""></span>'
       : '<span class="nt-fig-wrap nt-fig-sil">' + ikon('skru',40) + '</span>';
-    var check = (st.selectMode || selN)
-      ? '<button class="vb-check' + (sel?' on':'') + '" aria-label="Select" onclick="H.toggleSel(\'' + v.id + '\')">' +
+    var check = ((st.selectMode || selN) && hjemme)
+      ? '<button class="vb-check nt-fig-check' + (sel?' on':'') + '" aria-label="Select" onclick="H.toggleSel(\'' + v.id + '\')">' +
           (sel ? '✓' : '') + '</button>'
       : '';
     var mer = st.moreId === v.id
@@ -1889,8 +2124,8 @@ function visListe(){
           '<button class="vb-iconbtn" aria-label="' + esc(t('edit')) + '" onclick="H.rediger(\'' + v.id + '\')">' + ikon('blyant',17) + '</button>' +
         '</div>'
       : '<button class="vb-iconbtn" aria-label="' + esc(t('more')) + '" onclick="H.mer(\'' + v.id + '\')">⋯</button>';
-    return '<article class="nt-tool">' +
-      '<div class="nt-fig">' + fig +
+    return '<article class="nt-tool' + (sel ? ' is-sel' : '') + (!hjemme ? ' is-out' : '') + '">' +
+      '<div class="nt-fig">' + check + fig +
         '<span class="vb-tagg ' + (hjemme ? 'hjemme' : (lenge ? 'lenge' : 'ute')) + '">' + status + '</span>' +
         forfallTag + eksternTag +
       '</div>' +
@@ -1901,7 +2136,7 @@ function visListe(){
         køLinje +
         (ekstern && v.ext && v.ext.note ? '<p class="vb-notes">' + esc(v.ext.note) + '</p>' : '') +
         (v.notes ? '<p class="vb-notes">' + esc(v.notes) + '</p>' : '') +
-        '<div class="nt-acts">' + check + handling + mer + '</div>' +
+        '<div class="nt-acts">' + handling + mer + '</div>' +
       '</div></article>';
   }).join('') + '</div>';
 }
@@ -2116,7 +2351,9 @@ function htmlModal(byId, megGyldig){
     if(m.id && !vt) return '';
     var meg = hentMeg();
     var valgtEier = vt ? vt.ownerId : (megGyldig ? meg : (people[0] && people[0].id));
-    var valgtType = (typeFinn(vt ? vt.type : '') || TYPER[0]).k;
+    var valgtType = vt
+      ? (typeFinn(vt.type) || TYPER[0]).k
+      : ((st._typeHint && st._typeHint.k) || 'other');
     var typeValg = TYPER.map(function(x){
       return '<option value="' + esc(x.k) + '"' + (valgtType === x.k ? ' selected' : '') + '>' +
         esc(x[st.lang === 'en' ? 'en' : 'nb']) + '</option>';
@@ -2137,8 +2374,9 @@ function htmlModal(byId, megGyldig){
       : '<button type="button" id="f-img-fjern" class="vb-btn vb-ghost vb-small" style="margin-top:6px" hidden onclick="H.fjernBilde()">' + esc(t('photoRemove')) + '</button>';
     return ark(esc(vt ? t('editTool') : t('newTool')),
       felt(esc(t('toolName')), '<input class="vb-inp" id="f-navn" placeholder="' + esc(t('toolNamePh')) +
-        '" value="' + esc(vt ? vt.name : '') + '">') +
-      felt(esc(t('typeLbl')), '<select class="vb-inp" id="f-type">' + typeValg + '</select>') +
+        '" value="' + esc(vt ? vt.name : '') + '" oninput="H.navnInput(this)">') +
+      felt(esc(t('typeLbl')), '<select class="vb-inp" id="f-type" onchange="H.rørType()">' + typeValg + '</select>' +
+        '<p id="f-typehint" class="vb-finetext" hidden style="margin-top:6px"></p>') +
       felt(esc(t('owner')), '<select class="vb-inp" id="f-eier">' + eierValg + '</select>') +
       felt(esc(t('photoLbl')), '<input type="file" id="f-img" accept="image/*" class="vb-inp" onchange="H.forhandsvisBilde(this)">' + bildePreview + bildeFjern) +
       felt(esc(t('notesLbl')), '<textarea class="vb-inp" id="f-notat" rows="2" ' +
@@ -2371,6 +2609,13 @@ render = function(){
 
   // Escape closes open modal; simple focus trap inside sheet
   document.addEventListener('keydown', function(e){
+    if(e.key === '/' && !e.ctrlKey && !e.metaKey && !e.altKey){
+      var tag = (e.target && e.target.tagName || '').toLowerCase();
+      if(tag !== 'input' && tag !== 'textarea' && tag !== 'select'){
+        var s = document.getElementById('nt-sok');
+        if(s){ e.preventDefault(); s.focus(); s.select(); }
+      }
+    }
     if(!st.modal) return;
     if(e.key === 'Escape' && !st.modal.tvang){
       H.lukk();
