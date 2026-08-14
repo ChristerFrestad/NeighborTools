@@ -20,6 +20,8 @@ jobs:
           sleep 1
           curl -sf http://127.0.0.1:8080/api/health
       - name: Run API smoke tests
+        env:
+          DATA_DIR: /tmp/nt-data
         run: python3 tests/api_test.py http://127.0.0.1:8080
       - name: Syntax check server
         run: python3 -m py_compile server.py
