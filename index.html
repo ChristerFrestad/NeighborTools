@@ -3,327 +3,22 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#242923" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#141714" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#F3EEE4" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1A1714" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="description" content="Shared tools with your neighbors – no login needed.">
 <title>NeighborTools</title>
 <link rel="manifest" href="/manifest.webmanifest">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%232E52D0'/%3E%3Ctext y='.9em' font-size='70' x='50%25' text-anchor='middle' fill='white'%3E🔧%3C/text%3E%3C/svg%3E">
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800&family=IBM+Plex+Mono:wght@500&family=Inter:wght@400;500;600;700&display=swap');
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='3' fill='%23B85C2A'/%3E%3Cpath d='M16 6.5 25 11.2v9.6L16 25.5 7 20.8v-9.6L16 6.5Z' fill='none' stroke='%23F6F1E8' stroke-width='1.6'/%3E%3Crect x='13.2' y='13.2' width='5.6' height='5.6' rx='.6' fill='none' stroke='%23F6F1E8' stroke-width='1.5' transform='rotate(45 16 16)'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="/app.css">
 
-:root{
-  --bg:#E8EBE4; --card:#FFFFFF; --ink:#20251F; --muted:#67705F; --line:#D3D8CB;
-  --accent:#2E52D0; --accent-press:#2543AE; --accent-tint:#E7ECFB;
-  --home:#256B43; --home-tint:#E1F0E6; --out:#9A5300; --out-tint:#FBEBD3;
-  --danger:#B23A26; --headbg:#242923; --headink:#F4F6F1;
-  --shadow:0 1px 2px rgba(32,37,31,.06);
-}
-@media (prefers-color-scheme: dark){
-  :root{
-    --bg:#141714; --card:#1C201B; --ink:#E8EBE4; --muted:#9AA392; --line:#2E342E;
-    --accent:#5B7CFF; --accent-press:#4A6AE0; --accent-tint:#1A2240;
-    --home:#3D9B68; --home-tint:#1A2E22; --out:#D4923A; --out-tint:#2E2418;
-    --danger:#E05A48; --headbg:#0E100E; --headink:#F4F6F1;
-    --shadow:0 1px 3px rgba(0,0,0,.35);
-  }
-}
-*{box-sizing:border-box; margin:0}
-html,body{height:100%}
-body{background:var(--bg); color:var(--ink);
-  font-family:Inter,system-ui,-apple-system,sans-serif; font-size:15px; line-height:1.45;
-  -webkit-font-smoothing:antialiased}
-button{font:inherit; color:inherit; background:none; border:none; cursor:pointer}
-:focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:4px}
-[hidden]{display:none !important}
-
-.vb-center{min-height:100vh; display:flex; align-items:center; justify-content:center}
-
-/* Header – pegboard style panel */
-.vb-head{position:sticky; top:0; z-index:20; display:flex; align-items:center; justify-content:space-between;
-  gap:10px; padding:14px 16px; background-color:var(--headbg);
-  background-image:radial-gradient(circle, rgba(244,246,241,.16) 1.5px, transparent 1.6px);
-  background-size:17px 17px; color:var(--headink)}
-.vb-head-tall{flex-direction:column; align-items:flex-start; gap:6px; padding:26px 20px 22px; position:static}
-.vb-logo{font-family:'Big Shoulders Display','Arial Narrow',sans-serif; font-weight:800; font-size:22px;
-  letter-spacing:.06em; display:flex; align-items:center; gap:9px; color:var(--headink)}
-.vb-logomark{display:inline-flex; align-items:center; justify-content:center; width:26px; height:26px;
-  border-radius:7px; background:var(--accent); color:#fff; flex:0 0 auto}
-.vb-tagline{color:rgba(244,246,241,.75); font-size:13.5px}
-.vb-headright{display:flex; align-items:center; gap:8px}
-.vb-mechip{display:inline-flex; align-items:center; gap:7px; padding:6px 11px; border-radius:999px;
-  background:rgba(244,246,241,.12); color:var(--headink); font-weight:600; font-size:13px;
-  border:1px solid rgba(244,246,241,.22); max-width:150px}
-.vb-mechip .vb-navn{overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
-.vb-onhead{color:var(--headink)}
-.vb-onhead:hover{background:rgba(244,246,241,.14)}
-.vb-spin{width:14px; height:14px; border-radius:50%; border:2px solid rgba(244,246,241,.35);
-  border-top-color:var(--headink); animation:vbspin .7s linear infinite}
-@keyframes vbspin{to{transform:rotate(360deg)}}
-.vb-pulse{animation:vbpulse 1.2s ease-in-out infinite}
-@keyframes vbpulse{50%{opacity:.45}}
-.vb-logo-moerk{color:var(--ink)}
-.vb-logo-moerk .vb-logomark{background:var(--accent)}
-
-.vb-banner{font-size:12.5px; padding:7px 16px; text-align:center}
-.vb-banner.test{background:var(--accent-tint); color:var(--accent)}
-.vb-banner.minne{background:var(--out-tint); color:var(--out)}
-
-.vb-main{max-width:540px; margin:0 auto; padding:14px 14px calc(120px + env(safe-area-inset-bottom))}
-
-.vb-stats{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--muted);
-  letter-spacing:.02em; margin:2px 2px 10px}
-.vb-search{margin-bottom:10px}
-
-.vb-chips{display:flex; gap:7px; overflow-x:auto; padding:8px 0 10px; margin:0 -14px 4px; padding-left:14px; padding-right:14px;
-  position:sticky; top:56px; z-index:15; background:var(--bg); scrollbar-width:none}
-.vb-chips::-webkit-scrollbar{display:none}
-.vb-chip{flex:0 0 auto; display:inline-flex; align-items:center; gap:6px; padding:9px 14px;
-  border-radius:999px; border:1.5px solid var(--line); background:var(--card); font-size:13.5px; font-weight:600;
-  color:var(--muted); white-space:nowrap; transition:background .12s,color .12s,border-color .12s}
-/* Selected chip inverts against the page, so it stays readable in both themes
-   (--ink is near-white in dark mode, where a hardcoded white would vanish) */
-.vb-chip.on{background:var(--ink); color:var(--bg); border-color:var(--ink)}
-.vb-chip.on .vb-sw{box-shadow:0 0 0 1.5px var(--bg)}
-.vb-chipdiv{flex:0 0 1px; background:var(--line); align-self:stretch; margin:2px 3px}
-
-.vb-list{display:flex; flex-direction:column; gap:10px}
-.vb-card{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px 15px;
-  box-shadow:var(--shadow)}
-.vb-toolimg{width:64px; height:64px; border-radius:10px; object-fit:cover; background:var(--line); flex:0 0 auto}
-.vb-toolrow{display:flex; align-items:flex-start; justify-content:space-between; gap:10px}
-.vb-toolleft{display:flex; gap:12px; align-items:flex-start; min-width:0; flex:1}
-.vb-toolname{font-size:16px; font-weight:700; display:flex; align-items:center; gap:8px; min-width:0}
-.vb-you{color:var(--muted); font-weight:500; font-size:13px}
-.vb-type{font-family:'Big Shoulders Display','Arial Narrow',sans-serif; font-weight:700; font-size:11.5px;
-  letter-spacing:.09em; text-transform:uppercase; color:var(--muted); border:1px solid var(--line);
-  border-radius:6px; padding:3px 7px; white-space:nowrap; margin-top:1px}
-.vb-ownerline{font-size:13px; color:var(--muted); margin-top:5px; display:flex; align-items:center; gap:6px}
-.vb-sw{display:inline-block; width:10px; height:10px; border-radius:3px; flex:0 0 auto}
-
-/* Status tag – looks like a physical loan tag with a hole */
-.vb-tagrow{margin-top:9px}
-.vb-tagg{position:relative; display:inline-flex; align-items:center; font-size:12.5px; font-weight:600;
-  padding:5px 11px 5px 22px; border-radius:5px 999px 999px 5px}
-.vb-tagg::before{content:""; position:absolute; left:8px; top:50%; transform:translateY(-50%);
-  width:7px; height:7px; border-radius:50%; background:var(--bg); box-shadow:inset 0 0 0 1.5px currentColor}
-.vb-tagg.hjemme{background:var(--home-tint); color:var(--home)}
-.vb-tagg.ute{background:var(--out-tint); color:var(--out)}
-
-.vb-notes{font-size:13px; color:var(--muted); margin-top:8px; overflow-wrap:anywhere}
-.vb-addr{font-size:13px; color:var(--muted); margin-top:5px; display:flex; align-items:center; gap:5px}
-.vb-counts{font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:var(--muted); margin-top:8px}
-
-.vb-toolactions{display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:12px}
-
-.vb-btn{display:inline-flex; align-items:center; justify-content:center; gap:7px; width:100%;
-  padding:14px 18px; border-radius:12px; font-weight:700; font-size:15px;
-  transition:background .12s, transform .05s}
-.vb-btn:active{transform:scale(.985)}
-.vb-btn:disabled{opacity:.45; cursor:default}
-.vb-primary{background:var(--accent); color:#fff}
-.vb-primary:not(:disabled):hover{background:var(--accent-press)}
-.vb-ghost{background:transparent; border:1.5px dashed var(--line); color:var(--muted)}
-.vb-return{background:var(--home-tint); color:var(--home)}
-.vb-dangertxt{background:transparent; color:var(--danger); font-weight:600}
-.vb-dangertxt.bekreft{background:var(--danger); color:#fff}
-.vb-small{width:auto; padding:11px 16px; font-size:14px}
-.vb-iconbtn{display:inline-flex; align-items:center; justify-content:center; width:34px; height:34px;
-  border-radius:9px; color:var(--muted); flex:0 0 auto}
-.vb-iconbtn:hover{background:rgba(32,37,31,.06)}
-
-.vb-inp{width:100%; padding:11px 12px; border-radius:10px; border:1.5px solid var(--line);
-  background:var(--card); font:inherit; color:var(--ink)}
-.vb-inp:focus{outline:none; border-color:var(--accent)}
-textarea.vb-inp{resize:vertical}
-select.vb-inp{appearance:auto}
-.vb-field{display:block; margin-bottom:12px}
-.vb-lbl{display:block; font-size:12px; font-weight:700; letter-spacing:.05em; text-transform:uppercase;
-  color:var(--muted); margin-bottom:5px}
-
-/* empty state – refined below */
-
-/* Bottom nav + floating action button */
-.vb-nav{position:fixed; left:0; right:0; bottom:0; z-index:20; display:flex; justify-content:center; gap:4px;
-  background:var(--card); border-top:1px solid var(--line);
-  padding:6px 8px calc(8px + env(safe-area-inset-bottom))}
-.vb-tab{display:flex; flex-direction:column; align-items:center; gap:3px; padding:7px 0; width:104px;
-  border-radius:10px; color:var(--muted)}
-.vb-tab span{font-family:'Big Shoulders Display','Arial Narrow',sans-serif; font-weight:700; font-size:11.5px;
-  letter-spacing:.1em; text-transform:uppercase}
-.vb-tab.on{color:var(--accent); background:var(--accent-tint)}
-.vb-fab{position:fixed; right:16px; bottom:calc(76px + env(safe-area-inset-bottom)); z-index:21;
-  display:inline-flex; align-items:center; gap:7px; padding:13px 18px; border-radius:999px;
-  background:var(--accent); color:#fff; font-weight:700; font-size:14.5px;
-  box-shadow:0 6px 18px rgba(46,82,208,.38)}
-.vb-fab:hover{background:var(--accent-press)}
-
-/* Bottom sheet / modal forms */
-.vb-overlay{position:fixed; inset:0; z-index:40; background:rgba(24,27,23,.5); display:flex;
-  align-items:flex-end; justify-content:center; animation:vbfade .15s ease-out}
-.vb-sheet{background:var(--card); width:100%; max-width:540px; max-height:88vh; overflow-y:auto;
-  border-radius:20px 20px 0 0; padding:18px 18px calc(22px + env(safe-area-inset-bottom));
-  animation:vbup .22s ease-out}
-@media (min-width:640px){
-  .vb-overlay{align-items:center; padding:24px}
-  .vb-sheet{border-radius:20px}
-}
-@keyframes vbfade{from{opacity:0}}
-@keyframes vbup{from{transform:translateY(24px); opacity:.6}}
-.vb-sheet-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; gap:10px}
-.vb-h2{font-family:'Big Shoulders Display','Arial Narrow',sans-serif; font-weight:800; font-size:21px;
-  letter-spacing:.03em; text-transform:uppercase; overflow-wrap:anywhere}
-.vb-sheet-actions{display:flex; flex-direction:column; gap:8px; margin-top:6px}
-.vb-pickgrid{display:flex; flex-direction:column; gap:8px}
-.vb-pick{display:grid; grid-template-columns:auto 1fr; align-items:center; column-gap:10px; text-align:left;
-  padding:12px 13px; border:1.5px solid var(--line); border-radius:12px; background:var(--card); width:100%}
-.vb-pick:hover{border-color:var(--accent); background:var(--accent-tint)}
-.vb-pick-name{font-weight:700}
-.vb-pick-addr{grid-column:2; font-size:12.5px; color:var(--muted)}
-
-/* Setup (first run) */
-.vb-setuprow{display:flex; gap:9px; align-items:flex-start; margin-bottom:12px}
-.vb-setupnum{font-family:'Big Shoulders Display','Arial Narrow',sans-serif; font-weight:800; font-size:15px;
-  color:var(--muted); width:24px; height:24px; border:1.5px solid var(--line); border-radius:8px;
-  display:flex; align-items:center; justify-content:center; margin-top:8px; flex:0 0 auto}
-.vb-setupfields{flex:1; display:flex; flex-direction:column; gap:7px}
-.vb-finetext{font-size:12px; color:var(--muted); margin-top:12px}
-
-/* Activity log */
-.vb-loglist{display:flex; flex-direction:column; gap:7px}
-.vb-logrow{display:flex; justify-content:space-between; align-items:baseline; gap:10px;
-  background:var(--card); border:1px solid var(--line); border-left-width:4px; border-radius:10px;
-  padding:10px 12px; font-size:13.5px}
-.vb-logrow.t-laan{border-left-color:var(--out)}
-.vb-logrow.t-retur{border-left-color:var(--home)}
-.vb-logrow.t-ny{border-left-color:var(--accent)}
-.vb-logrow.t-slett{border-left-color:var(--danger)}
-.vb-logrow.t-pers{border-left-color:var(--line)}
-.vb-logtext{overflow-wrap:anywhere}
-.vb-logdate{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--muted); white-space:nowrap}
-
-.vb-muted{color:var(--muted); font-size:13.5px}
-.vb-mb{margin-bottom:12px}
-.vb-mt{margin-top:12px}
-.vb-toast{position:fixed; left:50%; transform:translateX(-50%);
-  bottom:calc(84px + env(safe-area-inset-bottom)); z-index:50; background:var(--ink); color:var(--bg);
-  padding:10px 16px; border-radius:999px; font-size:13.5px; font-weight:600; max-width:90vw; text-align:center;
-  box-shadow:0 6px 20px rgba(0,0,0,.25); animation:vbup .2s ease-out}
-
-.vb-card{transition:border-color .12s, box-shadow .12s}
-.vb-card:hover{border-color:color-mix(in srgb, var(--accent) 35%, var(--line))}
-.vb-empty{display:flex; flex-direction:column; align-items:center; gap:12px; text-align:center;
-  color:var(--muted); padding:48px 24px; border:1.5px dashed var(--line); border-radius:16px; margin-top:6px}
-.vb-empty b{color:var(--ink); font-size:16px}
-.vb-empty-ico{width:56px; height:56px; border-radius:16px; background:var(--accent-tint); color:var(--accent);
-  display:flex; align-items:center; justify-content:center}
-.vb-skeleton{background:linear-gradient(90deg, var(--line) 25%, var(--card) 50%, var(--line) 75%);
-  background-size:200% 100%; animation:vbskel 1.2s ease-in-out infinite; border-radius:10px; height:88px; margin-bottom:10px}
-@keyframes vbskel{0%{background-position:200% 0}100%{background-position:-200% 0}}
-.vb-toast[role="status"]{pointer-events:none}
-.vb-btn[aria-busy="true"]{opacity:.55; pointer-events:none}
-.vb-overlay{overscroll-behavior:contain}
-.vb-sheet:focus{outline:none}
-.vb-sheet-head h2{margin:0}
-
-
-/* Store-like grid on larger screens */
-@media (min-width: 640px){
-  .vb-main{max-width:920px}
-  .vb-list.grid{display:grid; grid-template-columns:repeat(2, 1fr); gap:12px}
-}
-@media (min-width: 960px){
-  .vb-main{max-width:1100px}
-  .vb-list.grid{grid-template-columns:repeat(3, 1fr)}
-}
-.vb-list.grid .vb-card{display:flex; flex-direction:column; height:100%}
-.vb-list.grid .vb-toolactions{margin-top:auto}
-
-.vb-tagg.lenge{background:#FDE8E6; color:var(--danger)}
-@media (prefers-color-scheme: dark){
-  .vb-tagg.lenge{background:#3A1F1C; color:var(--danger)}
-}
-
-.vb-check{
-  width:22px; height:22px; border-radius:6px; border:2px solid var(--line);
-  display:inline-flex; align-items:center; justify-content:center; flex:0 0 auto;
-  margin-top:2px; background:var(--card)
-}
-.vb-check.on{background:var(--accent); border-color:var(--accent); color:#fff}
-.vb-bulk{
-  position:fixed; left:50%; transform:translateX(-50%);
-  bottom:calc(72px + env(safe-area-inset-bottom)); z-index:22;
-  display:flex; gap:8px; align-items:center; padding:10px 12px;
-  background:var(--ink); color:var(--bg); border-radius:14px;
-  box-shadow:0 8px 24px rgba(0,0,0,.28); max-width:94vw
-}
-.vb-bulk .vb-btn{width:auto; padding:10px 14px; font-size:13.5px}
-.vb-bulk .vb-ghost{color:var(--bg); border-color:color-mix(in srgb, var(--bg) 40%, transparent)}
-.vb-bulk-count{font-weight:700; font-size:13.5px; white-space:nowrap; padding:0 4px}
-
-.vb-hist{margin-top:10px; border-top:1px solid var(--line); padding-top:10px}
-.vb-hist h4{font-size:12px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin-bottom:6px}
-.vb-hist-row{font-size:13px; color:var(--muted); padding:4px 0; display:flex; justify-content:space-between; gap:8px}
-.vb-pinbox{max-width:360px; margin:0 auto; padding:24px 18px}
-/* Language switch: both languages visible, the active one filled in */
-.vb-langsw{display:inline-flex; align-items:stretch; border-radius:999px; overflow:hidden;
-  border:1px solid rgba(244,246,241,.3); flex:0 0 auto}
-.vb-langsw button{padding:5px 10px; font-size:11px; font-weight:800; letter-spacing:.08em;
-  color:rgba(244,246,241,.72); line-height:1.5; transition:background .12s, color .12s}
-.vb-langsw button:hover{background:rgba(244,246,241,.14); color:var(--headink)}
-.vb-langsw button.on{background:var(--headink); color:var(--headbg)}
-.vb-langsw button.on:hover{background:var(--headink); color:var(--headbg)}
-/* Variant for use on a light card instead of the dark header */
-.vb-langsw.kort{border-color:var(--line)}
-.vb-langsw.kort button{color:var(--muted)}
-.vb-langsw.kort button:hover{background:var(--bg); color:var(--ink)}
-.vb-langsw.kort button.on{background:var(--ink); color:var(--card)}
-.vb-langsw.kort button.on:hover{background:var(--ink); color:var(--card)}
-
-/* Requests ("etterlysninger") */
-.vb-sechead{font-family:'Big Shoulders Display','Arial Narrow',sans-serif; font-weight:800; font-size:15px;
-  letter-spacing:.07em; text-transform:uppercase; color:var(--muted); margin:18px 2px 10px}
-.vb-req-meta{font-size:12.5px; color:var(--muted); margin-top:6px; display:flex; align-items:center; gap:6px;
-  flex-wrap:wrap}
-.vb-resp{border-top:1px solid var(--line); padding:9px 0 4px; font-size:13px; color:var(--muted)}
-.vb-resp b{color:var(--ink)}
-.vb-hoodtoggle{display:flex; gap:11px; align-items:flex-start; cursor:pointer; margin-bottom:4px}
-.vb-hoodtoggle input{width:19px; height:19px; margin-top:2px; accent-color:var(--accent); flex:0 0 auto}
-.vb-radios{display:flex; flex-direction:column; gap:8px; padding:2px 0}
-.vb-radios label{display:flex; align-items:center; gap:9px; font-weight:600; cursor:pointer}
-.vb-radios input{width:17px; height:17px; accent-color:var(--accent); flex:0 0 auto}
-.vb-tab{position:relative}
-.vb-tabbadge{position:absolute; top:2px; right:16px; min-width:17px; height:17px; padding:0 4px;
-  border-radius:999px; background:var(--danger); color:#fff; font-size:10.5px; font-weight:700;
-  display:flex; align-items:center; justify-content:center}
-.vb-logrow.t-ettersp{border-left-color:var(--accent)}
-.vb-resp-tool{font-size:12.5px; color:var(--ink); margin-top:4px; display:flex; align-items:center; gap:5px}
-
-/* Due dates, queue and outside loans */
-.vb-tagrow{display:flex; flex-wrap:wrap; gap:6px}
-.vb-tagg.frist{background:var(--accent-tint); color:var(--accent)}
-.vb-tagg.ekstern{background:var(--line); color:var(--muted)}
-.vb-queue{font-size:12.5px; color:var(--muted); margin-top:8px; display:flex; align-items:center;
-  gap:5px; flex-wrap:wrap}
-.vb-remind{display:flex; align-items:center; gap:9px; width:100%; text-align:left; margin-bottom:10px;
-  padding:11px 13px; border-radius:12px; background:var(--out-tint); color:var(--out);
-  border:1px solid transparent; font-size:13.5px; font-weight:600}
-.vb-remind:hover{border-color:currentColor}
-.vb-remind span:first-of-type{flex:1}
-.vb-remind-link{text-decoration:underline; white-space:nowrap; font-weight:700}
-
-@media (prefers-reduced-motion: reduce){
-  *{animation:none !important; transition:none !important}
-}
-</style>
 </head>
 <body>
 <div id="app">
   <div class="vb-center">
     <div style="text-align:center">
-      <div class="vb-logo vb-logo-moerk vb-pulse" style="justify-content:center"><span class="vb-logomark">🔧</span>NEIGHBORTOOLS</div>
+      <svg class="nt-bit" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M16 4 26 9.2v13.6L16 28 6 22.8V9.2L16 4Z"/><rect x="13" y="13" width="6" height="6" transform="rotate(45 16 16)"/></svg>
       <p class="vb-muted" style="margin-top:14px">Loading …</p>
     </div>
   </div>
@@ -357,7 +52,7 @@ var I18N = {
     search: 'Søk etter verktøy …', newTool: 'Nytt verktøy',
     loanOut: 'Lån ut', loanToMe: 'Lån til meg', returnBtn: 'Lever tilbake',
     owner: 'Eier', edit: 'Rediger', save: 'Lagre',
-    noTools: 'Ingen verktøy ennå', noToolsHint: 'Trykk «Nytt verktøy» for å registrere det første.',
+    noTools: 'Legg inn den første drillen', noToolsHint: 'Når den står her, kan naboene låne den med ett trykk.',
     noHits: 'Ingen treff', noHitsHint: 'Prøv et annet søk eller filter.', showAll: 'Vis alle',
     longLoan: 'Ute lenge', days: 'dager', today: 'i dag', day1: '1 dag',
     whoAreYou: 'Hvem er du?', pickPerson: 'Valget lagres bare på denne enheten.',
@@ -367,7 +62,17 @@ var I18N = {
     setupPinReq: 'PIN (4–32 tegn)',
     setupPinReqHint: 'PIN-en er nøkkelen til samarbeidet – del den bare med naboene dine. Bokstaver og spesialtegn er lov, og lengre er tryggere – f.eks. Wain/a@y.',
     enterPin: 'Skriv inn PIN', unlock: 'Lås opp', wrongPin: 'Feil PIN',
-    landingTitle: 'Velkommen', landingHint: 'Har naboene dine gitt deg en PIN? Skriv den inn. Ellers kan du starte et nytt samarbeid.',
+    landingTitle: 'Lån drill av naboen.', landingHint: 'Alle med PIN-en ser samme liste. Ingen konto, ingen regneark.',
+    trust1: 'Listen oppdateres live for alle i gruppa',
+    trust2: 'PIN-en er nøkkelen. Del den bare med naboene',
+    trust3: 'Fungerer som app på telefonen',
+    pinLabel: 'PIN til samarbeidet',
+    havePin: 'Har du PIN?',
+    havePinHint: 'Naboene dine har gitt deg en nøkkel. Skriv den inn — så er du inne.',
+    selectMode: 'Velg',
+    ownerFilter: 'Eier',
+    more: 'Mer',
+    exportMenu: 'Eksporter',
     openGroup: 'Åpne samarbeid',
     newGroup: 'Start nytt verktøysamarbeid',
     or: 'eller',
@@ -471,7 +176,7 @@ var I18N = {
     search: 'Search tools …', newTool: 'New tool',
     loanOut: 'Loan out', loanToMe: 'Borrow myself', returnBtn: 'Return',
     owner: 'Owner', edit: 'Edit', save: 'Save',
-    noTools: 'No tools yet', noToolsHint: 'Tap «New tool» to add the first one.',
+    noTools: 'Add the first drill', noToolsHint: 'Once it is here, neighbours can borrow it in one tap.',
     noHits: 'No matches', noHitsHint: 'Try another search or filter.', showAll: 'Show all',
     longLoan: 'Out long', days: 'days', today: 'today', day1: '1 day',
     whoAreYou: 'Who are you?', pickPerson: 'Saved only on this device.',
@@ -481,7 +186,17 @@ var I18N = {
     setupPinReq: 'PIN (4–32 characters)',
     setupPinReqHint: 'The PIN is the key to your group – only share it with your neighbors. Letters and special characters are allowed, and longer is safer – e.g. Wain/a@y.',
     enterPin: 'Enter PIN', unlock: 'Unlock', wrongPin: 'Wrong PIN',
-    landingTitle: 'Welcome', landingHint: 'Did your neighbors give you a PIN? Enter it below. Otherwise, start a new group.',
+    landingTitle: 'Borrow a drill from next door.', landingHint: 'Everyone with the PIN sees the same list. No account, no spreadsheet.',
+    trust1: 'The list updates live for everyone in the group',
+    trust2: 'The PIN is the key. Only share it with your neighbors',
+    trust3: 'Works as an app on your phone',
+    pinLabel: 'Group PIN',
+    havePin: 'Have a PIN?',
+    havePinHint: 'Your neighbors gave you a key. Enter it — and you are in.',
+    selectMode: 'Select',
+    ownerFilter: 'Owner',
+    more: 'More',
+    exportMenu: 'Export',
     openGroup: 'Open group',
     newGroup: 'Start a new tool group',
     or: 'or',
@@ -647,7 +362,7 @@ function typeNavn(v){
   var x = typeFinn(v);
   return x ? x[st.lang === 'en' ? 'en' : 'nb'] : String(v == null ? '' : v);
 }
-var FARGER = ['#2E52D0','#256B43','#9A5300','#8E3B8E','#B23A26','#0E7490','#6D5A1F','#4F5D75'];
+var FARGER = ['#B85C2A','#2F5D3A','#C47A12','#6E6458','#A33B24','#3D5A4A','#8A5A2B','#4F5D75'];
 
 var $ = function(s){ return document.querySelector(s); };
 var esc = function(s){
@@ -822,7 +537,7 @@ var st = {
   klar:false, data:null, visning:'verktoy', filter:'alle', sok:'',
   modal:null, lagrer:false, oppsett:null, bekreft:null,
   lang: oppdagSprak(),   // a stored choice replaces this during boot
-  selected: {},
+  selected: {}, selectMode: false, meOpen: false, moreId: null,
   pinOk: false,
   landing: false,     // front page: open an existing group or start a new one
   landingError: '',   // message shown on the front page / setup screen
@@ -849,7 +564,7 @@ function visToast(){
     el.hidden = true;
     return;
   }
-  el.textContent = st.toast;
+  el.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8.5 6.2 12 13 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>' + esc(st.toast) + '</span>';
   el.hidden = false;
   el.setAttribute('role', 'status');
   clearTimeout(toastTimer);
@@ -922,7 +637,7 @@ function gyldigPostnr(nr){ return /^\d{4}$/.test(String(nr || '').trim()); }
 var H = {};
 
 H.tab = function(v){
-  st.visning = v; st.bekreft = null; render();
+  st.visning = v; st.bekreft = null; st.meOpen = false; st.moreId = null; render();
   if(v === 'etterlys') fetchReq().then(function(endret){ if(endret) render(); });
 };
 H.setFilter = function(f){ st.filter = (st.filter === f && f.indexOf('p:') === 0) ? 'alle' : f; render(); };
@@ -1075,7 +790,7 @@ H.oLegg = function(){ st.oppsett.push({name:'', address:''}); render(); };
 H.oFjern = function(i){ st.oppsett.splice(i, 1); render(); };
 
 H.velgMeg = function(pid){ settMeg(pid); st.modal = null; render(); };
-H.byttMeg = function(){ st.modal = {type:'byttmeg'}; render(); };
+H.byttMeg = function(){ st.meOpen = false; st.modal = {type:'byttmeg'}; render(); };
 H.visLeggMeg = function(){ st.modal = {type:'byttmeg', leggTil:true}; render(); };
 H.leggMegTil = function(){
   var n = $('#m-navn').value.trim(), a = $('#m-adr').value.trim();
@@ -1297,7 +1012,10 @@ H.toggleSel = function(id){
   if(!st.selected[id]) delete st.selected[id];
   render();
 };
-H.clearSel = function(){ st.selected = {}; render(); };
+H.clearSel = function(){ st.selected = {}; st.selectMode = false; render(); };
+H.toggleSelMode = function(){ st.selectMode = !st.selectMode; if(!st.selectMode) st.selected = {}; render(); };
+H.toggleMe = function(){ st.meOpen = !st.meOpen; render(); };
+H.mer = function(id){ st.moreId = st.moreId === id ? null : id; visListe(); };
 H.setLang = function(v){
   if(v !== 'nb' && v !== 'en') return;
   if(st.lang === v) return;
@@ -1629,6 +1347,27 @@ function ikon(navn, str){
     d + '</svg>';
 }
 var sw = function(c){ return '<span class="vb-sw" style="background:' + esc(c) + '"></span>'; };
+function initialer(navn){
+  var p = String(navn || '').trim().split(/\s+/);
+  var a = (p[0] && p[0][0]) || '?';
+  var b = p[1] ? p[1][0] : '';
+  return (a + b).toUpperCase();
+}
+function avatarHtml(p, size){
+  var farge = p && p.color ? p.color : '#B85C2A';
+  var txt = p ? initialer(p.name) : '?';
+  return '<span class="nt-av' + (size ? ' ' + size : '') + '" style="background:' + esc(farge) + '">' + esc(txt) + '</span>';
+}
+function merke(){
+  var n = CONFIG.name || 'NeighborTools';
+  var m = n.match(/^(.*?)(Tools)$/i);
+  var word = m ? '<i>' + esc(m[1]) + '</i>' + esc(m[2]) : esc(n);
+  return '<span class="nt-mark"><svg width="26" height="26" viewBox="0 0 32 32" aria-hidden="true">' +
+    '<rect width="32" height="32" rx="3" fill="#B85C2A"/>' +
+    '<path d="M16 6.5 25 11.2v9.6L16 25.5 7 20.8v-9.6L16 6.5Z" fill="none" stroke="#F6F1E8" stroke-width="1.6"/>' +
+    '<rect x="13.2" y="13.2" width="5.6" height="5.6" rx=".6" fill="none" stroke="#F6F1E8" stroke-width="1.5" transform="rotate(45 16 16)"/>' +
+    '</svg><span class="nt-word">' + word + '</span></span>';
+}
 
 /* Language switch. Shows both languages so the active one is obvious –
    paaKort = true for the light setup/front-page cards. */
@@ -1668,13 +1407,11 @@ function render(){
   // PIN gate
   if(hasPin() && !isPinOk()){
     app.innerHTML =
-      '<header class="vb-head vb-head-tall">' +
-        '<div class="vb-logo"><span class="vb-logomark">' + ikon('skru',15) + '</span>' + esc(CONFIG.name.toUpperCase()) + '</div>' +
-      '</header>' +
-      '<main class="vb-main"><section class="vb-card vb-pinbox">' +
+      '<header class="vb-head vb-head-tall"><div class="vb-logo">' + merke() + '</div></header>' +
+      '<main class="vb-main"><section class="vb-pinbox">' +
         '<h2 class="vb-h2">' + esc(t('enterPin')) + '</h2>' +
-        '<input class="vb-inp" id="pin-inp" type="password" autocomplete="one-time-code" ' +
-          'placeholder="PIN" onkeydown="if(event.key===\'Enter\')H.unlockPin()">' +
+        '<label class="nt-float vb-mt"><input id="pin-inp" type="password" autocomplete="one-time-code" placeholder=" " ' +
+          'onkeydown="if(event.key===\'Enter\')H.unlockPin()"><span>' + esc(t('pinLabel')) + '</span></label>' +
         '<button class="vb-btn vb-primary vb-mt" onclick="H.unlockPin()">' + esc(t('unlock')) + '</button>' +
       '</section></main>' +
       '<div id="toast" class="vb-toast" hidden></div>';
@@ -1700,9 +1437,10 @@ function render(){
 
   var fab = '';
   if(st.visning === 'verktoy')
-    fab = '<button class="vb-fab" onclick="H.nytt()">' + ikon('pluss') + ' ' + esc(t('newTool')) + '</button>';
+    fab = '<button class="vb-fab" onclick="H.nytt()" aria-label="' + esc(t('newTool')) + '">+' +
+      '<svg width="0" height="0"></svg> <span class="nt-fab-txt">' + esc(t('newTool')) + '</span></button>';
   if(st.visning === 'etterlys')
-    fab = '<button class="vb-fab" onclick="H.nyEttersp()">' + ikon('pluss') + ' ' + esc(t('newReq')) + '</button>';
+    fab = '<button class="vb-fab" onclick="H.nyEttersp()" aria-label="' + esc(t('newReq')) + '">+ <span class="nt-fab-txt">' + esc(t('newReq')) + '</span></button>';
 
   var selN = Object.keys(st.selected).filter(function(k){ return st.selected[k]; }).length;
   var bulk = (st.visning === 'verktoy' && selN)
@@ -1712,24 +1450,58 @@ function render(){
           esc(t('clearSel')) + '</button></div>'
     : '';
 
-  app.innerHTML =
-    '<header class="vb-head">' +
-      '<div class="vb-logo"><span class="vb-logomark">' + ikon('skru', 15) + '</span>' + esc(CONFIG.name.toUpperCase()) + '</div>' +
-      '<div class="vb-headright">' +
-        sprakVelger(false) +
-        '<span id="spin" class="vb-spin" hidden></span>' +
-        '<button class="vb-iconbtn vb-onhead" aria-label="Refresh" onclick="H.oppdater()">' + ikon('oppdater') + '</button>' +
+  var megNavn = megGyldig ? byId[meg].name : (st.lang==='en'?'You':'Velg deg');
+  var meMenu = st.meOpen
+    ? '<div class="nt-memenu">' + sprakVelger(true) +
+        '<button class="vb-btn vb-ghost vb-small" onclick="H.oppdater()">' + ikon('oppdater',16) + ' ' + esc(t('updated')) + '</button>' +
         (Lager.mode === 'server'
-          ? '<button class="vb-iconbtn vb-onhead" aria-label="' + esc(t('switchGroup')) + '" title="' +
-            esc(t('switchGroup')) + '" onclick="H.switchGroup()">' + ikon('laas') + '</button>'
+          ? '<button class="vb-btn vb-ghost vb-small" onclick="H.switchGroup()">' + ikon('laas',16) + ' ' + esc(t('switchGroup')) + '</button>'
           : '') +
-        '<button class="vb-mechip" onclick="H.byttMeg()">' +
-          (megGyldig ? sw(byId[meg].color) + '<span class="vb-navn">' + esc(byId[meg].name) + '</span>' : (st.lang==='en'?'You':'Velg deg')) +
+        '<button class="vb-btn vb-ghost vb-small" onclick="H.byttMeg()">' + esc(t('whoAreYou')) + '</button>' +
+      '</div>'
+    : '';
+
+  var deskAdd = '';
+  if(st.visning === 'verktoy') deskAdd = '<button class="vb-btn vb-primary vb-small nt-desk-add" onclick="H.nytt()">' + esc(t('newTool')) + '</button>';
+  if(st.visning === 'etterlys') deskAdd = '<button class="vb-btn vb-primary vb-small nt-desk-add" onclick="H.nyEttersp()">' + esc(t('newReq')) + '</button>';
+
+  var tittel = st.visning === 'verktoy' ? t('tools') : st.visning === 'etterlys' ? t('reqTab') : st.visning === 'personer' ? t('people') : t('log');
+
+  app.innerHTML =
+    '<div class="nt-shell">' +
+    '<aside class="nt-rail">' + merke() +
+      '<nav class="nt-railnav">' +
+        railKnapp('verktoy', t('tools')) +
+        railKnapp('etterlys', t('reqTab'), antallEttersp()) +
+        railKnapp('personer', t('people')) +
+        railKnapp('logg', t('log')) +
+      '</nav>' +
+      '<div class="nt-railme">' +
+        (megGyldig ? avatarHtml(byId[meg]) : '<span class="nt-av">?</span>') +
+        '<div><b>' + esc(megNavn) + '</b><div class="vb-muted">' + sprakVelger(true) + '</div></div>' +
+      '</div>' +
+      (Lager.mode === 'server'
+        ? '<button class="vb-btn vb-ghost vb-small" onclick="H.switchGroup()">' + esc(t('switchGroup')) + '</button>'
+        : '') +
+    '</aside>' +
+    '<div class="nt-appcol">' +
+    '<header class="vb-head">' +
+      '<div class="vb-logo">' + merke() + '</div>' +
+      '<div class="vb-headright">' +
+        '<span id="spin" class="vb-spin" hidden>' +
+          '<svg viewBox="0 0 32 32" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4 26 9.2v13.6L16 28 6 22.8V9.2L16 4Z"/></svg>' +
+        '</span>' +
+        '<button class="vb-mechip" onclick="H.toggleMe()">' +
+          (megGyldig ? avatarHtml(byId[meg],'sm') + '<span class="vb-navn">' + esc(byId[meg].name) + '</span>' : (st.lang==='en'?'You':'Velg deg')) +
         '</button>' +
       '</div>' +
     '</header>' +
+    meMenu +
     banner +
-    '<main class="vb-main">' + innhold + '</main>' +
+    '<main class="vb-main">' +
+      '<div class="nt-deskbar"><div><h2>' + esc(tittel) + '</h2></div>' + deskAdd + '</div>' +
+      innhold +
+    '</main>' +
     '<nav class="vb-nav">' +
       tabKnapp('verktoy','skru', t('tools')) +
       tabKnapp('etterlys','rop', t('reqTab'), antallEttersp()) +
@@ -1738,7 +1510,8 @@ function render(){
     '</nav>' +
     fab + bulk +
     '<div id="toast" class="vb-toast" hidden></div>' +
-    trygtModal(byId, megGyldig);
+    trygtModal(byId, megGyldig) +
+    '</div></div>';
 
   if(st.lagrer) visLagrer(true);
 }
@@ -1747,6 +1520,10 @@ function tabKnapp(v, ik, navn, badge){
   return '<button class="vb-tab' + (st.visning === v ? ' on' : '') + '" onclick="H.tab(\'' + v + '\')">' +
     (badge ? '<span class="vb-tabbadge">' + badge + '</span>' : '') +
     ikon(ik, 19) + '<span>' + navn + '</span></button>';
+}
+function railKnapp(v, navn, badge){
+  return '<button class="' + (st.visning === v ? 'on' : '') + '" onclick="H.tab(\'' + v + '\')">' +
+    esc(navn) + (badge ? ' · ' + badge : '') + '</button>';
 }
 /* Open requests worth noticing: neighborhood asks + replies to our own */
 function antallEttersp(){
@@ -1762,28 +1539,39 @@ function antallEttersp(){
 /* ----- Front page (server mode): open a group with a PIN, or start a new one ----- */
 function htmlLanding(){
   var errHtml = st.landingError
-    ? '<p class="vb-finetext" style="color:var(--fare,#B23A26)" role="alert">' + esc(st.landingError) + '</p>'
+    ? '<p class="vb-finetext" style="color:var(--danger)" role="alert">' + esc(st.landingError) + '</p>'
     : '';
+  var pinFelt =
+    '<label class="nt-float">' +
+      '<input id="land-pin" type="password" maxlength="32" autocomplete="one-time-code" placeholder=" " ' +
+        'onkeydown="if(event.key===\'Enter\')H.openGroup()">' +
+      '<span>' + esc(t('pinLabel')) + '</span></label>' +
+    errHtml +
+    '<button class="vb-btn vb-primary vb-mt" onclick="H.openGroup()">' + esc(t('openGroup')) + '</button>' +
+    '<p style="text-align:center;margin:14px 0 0"><button class="nt-textbtn" onclick="H.newGroup()">' +
+      esc(t('newGroup')) + '</button></p>';
+  var tillit =
+    '<ul class="nt-trust">' +
+      '<li><i>—</i> ' + esc(t('trust1')) + '</li>' +
+      '<li><i>—</i> ' + esc(t('trust2')) + '</li>' +
+      '<li><i>—</i> ' + esc(t('trust3')) + '</li>' +
+    '</ul>';
 
-  return '<header class="vb-head vb-head-tall">' +
-      '<div class="vb-logo"><span class="vb-logomark">' + ikon('skru',15) + '</span>' + esc(CONFIG.name.toUpperCase()) + '</div>' +
-      '<div class="vb-tagline">' + esc(CONFIG.tagline) + '</div>' +
-    '</header>' +
-    '<main class="vb-main">' +
-      '<section class="vb-card vb-pinbox">' +
-        '<div style="display:flex;justify-content:flex-end;margin-bottom:8px">' +
-          sprakVelger(true) + '</div>' +
-        '<h2 class="vb-h2">' + esc(t('landingTitle')) + '</h2>' +
-        '<p class="vb-muted vb-mb">' + esc(t('landingHint')) + '</p>' +
-        '<input class="vb-inp" id="land-pin" type="password" maxlength="32" ' +
-          'autocomplete="one-time-code" placeholder="PIN" ' +
-          'onkeydown="if(event.key===\'Enter\')H.openGroup()">' +
-        errHtml +
-        '<button class="vb-btn vb-primary vb-mt" onclick="H.openGroup()">' + esc(t('openGroup')) + '</button>' +
-        '<p class="vb-finetext" style="text-align:center">' + esc(t('or')) + '</p>' +
-        '<button class="vb-btn vb-ghost" onclick="H.newGroup()">' +
-          ikon('pluss',16) + ' ' + esc(t('newGroup')) + '</button>' +
-      '</section>' +
+  return '<main class="vb-main">' +
+    '<div class="nt-land-desk">' +
+      '<div class="nt-land-left nt-land">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center">' + merke() + sprakVelger(true) + '</div>' +
+        '<h2>' + esc(t('landingTitle')) + '</h2>' +
+        '<p class="vb-muted">' + esc(t('landingHint')) + '</p>' +
+        tillit +
+        '<div class="nt-silrow" aria-hidden="true">' + ikon('skru',36) + ikon('klokke',36) + ikon('folk',36) + '</div>' +
+      '</div>' +
+      '<div class="nt-land-right vb-pinbox">' +
+        '<h3 class="vb-h2">' + esc(t('havePin')) + '</h3>' +
+        '<p class="vb-muted vb-mb">' + esc(t('havePinHint')) + '</p>' +
+        pinFelt +
+      '</div>' +
+    '</div>' +
     '</main>' +
     '<div id="toast" class="vb-toast" hidden></div>';
 }
@@ -1810,8 +1598,8 @@ function htmlOppsett(){
   }).join('');
 
   return '<header class="vb-head vb-head-tall">' +
-      '<div class="vb-logo"><span class="vb-logomark">' + ikon('skru',15) + '</span>' + esc(CONFIG.name.toUpperCase()) + '</div>' +
-      '<div class="vb-tagline">' + esc(CONFIG.tagline) + '</div>' +
+      '<div class="vb-logo">' + merke() + '</div>' +
+      '<div class="vb-tagline">' + esc(t('landingHint')) + '</div>' +
     '</header>' +
     '<main class="vb-main">' +
       '<section class="vb-card">' +
@@ -1913,16 +1701,22 @@ function htmlVerktoy(byId){
   var mine = meg ? tools.filter(function(t){ return t.holderId === meg && t.ownerId !== meg; }).length : 0;
   var selN = Object.keys(st.selected).filter(function(k){ return st.selected[k]; }).length;
 
-  var chips =
-    chip('alle', t('all')) + chip('hjemme', t('home')) +
-    chip('ute', t('onLoan') + (ute ? ' · ' + ute : '')) +
-    (meg ? chip('mine', t('myLoans') + (mine ? ' · ' + mine : '')) : '') +
-    '<span class="vb-chipdiv"></span>' +
+  var seg = ['alle','hjemme','ute','mine'];
+  var segI = seg.indexOf(st.filter);
+  var segHtml =
+    '<div class="nt-seg">' +
+      '<span class="nt-seg-ink" style="' + (segI < 0 ? 'display:none' : 'transform:translateX(' + (segI * 100) + '%)') + '"></span>' +
+      chip('alle', t('all')) + chip('hjemme', t('home')) +
+      chip('ute', t('onLoan') + (ute ? ' · ' + ute : '')) +
+      chip('mine', t('myLoans') + (mine ? ' · ' + mine : '')) +
+    '</div>';
+  var eierSel = '<select class="nt-owner" onchange="H.setFilter(this.value)">' +
+    '<option value="alle">' + esc(t('ownerFilter')) + '</option>' +
     (st.data.people || []).map(function(p){
-      return chip('p:' + p.id, sw(p.color) + esc(p.name));
-    }).join('');
+      return '<option value="p:' + p.id + '"' + (st.filter === ('p:' + p.id) ? ' selected' : '') + '>' +
+        esc(p.name) + '</option>';
+    }).join('') + '</select>';
 
-  // Gentle reminder for tools I hold that are due back
   var forfaller = forfallListe();
   var paaminnelse = forfaller.length
     ? '<button class="vb-remind" onclick="H.setFilter(\'mine\')">' + ikon('klokke',16) +
@@ -1934,14 +1728,18 @@ function htmlVerktoy(byId){
 
   return paaminnelse +
     '<div class="vb-stats">' + tools.length + ' · ' + ute + ' ' + t('onLoan').toLowerCase() +
-    (selN ? ' · <b>' + selN + ' ' + t('selected') + '</b>' : '') + '</div>' +
-    '<input class="vb-inp vb-search" placeholder="' + esc(t('search')) + '" value="' + esc(st.sok) +
+    (selN ? ' · <b>' + selN + ' ' + t('selected') + '</b>' : '') +
+    ' · <button class="nt-textbtn" onclick="H.toggleSelMode()">' + esc(t('selectMode')) + '</button></div>' +
+    '<div class="nt-search">' +
+      '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3-3"/></svg>' +
+      '<input class="vb-inp" placeholder="' + esc(t('search')) + '" value="' + esc(st.sok) +
       '" oninput="H.sok(this)">' +
-    '<div class="vb-chips">' + chips + '</div>' +
+    '</div>' +
+    segHtml + eierSel +
     '<div id="liste"></div>';
 }
 function chip(f, innhold){
-  return '<button class="vb-chip' + (st.filter === f ? ' on' : '') +
+  return '<button class="' + (st.filter === f ? 'on' : '') +
     '" onclick="H.setFilter(\'' + f + '\')">' + innhold + '</button>';
 }
 
@@ -1952,6 +1750,7 @@ function visListe(){
   var tools = st.data.tools || [];
   var q = st.sok.trim().toLowerCase();
   var meg = hentMeg();
+  var selN = Object.keys(st.selected).filter(function(k){ return st.selected[k]; }).length;
   var liste = tools.filter(function(t){
     if(q && ((t.name + ' ' + typeNavn(t.type) + ' ' + (t.notes || '')).toLowerCase().indexOf(q) === -1)) return false;
     if(st.filter === 'hjemme') return t.holderId === t.ownerId;
@@ -2030,32 +1829,33 @@ function visListe(){
               esc(t('reserve')) + '</button>';
       }
     }
-    var bilde = v.img
-      ? '<img class="vb-toolimg" src="' + esc(v.img) + '" alt="">'
-      : '<div class="vb-toolimg" style="display:flex;align-items:center;justify-content:center;color:var(--muted)">' +
-          ikon('skru',22) + '</div>';
-    return '<article class="vb-card">' +
-      '<div class="vb-toolrow">' +
-        '<button class="vb-check' + (sel?' on':'') + '" aria-label="Select" onclick="H.toggleSel(\'' + v.id + '\')">' +
-          (sel ? '✓' : '') + '</button>' +
-        '<div class="vb-toolleft">' + bilde +
-          '<div style="min-width:0"><h3 class="vb-toolname">' + esc(v.name) + '</h3>' +
-          '<div class="vb-ownerline">' + esc(t('owner')) + ': ' + sw(eier ? eier.color : '#999') + ' ' +
-            esc(eier ? eier.name : '?') + '</div></div>' +
-        '</div>' +
-        '<span class="vb-type">' + esc(typeNavn(v.type)) + '</span></div>' +
-      '<div class="vb-tagrow"><span class="vb-tagg ' + (hjemme ? 'hjemme' : (lenge ? 'lenge' : 'ute')) + '">' +
-        status + '</span>' + forfallTag + eksternTag + '</div>' +
-      køLinje +
-      (ekstern && v.ext && v.ext.note ? '<p class="vb-notes">' + esc(v.ext.note) + '</p>' : '') +
-      (v.notes ? '<p class="vb-notes">' + esc(v.notes) + '</p>' : '') +
-      '<div class="vb-toolactions" style="flex-wrap:wrap;gap:8px">' + handling +
-        '<button class="vb-iconbtn" aria-label="' + esc(t('history')) + '" onclick="H.visHistorikk(\'' + v.id + '\')">' +
-          ikon('klokke',17) + '</button>' +
-        '<button class="vb-iconbtn" aria-label="' + esc(t('edit')) + '" onclick="H.rediger(\'' + v.id + '\')">' +
-          ikon('blyant',17) + '</button>' +
+    var fig = v.img
+      ? '<span class="nt-fig-wrap"><img class="nt-fig-img" src="' + esc(v.img) + '" alt=""></span>'
+      : '<span class="nt-fig-wrap nt-fig-sil">' + ikon('skru',40) + '</span>';
+    var check = (st.selectMode || selN)
+      ? '<button class="vb-check' + (sel?' on':'') + '" aria-label="Select" onclick="H.toggleSel(\'' + v.id + '\')">' +
+          (sel ? '✓' : '') + '</button>'
+      : '';
+    var mer = st.moreId === v.id
+      ? '<div class="nt-more">' +
+          '<button class="vb-iconbtn" aria-label="' + esc(t('history')) + '" onclick="H.visHistorikk(\'' + v.id + '\')">' + ikon('klokke',17) + '</button>' +
+          '<button class="vb-iconbtn" aria-label="' + esc(t('edit')) + '" onclick="H.rediger(\'' + v.id + '\')">' + ikon('blyant',17) + '</button>' +
+        '</div>'
+      : '<button class="vb-iconbtn" aria-label="' + esc(t('more')) + '" onclick="H.mer(\'' + v.id + '\')">⋯</button>';
+    return '<article class="nt-tool">' +
+      '<div class="nt-fig">' + fig +
+        '<span class="vb-tagg ' + (hjemme ? 'hjemme' : (lenge ? 'lenge' : 'ute')) + '">' + status + '</span>' +
+        forfallTag + eksternTag +
       '</div>' +
-    '</article>';
+      '<div class="nt-tool-body">' +
+        '<h3 class="vb-toolname">' + esc(v.name) + '</h3>' +
+        '<div class="nt-who">' + avatarHtml(eier, 'sm') + ' ' +
+          esc(eier ? eier.name : '?') + ' · ' + esc(typeNavn(v.type)) + '</div>' +
+        køLinje +
+        (ekstern && v.ext && v.ext.note ? '<p class="vb-notes">' + esc(v.ext.note) + '</p>' : '') +
+        (v.notes ? '<p class="vb-notes">' + esc(v.notes) + '</p>' : '') +
+        '<div class="nt-acts">' + check + handling + mer + '</div>' +
+      '</div></article>';
   }).join('') + '</div>';
 }
 
@@ -2066,10 +1866,11 @@ function htmlEttersp(byId){
   var hoodOn = !!(st.data.settings && st.data.settings.neighborhood);
 
   var toggle = onServer
-    ? '<label class="vb-card vb-hoodtoggle">' +
-        '<input type="checkbox"' + (hoodOn ? ' checked' : '') + ' onchange="H.toggleNabolag(this)">' +
+    ? '<label class="vb-hoodtoggle">' +
         '<span><b>' + esc(t('hoodToggle')) + '</b>' +
         '<span class="vb-finetext" style="display:block;margin-top:3px">' + esc(t('hoodToggleHint')) + '</span></span>' +
+        '<input type="checkbox"' + (hoodOn ? ' checked' : '') + ' onchange="H.toggleNabolag(this)">' +
+        '<span class="nt-knob" aria-hidden="true"></span>' +
       '</label>'
     : '';
 
@@ -2097,9 +1898,9 @@ function htmlEttersp(byId){
             }).join('') + '</div>'
           : '<p class="vb-finetext">' + esc(t('noReplies')) + '</p>';
       }
-      return '<article class="vb-card">' +
-        '<div class="vb-toolrow"><h3 class="vb-toolname" style="font-size:15px">«' + esc(r.text) + '»</h3>' + scopeChip + '</div>' +
-        '<div class="vb-req-meta">' + sw(p ? p.color : '#999') + ' ' + esc(p ? p.name : '?') + ' · ' + fmtDato(r.created) + '</div>' +
+      return '<article class="nt-note">' +
+        '<q>' + esc(r.text) + '</q>' + scopeChip +
+        '<div class="vb-req-meta">' + avatarHtml(p, 'sm') + ' ' + esc(p ? p.name : '?') + ' · ' + fmtDato(r.created) + '</div>' +
         svar +
         '<div class="vb-toolactions">' +
           '<button class="vb-btn vb-dangertxt vb-small' + (st.bekreft === 'r' + r.id ? ' bekreft' : '') +
@@ -2116,8 +1917,8 @@ function htmlEttersp(byId){
     nearbyHtml = '<h3 class="vb-sechead">' + esc(t('reqNearbyTitle')) + '</h3>' +
       (nb.length
         ? '<div class="vb-list">' + nb.map(function(r){
-            return '<article class="vb-card">' +
-              '<div class="vb-toolrow"><h3 class="vb-toolname" style="font-size:15px">«' + esc(r.text) + '»</h3></div>' +
+            return '<article class="nt-note">' +
+              '<q>' + esc(r.text) + '</q>' +
               '<div class="vb-req-meta">' + esc(r.name) + ' · ' + esc(r.postnr + ' ' + r.place) +
                 ' · ca. ' + r.distKm + ' ' + esc(t('kmAway')) + ' · ' + fmtDato(r.created) + '</div>' +
               '<div class="vb-toolactions"><button class="vb-btn vb-primary vb-small" ' +
@@ -2143,7 +1944,7 @@ function htmlPersoner(byId, meg){
     var laantBort = eier.filter(function(t){ return t.holderId !== p.id; });
     return '<article class="vb-card">' +
       '<div class="vb-toolrow">' +
-        '<h3 class="vb-toolname">' + sw(p.color) + ' ' + esc(p.name) +
+        '<h3 class="vb-toolname">' + avatarHtml(p, 'lg') + ' ' + esc(p.name) +
           (p.id === meg ? '<span class="vb-you">' + esc(t('youTag')) + '</span>' : '') + '</h3>' +
         '<button class="vb-iconbtn" aria-label="' + esc(t('edit')) + '" onclick="H.redigerPerson(\'' + p.id + '\')">' +
           ikon('blyant',17) + '</button>' +
@@ -2187,8 +1988,9 @@ function htmlLogg(byId){
         return '<div class="vb-logrow t-' + esc(e.t) + '"><span class="vb-logtext">' + tekst +
           '</span><span class="vb-logdate">' + fmtDato(e.date) + '</span></div>';
       }).join('') + '</div>';
-  return '<div class="vb-sheet-actions vb-mb" style="flex-direction:row;gap:8px;flex-wrap:wrap">' +
-    '<button class="vb-btn vb-ghost" style="flex:1" onclick="H.backup()">' + ikon('oppdater',16) + ' ' + esc(t('backup')) + '</button>' +
+  return '<details class="vb-mb"><summary class="nt-textbtn">' + esc(t('exportMenu')) + '</summary>' +
+    '<div class="vb-sheet-actions vb-mt" style="flex-direction:row;gap:8px;flex-wrap:wrap">' +
+    '<button class="vb-btn vb-ghost" style="flex:1" onclick="H.backup()">' + esc(t('backup')) + '</button>' +
     '<label class="vb-btn vb-ghost" style="flex:1;cursor:pointer">' +
       '<input type="file" accept="application/json,.json" hidden onchange="H.importBackup(this)">' +
       esc(t('restore')) +
@@ -2198,7 +2000,7 @@ function htmlLogg(byId){
       '<input type="file" accept="text/csv,.csv" hidden onchange="H.importCsv(this)">' +
       esc(t('importCsv')) +
     '</label>' +
-  '</div>' + liste;
+  '</div></details>' + liste;
 }
 
 /* ----- Modal sheets ----- */
@@ -2243,7 +2045,7 @@ function htmlModal(byId, megGyldig){
 
   if(m.type === 'byttmeg'){
     var valg = people.map(function(p){
-      return '<button class="vb-pick" onclick="H.velgMeg(\'' + p.id + '\')">' + sw(p.color) +
+      return '<button class="vb-pick" onclick="H.velgMeg(\'' + p.id + '\')">' + avatarHtml(p) +
         '<span class="vb-pick-name">' + esc(p.name) + '</span>' +
         (p.address ? '<span class="vb-pick-addr">' + esc(p.address) + '</span>' : '') + '</button>';
     }).join('');
@@ -2310,7 +2112,7 @@ function htmlModal(byId, megGyldig){
       : tf('loanMany', tls.length);
     var knapper = andre.length
       ? andre.map(function(p){
-          return '<button class="vb-pick" onclick="H.velgLaaner(null,\'' + p.id + '\')">' + sw(p.color) +
+          return '<button class="vb-pick" onclick="H.velgLaaner(null,\'' + p.id + '\')">' + avatarHtml(p) +
             '<span class="vb-pick-name">' + esc(p.name) + '</span>' +
             (p.address ? '<span class="vb-pick-addr">' + esc(p.address) + '</span>' : '') + '</button>';
         }).join('')
@@ -2491,6 +2293,26 @@ render = function(){
   // The boot screen is static markup, so translate it before the first await
   var bootTekst = document.querySelector('#app .vb-muted');
   if(bootTekst) bootTekst.textContent = t('loading');
+
+  document.addEventListener('click', function(e){
+    var btn = e.target.closest && e.target.closest('.vb-btn.vb-primary');
+    if(btn && !btn.disabled){
+      var r = btn.getBoundingClientRect();
+      var s = document.createElement('span');
+      s.className = 'nt-ripple';
+      var size = Math.max(r.width, r.height);
+      s.style.width = s.style.height = size + 'px';
+      s.style.left = (e.clientX - r.left - size/2) + 'px';
+      s.style.top = (e.clientY - r.top - size/2) + 'px';
+      btn.appendChild(s);
+      setTimeout(function(){ if(s.parentNode) s.parentNode.removeChild(s); }, 520);
+    }
+    if(st.meOpen && !(e.target.closest && (e.target.closest('.nt-memenu') || e.target.closest('.vb-mechip')))){
+      st.meOpen = false;
+      var menu = document.querySelector('.nt-memenu');
+      if(menu) menu.remove();
+    }
+  });
 
   // Escape closes open modal; simple focus trap inside sheet
   document.addEventListener('keydown', function(e){

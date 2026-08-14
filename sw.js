@@ -1,6 +1,6 @@
 /* NeighborTools – minimal service worker (app shell cache) */
-const CACHE = 'nt-shell-v4';
-const ASSETS = ['/', '/index.html', '/manifest.webmanifest'];
+const CACHE = 'nt-shell-v5';
+const ASSETS = ['/', '/index.html', '/app.css', '/manifest.webmanifest'];
 
 self.addEventListener('install', function(e){
   e.waitUntil(

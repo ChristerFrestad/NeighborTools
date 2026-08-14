@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NeighborTools — nabolagskatalogen v2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Schibsted+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F3EEE4; --surface:#FBF8F2; --ink:#1C1612; --muted:#6E6458; --line:#DDD4C6;
+  --accent:#B85C2A; --accent-press:#9A4B22; --accent-tint:#F4E4D6;
+  --home:#2F5D3A; --home-tint:#E4EDE6; --out:#C47A12; --out-tint:#F6E8CC;
+  --danger:#A33B24; --danger-tint:#F3E0DB;
+  --display:"Fraunces", "Iowan Old Style", Georgia, serif;
+  --sans:"Schibsted Grotesk", ui-sans-serif, sans-serif;
+  --ease-out:cubic-bezier(.22,1,.36,1);
+  --ease-spring:cubic-bezier(.34,1.56,.64,1);
+  --t-fast:120ms; --t-mid:220ms; --t-slow:420ms;
+  --fiber:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+[data-theme="dark"]{
+  --bg:#1A1714; --surface:#221E1A; --ink:#F3EEE4; --muted:#A89A8A; --line:#3A332C;
+  --accent:#D47845; --accent-press:#E08958; --accent-tint:#3A2418;
+  --home:#6FA87C; --home-tint:#1E2C22; --out:#E0A84A; --out-tint:#2E2414;
+  --danger:#E07A64; --danger-tint:#3A1F1A;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{
+  background:#241F1A; color:#F3EEE4;
+  font-family:var(--sans); font-size:14px; line-height:1.45;
+  -webkit-font-smoothing:antialiased;
+}
+button,input{font:inherit;color:inherit}
+button{background:none;border:0;cursor:pointer}
+img{max-width:100%;display:block}
+
+/* Studio */
+.studio{display:grid;grid-template-columns:272px 1fr;min-height:100vh}
+.rail{padding:26px 20px;border-right:1px solid rgba(243,238,228,.08);display:flex;flex-direction:column;gap:20px}
+.rail h1{font-family:var(--display);font-size:26px;font-weight:600;letter-spacing:-.02em;margin:0}
+.rail h1 em{font-style:italic;font-weight:500;color:#D47845}
+.rail .lede{color:#C4B6A6;font-size:13px;margin:6px 0 0}
+.kicker{font-size:10.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#8A7B6C;margin:0 0 7px}
+.picks{display:flex;flex-direction:column;gap:3px}
+.picks button{text-align:left;padding:8px 10px;border-radius:8px;color:#E8DFD2}
+.picks button[aria-pressed="true"]{background:rgba(184,92,42,.22);color:#F6F1E8}
+.picks button:hover{background:rgba(246,241,232,.06)}
+.toggles{display:flex;gap:6px;flex-wrap:wrap}
+.toggles button{
+  padding:6px 10px;border-radius:999px;border:1px solid rgba(246,241,232,.16);
+  font-size:12px;font-weight:600;color:#C4B6A6
+}
+.toggles button[aria-pressed="true"]{background:#F6F1E8;color:#1C1612;border-color:#F6F1E8}
+.play{width:100%;padding:9px 12px;border-radius:8px;background:rgba(184,92,42,.18);color:#F4E4D6;font-weight:600;font-size:13px}
+.play:hover{background:rgba(184,92,42,.3)}
+.notes{margin-top:auto;font-size:12px;color:#8A7B6C}
+.notes p{margin:0 0 8px}
+.stage{
+  display:flex;align-items:center;justify-content:center;
+  padding:32px 24px;overflow:auto;
+  background:radial-gradient(1000px 420px at 70% -8%, rgba(184,92,42,.16), transparent 55%), #1C1814;
+}
+
+/* Frames */
+.phone,.desktop{
+  position:relative;color:var(--ink);background:var(--bg);
+  box-shadow:0 30px 80px rgba(0,0,0,.48);
+  overflow:hidden;display:flex;flex-direction:column;
+}
+.phone{width:390px;height:844px;border-radius:36px}
+.desktop{width:min(1120px,calc(100vw - 340px));height:760px;border-radius:16px;display:grid;grid-template-columns:220px 1fr}
+.fiber{
+  pointer-events:none;position:absolute;inset:0;z-index:8;opacity:.12;
+  background-image:var(--fiber);mix-blend-mode:multiply;
+}
+[data-theme="dark"] .fiber{mix-blend-mode:overlay;opacity:.1}
+
+/* Shared */
+.mark{display:inline-flex;align-items:center;gap:9px}
+.word{font-family:var(--display);font-weight:600;font-size:22px;letter-spacing:-.03em;line-height:1}
+.word i{font-style:italic;font-weight:500}
+.mark-svg .draw{stroke-dasharray:72;stroke-dashoffset:0}
+.enter .mark-svg .draw{stroke-dashoffset:72;animation:draw 480ms var(--ease-out) forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.app-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px;position:sticky;top:0;z-index:3;background:var(--bg)}
+.avatar{
+  width:32px;height:32px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:12px;color:#F6F1E8;background:var(--accent);
+}
+.avatar.sm{width:24px;height:24px;font-size:10px}
+.meta{font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+
+/* Buttons — fill sheen + ripple */
+.btn{
+  position:relative;overflow:hidden;
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  width:100%;padding:13px 16px;border-radius:10px;font-weight:700;font-size:15px;
+  transition:transform var(--t-fast) var(--ease-out), background var(--t-fast);
+}
+.btn:active{transform:scale(.98)}
+.btn-primary{background:var(--accent);color:#FBF8F2}
+.btn-primary::after{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(105deg,transparent 30%,rgba(255,248,240,.22),transparent 70%);
+  transform:translateX(-120%);transition:transform var(--t-slow) var(--ease-out);
+}
+.btn-primary:hover::after{transform:translateX(120%)}
+.btn-ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
+.btn-home{background:var(--home-tint);color:var(--home)}
+.btn-sm{width:auto;padding:8px 12px;font-size:13.5px}
+.btn-text{width:auto;padding:0;background:none;font-weight:600;font-size:14px;color:var(--accent);text-decoration:underline;text-underline-offset:3px}
+.ripple{
+  position:absolute;border-radius:50%;background:rgba(251,248,242,.35);
+  transform:scale(0);animation:rip .5s var(--ease-out) forwards;pointer-events:none;
+}
+@keyframes rip{to{transform:scale(1);opacity:0}}
+
+/* Floating field */
+.float{position:relative;display:block}
+.float input{
+  width:100%;padding:18px 12px 8px;border:0;border-bottom:1.5px solid var(--line);
+  background:transparent;color:var(--ink);outline:none;border-radius:0;
+  transition:border-color var(--t-mid);
+}
+.float span{
+  position:absolute;left:12px;top:14px;color:var(--muted);font-size:15px;
+  pointer-events:none;transform-origin:left top;
+  transition:transform var(--t-mid) var(--ease-out), color var(--t-mid), font-size var(--t-mid);
+}
+.float input:focus + span,
+.float input:not(:placeholder-shown) + span{
+  transform:translateY(-11px);font-size:11px;font-weight:600;color:var(--accent);
+}
+.float input:focus{border-bottom-color:var(--accent)}
+.float.bad input{border-bottom-color:var(--danger);animation:shake var(--t-fast) ease}
+@keyframes shake{20%{transform:translateX(-4px)}40%{transform:translateX(4px)}60%{transform:translateX(-3px)}80%{transform:translateX(2px)}}
+
+/* Hang tag */
+.tag{
+  position:relative;display:inline-flex;align-items:center;
+  font-size:11.5px;font-weight:600;padding:5px 10px 5px 20px;
+  border-radius:4px 999px 999px 4px;
+}
+.tag::before{
+  content:"";position:absolute;left:7px;top:50%;transform:translateY(-50%);
+  width:7px;height:7px;border-radius:50%;
+  background:var(--bg);box-shadow:inset 0 0 0 1.4px currentColor;
+}
+.tag.home{background:var(--home-tint);color:var(--home)}
+.tag.out{background:var(--out-tint);color:var(--out)}
+.tag.late{background:var(--danger-tint);color:var(--danger);animation:breathe 2.4s ease-in-out infinite}
+@keyframes breathe{50%{opacity:.72}}
+
+/* Tab bar + sliding indicator */
+.tabbar{
+  margin-top:auto;display:flex;justify-content:space-around;position:relative;
+  padding:8px 8px 18px;background:var(--surface);border-top:1px solid var(--line);
+}
+.tab{display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--muted);font-size:11px;font-weight:600;min-width:64px;padding:8px 0 4px;z-index:1}
+.tab.on{color:var(--ink)}
+.tab-ink{
+  position:absolute;top:6px;height:2px;width:18px;background:var(--accent);border-radius:2px;
+  transition:transform var(--t-mid) var(--ease-out);pointer-events:none;
+}
+.fab{
+  position:absolute;right:16px;bottom:86px;z-index:5;
+  width:52px;height:52px;border-radius:50%;background:var(--accent);color:#FBF8F2;
+  display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:500;
+  box-shadow:0 10px 24px rgba(184,92,42,.35);
+  transition:transform var(--t-fast) var(--ease-out);
+}
+.fab:active{transform:scale(.94)}
+
+/* Landing */
+.hero-strip{display:grid;grid-template-columns:1.2fr .8fr;gap:8px;height:210px;padding:14px 14px 0;overflow:hidden}
+.hero-strip > *, .hero-strip .stack > *{min-height:0;overflow:hidden}
+.hero-strip .stack{display:grid;grid-template-rows:1fr 1fr;gap:8px}
+.obj-wrap{display:block;width:100%;height:100%}
+.obj{width:100%;height:100%;object-fit:contain;mix-blend-mode:multiply}
+[data-theme="dark"] .obj{mix-blend-mode:normal}
+.land{padding:20px 20px 12px}
+.land h2{font-family:var(--display);font-size:34px;font-weight:600;letter-spacing:-.03em;line-height:1.05;margin:12px 0 10px}
+.land .lede{margin:0 0 22px;color:var(--muted);font-size:15px}
+.trust{display:flex;flex-direction:column;gap:8px;margin:22px 0 0;padding:0;list-style:none;color:var(--muted);font-size:13px}
+.trust li{display:flex;gap:8px}
+.trust i{color:var(--accent);font-style:normal;font-weight:700}
+.enter .rise{opacity:0;transform:translateY(10px);animation:rise var(--t-slow) var(--ease-out) forwards}
+.enter .d1{animation-delay:70ms}.enter .d2{animation-delay:140ms}.enter .d3{animation-delay:210ms}
+.enter .d4{animation-delay:280ms}.enter .d5{animation-delay:350ms}
+@keyframes rise{to{opacity:1;transform:none}}
+
+.land-desk{display:grid;grid-template-columns:1.15fr .85fr;height:100%;background:var(--bg)}
+.land-left{padding:48px 44px 36px;display:flex;flex-direction:column}
+.land-left h2{font-family:var(--display);font-size:50px;line-height:1.02;letter-spacing:-.035em;font-weight:600;margin:16px 0 14px}
+.land-left .lede{font-size:18px;color:var(--muted);max-width:26ch}
+.land-right{background:var(--surface);border-left:1px solid var(--line);padding:48px 40px}
+.land-right h3{font-family:var(--display);font-size:28px;font-weight:600;letter-spacing:-.03em;margin:0 0 8px}
+.land-right .hint{color:var(--muted);margin:0 0 28px;font-size:14.5px}
+.collage{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:auto;max-width:420px}
+.collage .obj-wrap{height:118px}
+.collage img{height:118px;object-fit:contain;mix-blend-mode:multiply}
+[data-theme="dark"] .collage img{mix-blend-mode:normal}
+
+/* Catalog */
+.toolbar{padding:0 16px 10px}
+.search{position:relative}
+.search svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--muted)}
+.search input{
+  width:100%;padding:11px 12px 11px 36px;border:0;border-bottom:1.5px solid var(--line);
+  background:transparent;color:var(--ink);outline:none;
+}
+.search input:focus{border-bottom-color:var(--accent)}
+.seg{display:flex;gap:2px;margin-top:12px;position:relative}
+.seg button{flex:1;padding:7px 6px;border-radius:8px;font-size:13px;font-weight:600;color:var(--muted);position:relative;z-index:1}
+.seg button[aria-pressed="true"]{color:var(--bg)}
+.seg-ink{
+  position:absolute;top:0;bottom:0;width:calc(25% - 1.5px);background:var(--ink);border-radius:8px;
+  transition:transform var(--t-mid) var(--ease-out);
+}
+.stats{padding:4px 16px 10px;color:var(--muted);font-size:12.5px}
+.scroll{flex:1;overflow:auto;padding:0 16px 24px}
+.grid{display:flex;flex-direction:column;gap:14px}
+.tool{
+  background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow:hidden;
+  transform-style:preserve-3d;transition:transform var(--t-mid) var(--ease-out), box-shadow var(--t-mid);
+}
+.desktop .tool:hover{box-shadow:0 14px 28px rgba(28,22,18,.1)}
+.tool-fig{
+  position:relative;height:156px;display:flex;align-items:center;justify-content:center;
+  overflow:hidden;background:var(--bg);
+}
+.tool-fig .obj-wrap{width:88%;height:88%}
+.tool-fig img{
+  width:100%;height:100%;object-fit:contain;mix-blend-mode:multiply;
+  transition:transform var(--t-slow) var(--ease-out);
+}
+.desktop .tool:hover .tool-fig img{transform:scale(1.045)}
+[data-theme="dark"] .tool-fig img{mix-blend-mode:normal}
+.tool-fig .tag{position:absolute;left:10px;bottom:10px}
+.sil{opacity:.18;color:var(--ink)}
+.tool-body{padding:11px 12px 12px}
+.tool-body h3{margin:0 0 4px;font-size:16px;font-weight:600;letter-spacing:-.01em}
+.who{display:flex;align-items:center;gap:7px;margin-bottom:10px}
+.acts{display:flex;align-items:center;justify-content:space-between}
+.stagger .tool{transform:translateY(10px);animation:lift var(--t-slow) var(--ease-out) forwards}
+@keyframes lift{to{transform:none}}
+.stagger .tool:nth-child(1){animation-delay:40ms}
+.stagger .tool:nth-child(2){animation-delay:80ms}
+.stagger .tool:nth-child(3){animation-delay:120ms}
+.stagger .tool:nth-child(4){animation-delay:160ms}
+.stagger .tool:nth-child(5){animation-delay:200ms}
+.stagger .tool:nth-child(6){animation-delay:240ms}
+
+/* Requests */
+.note{
+  background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px 16px 14px;
+  position:relative;
+}
+.note::after{
+  content:"";pointer-events:none;position:absolute;inset:0;border-radius:inherit;opacity:.06;
+  background-image:var(--fiber);mix-blend-mode:multiply;
+}
+.note q{display:block;font-family:var(--display);font-size:22px;font-weight:500;font-style:italic;letter-spacing:-.02em;margin:0 0 10px}
+.switch{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0 4px;cursor:pointer}
+.knob{
+  width:42px;height:26px;border-radius:999px;background:var(--line);position:relative;flex:0 0 auto;
+  transition:background var(--t-mid) var(--ease-out);
+}
+.knob::after{
+  content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#FBF8F2;
+  transition:transform var(--t-mid) var(--ease-spring);
+  box-shadow:0 1px 3px rgba(28,22,18,.2);
+}
+.knob.on{background:var(--accent)}
+.knob.on::after{transform:translateX(16px)}
+
+/* Desktop shell */
+.d-rail{background:var(--surface);border-right:1px solid var(--line);padding:22px 16px;display:flex;flex-direction:column;gap:22px}
+.d-nav{display:flex;flex-direction:column;gap:4px}
+.d-nav button{text-align:left;padding:9px 10px;border-radius:8px;color:var(--muted);font-weight:600;transition:background var(--t-fast)}
+.d-nav button.on{background:var(--accent-tint);color:var(--ink)}
+.d-me{margin-top:auto;display:flex;align-items:center;gap:10px;padding-top:12px;border-top:1px solid var(--line)}
+.d-main{display:flex;flex-direction:column;min-width:0;position:relative}
+.d-top{display:flex;align-items:flex-end;justify-content:space-between;padding:22px 24px 14px;gap:16px}
+.d-top h2{font-family:var(--display);font-size:32px;font-weight:600;letter-spacing:-.03em;margin:0}
+.d-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;padding:6px 24px 24px;overflow:auto}
+.d-grid .tool-fig{height:176px}
+
+/* Sheet + toast */
+.overlay{
+  position:absolute;inset:0;z-index:20;background:rgba(28,22,18,.42);
+  display:flex;align-items:flex-end;justify-content:center;
+  animation:fade var(--t-mid) var(--ease-out);
+}
+.desktop .overlay{align-items:center;padding:24px}
+@keyframes fade{from{opacity:0}}
+.sheet{
+  background:var(--surface);width:100%;max-width:420px;
+  border-radius:20px 20px 0 0;padding:18px 18px 22px;
+  animation:sheetUp 340ms var(--ease-spring);
+}
+.desktop .sheet{border-radius:16px}
+@keyframes sheetUp{from{transform:translateY(28px);opacity:.5}}
+.sheet h2{font-family:var(--display);font-size:24px;margin:0 0 14px;letter-spacing:-.03em}
+.pick{
+  display:flex;align-items:center;gap:12px;width:100%;text-align:left;
+  padding:12px;border:1.5px solid var(--line);border-radius:10px;margin-bottom:8px;
+  transition:border-color var(--t-fast), background var(--t-fast), transform var(--t-fast);
+}
+.pick:hover{border-color:var(--accent);background:var(--accent-tint);transform:translateX(2px)}
+.toast{
+  position:absolute;left:50%;bottom:96px;z-index:30;transform:translateX(-50%);
+  display:flex;align-items:center;gap:8px;
+  background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:999px;
+  font-size:13.5px;font-weight:600;white-space:nowrap;
+  animation:toastIn var(--t-mid) var(--ease-out);
+  box-shadow:0 10px 28px rgba(28,22,18,.22);
+}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,8px)}}
+.toast svg path{stroke-dasharray:20;stroke-dashoffset:20;animation:draw 280ms 60ms var(--ease-out) forwards}
+
+/* Empty + loader */
+.empty{display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;padding:56px 24px;color:var(--muted)}
+.empty b{color:var(--ink);font-size:16px}
+.bit{
+  width:28px;height:28px;color:var(--accent);
+  animation:ratchet 1s steps(3) infinite;
+}
+@keyframes ratchet{to{transform:rotate(360deg)}}
+.loader-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;flex:1;color:var(--muted)}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none !important;transition:none !important}
+}
+@media (max-width:980px){
+  .studio{grid-template-columns:1fr}
+  .rail{border-right:0;border-bottom:1px solid rgba(243,238,228,.08)}
+  .desktop{width:100%;height:auto;min-height:640px}
+}
+</style>
+</head>
+<body>
+<div class="studio">
+  <aside class="rail">
+    <div>
+      <p class="kicker">Fase 0.5 · preview v2</p>
+      <h1>Nabo<em>lags</em>katalogen</h1>
+      <p class="lede">Levende mockup. Spill av ankomst. Hover kortene på desktop. Trykk «Lån ut» for sheet og toast.</p>
+    </div>
+    <div>
+      <p class="kicker">Skjerm</p>
+      <div class="picks" id="screens">
+        <button aria-pressed="true" data-screen="landing">1 · Landing</button>
+        <button data-screen="tools">2 · Katalog</button>
+        <button data-screen="requests">3 · Etterlysninger</button>
+        <button data-screen="desktop">4 · Desktop-rail</button>
+        <button data-screen="empty">5 · Tom + last</button>
+      </div>
+    </div>
+    <div>
+      <p class="kicker">Visning</p>
+      <div class="toggles" id="view">
+        <button aria-pressed="true" data-view="phone">Mobil</button>
+        <button data-view="wide">Desktop</button>
+      </div>
+    </div>
+    <div>
+      <p class="kicker">Tema</p>
+      <div class="toggles" id="theme">
+        <button aria-pressed="true" data-theme="light">Papir</button>
+        <button data-theme="dark">Natt</button>
+      </div>
+    </div>
+    <div>
+      <p class="kicker">Bevegelse</p>
+      <button class="play" id="replay">Spill av ankomst</button>
+      <button class="play" id="toastbtn" style="margin-top:6px">Vis toast</button>
+    </div>
+    <div class="notes">
+      <p>Teknikk fra Uiverse / AnimVault / HTMLHub — kobber og papir, ikke neon.</p>
+      <p>Fotoene er lokale. Ikke commit uten avklaring.</p>
+    </div>
+  </aside>
+  <main class="stage" id="stage"></main>
+</div>
+
+<template id="mark">
+  <span class="mark">
+    <svg class="mark-svg" width="26" height="26" viewBox="0 0 32 32" aria-hidden="true">
+      <rect width="32" height="32" rx="3" fill="#B85C2A"/>
+      <path class="draw" d="M16 6.5 25 11.2v9.6L16 25.5 7 20.8v-9.6L16 6.5Z" fill="none" stroke="#F6F1E8" stroke-width="1.6"/>
+      <rect class="draw" x="13.2" y="13.2" width="5.6" height="5.6" rx=".6" fill="none" stroke="#F6F1E8" stroke-width="1.5" transform="rotate(45 16 16)"/>
+    </svg>
+    <span class="word"><i>Neighbor</i>Tools</span>
+  </span>
+</template>
+
+<script>
+const params = new URLSearchParams(location.search);
+const state = {
+  screen: params.get('screen') || 'landing',
+  view: params.get('view') || 'phone',
+  theme: params.get('theme') || 'light',
+  sheet: false,
+  toast: false,
+  enter: params.get('still') !== '1',
+  hood: true,
+  pinBad: false,
+  seg: 0
+};
+
+const sil = `<svg class="sil" width="72" height="72" viewBox="0 0 72 72" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="10" y="28" width="28" height="16" rx="3"/><path d="M38 32h18l6 4-6 4H38"/><path d="M16 28v-6h10v6"/></svg>`;
+const bit = `<svg class="bit" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 4 26 9.2v13.6L16 28 6 22.8V9.2L16 4Z"/><rect x="13" y="13" width="6" height="6" transform="rotate(45 16 16)"/></svg>`;
+
+function markHtml(){ return document.getElementById('mark').innerHTML; }
+function tabsHtml(i){
+  const labels = [
+    ['Verktøy','<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>'],
+    ['Etterlys','<path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/>'],
+    ['Personer','<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>'],
+    ['Logg','<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>']
+  ];
+  return `<nav class="tabbar">
+    <span class="tab-ink" style="left:${12.5 + i*25}%;margin-left:-9px"></span>
+    ${labels.map((t,n)=>`<button class="tab${n===i?' on':''}" data-goto="${['tools','requests','tools','tools'][n]}">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${t[1]}</svg>${t[0]}
+    </button>`).join('')}
+  </nav>`;
+}
+function fiber(){ return '<div class="fiber"></div>'; }
+function toastHtml(){
+  if(!state.toast) return '';
+  return `<div class="toast" role="status">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8.5 6.2 12 13 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Utlån registrert
+  </div>`;
+}
+function sheetHtml(){
+  if(!state.sheet) return '';
+  return `<div class="overlay" data-close>
+    <div class="sheet" role="dialog" aria-labelledby="sh">
+      <h2 id="sh">Hvem får sagen?</h2>
+      <button class="pick" data-loan><span class="avatar sm" style="background:#2F5D3A">K</span><span><b>Kari</b><div class="meta">Storgata 4</div></span></button>
+      <button class="pick" data-loan><span class="avatar sm" style="background:#6E6458">L</span><span><b>Lars</b><div class="meta">Heia 12</div></span></button>
+      <p class="meta" style="margin:10px 0 6px">Avtalt retur — valgfritt</p>
+      <input type="date" style="width:100%;padding:8px;border:0;border-bottom:1.5px solid var(--line);background:transparent;color:var(--ink);margin-bottom:12px">
+      <button class="btn-text">Lån ut utenfor gruppa</button>
+    </div>
+  </div>`;
+}
+
+function toolCard(img, name, who, type, status, action, initials, color){
+  const fig = img ? `<span class="obj-wrap"><img class="obj" src="${img}" alt=""></span>` : sil;
+  return `<article class="tool" data-tilt>
+    <div class="tool-fig">${fig}<span class="tag ${status.k}">${status.t}</span></div>
+    <div class="tool-body">
+      <h3>${name}</h3>
+      <div class="who meta"><span class="avatar sm" style="background:${color}">${initials}</span>${who} · ${type}</div>
+      <div class="acts">
+        <button class="btn ${action.cls} btn-sm" ${action.loan?'data-open-sheet':''}>${action.t}</button>
+        <button class="meta" aria-label="Mer">⋯</button>
+      </div>
+    </div>
+  </article>`;
+}
+const cards = [
+  toolCard('img/saw.jpg','Dewalt kapp- og gjærsag','Christer','Sag',{k:'home',t:'Hjemme'},{cls:'btn-primary',t:'Lån ut',loan:true},'C','#B85C2A'),
+  toolCard('img/grinder.webp','Einhell vinkelsliper','Kari','Sliping',{k:'out',t:'Hos Lars · 3 d'},{cls:'btn-home',t:'Lever tilbake'},'K','#2F5D3A'),
+  toolCard(null,'Ryobi drill 18V','Lars','Drill',{k:'home',t:'Hjemme'},{cls:'btn-primary',t:'Lån ut',loan:true},'L','#6E6458'),
+  toolCard('img/hammer.jpg','Borhammer 1600 W','Christer','Drill',{k:'late',t:'2 dager på overtid'},{cls:'btn-home',t:'Lever tilbake'},'C','#B85C2A'),
+  toolCard('img/compressor.jpg','Kompressor 1100 W','Kari','Annet',{k:'home',t:'Hjemme'},{cls:'btn-primary',t:'Lån ut',loan:true},'K','#2F5D3A'),
+  toolCard('img/recip.webp','Bajonettsag 18V','Lars','Sag',{k:'out',t:'Hos Christer'},{cls:'btn-home',t:'Lever tilbake'},'L','#6E6458'),
+];
+
+function landingPhone(){
+  return `<div class="phone enter">
+    ${fiber()}
+    <div class="hero-strip">
+      <span class="obj-wrap"><img class="obj" src="img/saw.jpg" alt=""></span>
+      <div class="stack">
+        <span class="obj-wrap"><img class="obj" src="img/grinder.webp" alt=""></span>
+        <span class="obj-wrap"><img class="obj" src="img/hammer.jpg" alt=""></span>
+      </div>
+    </div>
+    <div class="land">
+      <div class="rise d1">${markHtml()}</div>
+      <h2 class="rise d2">Lån drill av naboen.</h2>
+      <p class="lede rise d2">Alle med PIN-en ser samme liste. Ingen konto, ingen regneark.</p>
+      <label class="float rise d3 ${state.pinBad?'bad':''}">
+        <input placeholder=" " id="pin">
+        <span>PIN til samarbeidet</span>
+      </label>
+      <button class="btn btn-primary rise d4" style="margin-top:18px" data-ripple data-try-pin>Åpne samarbeid</button>
+      <p style="text-align:center;margin:14px 0 0" class="rise d4"><button class="btn-text">Start et nytt samarbeid</button></p>
+      <ul class="trust rise d5">
+        <li><i>—</i> Listen oppdateres live for alle i gruppa</li>
+        <li><i>—</i> PIN-en er nøkkelen. Del den bare med naboene</li>
+        <li><i>—</i> Fungerer som app på telefonen</li>
+      </ul>
+    </div>
+    ${toastHtml()}
+  </div>`;
+}
+function landingDesk(){
+  return `<div class="desktop enter" style="grid-template-columns:1fr">
+    ${fiber()}
+    <div class="land-desk">
+      <div class="land-left">
+        <div class="rise d1">${markHtml()}</div>
+        <h2 class="rise d2">Lån drill<br>av naboen.</h2>
+        <p class="lede rise d2">Et felles lager for sameiet, hytta eller vennegjengen. Én PIN, samme liste.</p>
+        <ul class="trust rise d3">
+          <li><i>—</i> Ingen konto</li>
+          <li><i>—</i> Live oversikt over hvem som har hva</li>
+          <li><i>—</i> Etterlysninger i nabolaget, om dere vil</li>
+        </ul>
+        <div class="collage">
+          <span class="obj-wrap"><img class="obj" src="img/saw.jpg" alt=""></span>
+          <span class="obj-wrap"><img class="obj" src="img/grinder.webp" alt=""></span>
+          <span class="obj-wrap"><img class="obj" src="img/compressor.jpg" alt=""></span>
+          <span class="obj-wrap"><img class="obj" src="img/tripod.jpg" alt=""></span>
+        </div>
+      </div>
+      <div class="land-right rise d3">
+        <h3>Har du PIN?</h3>
+        <p class="hint">Naboene dine har gitt deg en nøkkel. Skriv den inn — så er du inne.</p>
+        <label class="float ${state.pinBad?'bad':''}">
+          <input placeholder=" " id="pin">
+          <span>PIN til samarbeidet</span>
+        </label>
+        <button class="btn btn-primary" style="margin-top:20px" data-ripple data-try-pin>Åpne samarbeid</button>
+        <p style="text-align:center;margin:16px 0 0"><button class="btn-text">Start et nytt samarbeid</button></p>
+      </div>
+    </div>
+    ${toastHtml()}
+  </div>`;
+}
+function toolsPhone(){
+  return `<div class="phone">
+    ${fiber()}
+    <header class="app-head">${markHtml()}<span class="avatar">C</span></header>
+    <div class="toolbar">
+      <div class="search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3-3"/></svg>
+        <input placeholder="Søk etter verktøy">
+      </div>
+      <div class="seg">
+        <span class="seg-ink" style="transform:translateX(${state.seg*100}%)"></span>
+        <button aria-pressed="${state.seg===0}" data-seg="0">Alle</button>
+        <button aria-pressed="${state.seg===1}" data-seg="1">Hjemme</button>
+        <button aria-pressed="${state.seg===2}" data-seg="2">Utlånt</button>
+        <button aria-pressed="${state.seg===3}" data-seg="3">Mine</button>
+      </div>
+    </div>
+    <div class="stats">12 verktøy · 3 utlånt</div>
+    <div class="scroll"><div class="grid ${state.enter?'stagger':''}">${cards.slice(0,4).join('')}</div></div>
+    <button class="fab" aria-label="Nytt verktøy">+</button>
+    ${tabsHtml(0)}
+    ${sheetHtml()}${toastHtml()}
+  </div>`;
+}
+function toolsDesk(){
+  return `<div class="desktop">
+    ${fiber()}
+    <aside class="d-rail">
+      ${markHtml()}
+      <nav class="d-nav">
+        <button class="on">Verktøy</button>
+        <button data-goto="requests">Etterlysninger</button>
+        <button>Personer</button>
+        <button>Logg</button>
+      </nav>
+      <div class="d-me"><span class="avatar">C</span><div><b>Christer</b><div class="meta">Heia 9 · NO / EN</div></div></div>
+    </aside>
+    <section class="d-main">
+      <div class="d-top">
+        <div><h2>Verktøy</h2><div class="meta">12 i gruppa · 3 utlånt</div></div>
+        <button class="btn btn-primary btn-sm" data-ripple>Nytt verktøy</button>
+      </div>
+      <div class="toolbar" style="padding:0 24px 8px;max-width:440px">
+        <div class="search">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3-3"/></svg>
+          <input placeholder="Søk etter verktøy">
+        </div>
+        <div class="seg">
+          <span class="seg-ink" style="transform:translateX(${state.seg*100}%)"></span>
+          <button aria-pressed="${state.seg===0}" data-seg="0">Alle</button>
+          <button aria-pressed="${state.seg===1}" data-seg="1">Hjemme</button>
+          <button aria-pressed="${state.seg===2}" data-seg="2">Utlånt</button>
+          <button aria-pressed="${state.seg===3}" data-seg="3">Mine</button>
+        </div>
+      </div>
+      <div class="d-grid ${state.enter?'stagger':''}">${cards.join('')}</div>
+      ${sheetHtml()}${toastHtml()}
+    </section>
+  </div>`;
+}
+function requestsPhone(){
+  return `<div class="phone">
+    ${fiber()}
+    <header class="app-head">${markHtml()}<span class="avatar">C</span></header>
+    <div class="scroll">
+      <p class="meta" style="margin:6px 0 4px">Leter du etter noe? Spør gruppa — eller nabolaget.</p>
+      <div class="switch" data-hood>
+        <div><b>Vis nabolaget</b><div class="meta">Andre grupper innenfor 10 km</div></div>
+        <div class="knob ${state.hood?'on':''}" role="switch" aria-checked="${state.hood}"></div>
+      </div>
+      <p class="kicker" style="margin:18px 0 10px;color:var(--muted)">I gruppa</p>
+      <article class="note">
+        <q>Flisekutter til helgen</q>
+        <div class="who meta"><span class="avatar sm" style="background:#2F5D3A">K</span>Kari · i går · gruppa</div>
+        <p style="margin:10px 0 0;font-size:13.5px">Lars: «Jeg har en. Hentes i Storgata 4.»</p>
+      </article>
+      <article class="note" style="margin-top:10px">
+        <q>Ekstra stige, 2–3 meter</q>
+        <div class="who meta"><span class="avatar sm">C</span>Christer · 3. mai · nabolag · 10 km</div>
+        <p class="meta" style="margin:10px 0 0">Ingen svar ennå</p>
+      </article>
+      ${state.hood ? `<p class="kicker" style="margin:22px 0 10px;color:var(--muted)">Fra nabolaget</p>
+      <article class="note">
+        <q>Slagdrill til betong</q>
+        <div class="meta">Per · 4633 · ca. 2 km unna</div>
+        <button class="btn btn-primary btn-sm" style="margin-top:12px" data-ripple>Jeg kan låne ut</button>
+      </article>` : ''}
+    </div>
+    <button class="fab" aria-label="Ny etterlysning">+</button>
+    ${tabsHtml(1)}
+    ${toastHtml()}
+  </div>`;
+}
+function emptyPhone(){
+  return `<div class="phone">
+    ${fiber()}
+    <header class="app-head">${markHtml()}<span class="avatar">C</span></header>
+    <div class="loader-wrap" id="boot">
+      ${bit}
+      <span>Åpner gruppa …</span>
+    </div>
+    <div class="empty" id="emptystate" hidden>
+      ${sil}
+      <p><b>Legg inn den første drillen</b><br>Når den står her, kan naboene låne den med ett trykk.</p>
+      <button class="btn btn-primary btn-sm" data-ripple>Nytt verktøy</button>
+    </div>
+    ${tabsHtml(0)}
+  </div>`;
+}
+
+function bindFrame(root){
+  root.querySelectorAll('[data-ripple]').forEach(btn => {
+    btn.addEventListener('click', e => {
+      const r = btn.getBoundingClientRect();
+      const s = document.createElement('span');
+      s.className = 'ripple';
+      const size = Math.max(r.width, r.height);
+      s.style.width = s.style.height = size + 'px';
+      s.style.left = (e.clientX - r.left - size/2) + 'px';
+      s.style.top = (e.clientY - r.top - size/2) + 'px';
+      btn.appendChild(s);
+      setTimeout(() => s.remove(), 520);
+    });
+  });
+  root.querySelectorAll('[data-open-sheet]').forEach(b => b.addEventListener('click', () => { state.sheet = true; render(); }));
+  root.querySelectorAll('[data-close]').forEach(o => o.addEventListener('click', e => {
+    if(e.target === o){ state.sheet = false; render(); }
+  }));
+  root.querySelectorAll('[data-loan]').forEach(b => b.addEventListener('click', () => {
+    state.sheet = false; state.toast = true; render();
+    setTimeout(() => { state.toast = false; render(); }, 2200);
+  }));
+  root.querySelectorAll('[data-hood]').forEach(el => el.addEventListener('click', () => { state.hood = !state.hood; render(); }));
+  root.querySelectorAll('[data-seg]').forEach(b => b.addEventListener('click', () => { state.seg = +b.dataset.seg; render(); }));
+  root.querySelectorAll('[data-try-pin]').forEach(b => b.addEventListener('click', () => {
+    const v = (root.querySelector('#pin') || {}).value || '';
+    if(v.length < 4){ state.pinBad = true; render(); setTimeout(() => { state.pinBad = false; }, 400); }
+    else { state.screen = 'tools'; state.toast = true; render(); setTimeout(() => { state.toast = false; render(); }, 1800); }
+  }));
+  root.querySelectorAll('[data-goto]').forEach(b => b.addEventListener('click', () => { state.screen = b.dataset.goto; render(); }));
+  if(state.view === 'wide' && !matchMedia('(pointer: coarse)').matches){
+    root.querySelectorAll('[data-tilt]').forEach(card => {
+      card.addEventListener('mousemove', e => {
+        const r = card.getBoundingClientRect();
+        const x = (e.clientX - r.left) / r.width - .5;
+        const y = (e.clientY - r.top) / r.height - .5;
+        const ry = Math.max(-4, Math.min(4, x * 8));
+        const rx = Math.max(-4, Math.min(4, -y * 8));
+        card.style.transform = `perspective(900px) rotateY(${ry}deg) rotateX(${rx}deg) translateY(-3px)`;
+      });
+      card.addEventListener('mouseleave', () => { card.style.transform = ''; });
+    });
+  }
+  const boot = root.querySelector('#boot');
+  const empty = root.querySelector('#emptystate');
+  if(boot && empty){
+    setTimeout(() => { boot.hidden = true; empty.hidden = false; }, 1400);
+  }
+}
+
+function render(){
+  document.documentElement.setAttribute('data-theme', state.theme);
+  const stage = document.getElementById('stage');
+  const wide = state.view === 'wide';
+  if(state.screen === 'landing') {
+    stage.innerHTML = wide ? landingDesk() : landingPhone();
+    if(!state.enter){
+      const n = stage.querySelector('.enter');
+      if(n) n.classList.remove('enter');
+    }
+  }
+  if(state.screen === 'tools') stage.innerHTML = wide ? toolsDesk() : toolsPhone();
+  if(state.screen === 'requests') stage.innerHTML = requestsPhone();
+  if(state.screen === 'desktop'){ state.view = 'wide'; stage.innerHTML = toolsDesk(); }
+  if(state.screen === 'empty') stage.innerHTML = emptyPhone();
+  bindFrame(stage);
+  document.querySelectorAll('#screens button').forEach(b => b.setAttribute('aria-pressed', b.dataset.screen === state.screen));
+  document.querySelectorAll('#view button').forEach(b => b.setAttribute('aria-pressed', b.dataset.view === (state.screen==='desktop'?'wide':state.view)));
+  document.querySelectorAll('#theme button').forEach(b => b.setAttribute('aria-pressed', b.dataset.theme === state.theme));
+}
+
+document.getElementById('screens').addEventListener('click', e => {
+  const b = e.target.closest('button'); if(!b) return;
+  state.screen = b.dataset.screen;
+  state.sheet = false;
+  if(state.screen === 'desktop') state.view = 'wide';
+  if(state.screen === 'requests' || state.screen === 'empty') state.view = 'phone';
+  render();
+});
+document.getElementById('view').addEventListener('click', e => {
+  const b = e.target.closest('button'); if(!b) return;
+  state.view = b.dataset.view;
+  if(state.screen === 'desktop' && state.view === 'phone') state.screen = 'tools';
+  render();
+});
+document.getElementById('theme').addEventListener('click', e => {
+  const b = e.target.closest('button'); if(!b) return;
+  state.theme = b.dataset.theme;
+  render();
+});
+document.getElementById('replay').addEventListener('click', () => {
+  state.screen = 'landing';
+  const stage = document.getElementById('stage');
+  const node = stage.firstElementChild;
+  if(node){ node.classList.remove('enter'); void node.offsetWidth; node.classList.add('enter'); }
+  else render();
+});
+document.getElementById('toastbtn').addEventListener('click', () => {
+  state.toast = true; render();
+  setTimeout(() => { state.toast = false; render(); }, 2200);
+});
+render();
+</script>
+</body>
+</html>
