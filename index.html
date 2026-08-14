@@ -3,8 +3,17 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#F3EEE4" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#1A1714" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#F3EEE4">
+<script>
+(function(){
+  try{
+    var t = localStorage.getItem('neighbortools:theme') || 'system';
+    var dark = t === 'dark' || (t !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+    document.querySelector('meta[name="theme-color"]').content = dark ? '#1A1714' : '#F3EEE4';
+  }catch(e){}
+})();
+</script>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="description" content="Shared tools with your neighbors – no login needed.">
@@ -73,6 +82,7 @@ var I18N = {
     ownerFilter: 'Eier',
     more: 'Mer',
     exportMenu: 'Eksporter',
+    theme: 'Utseende', themeSystem: 'System', themeLight: 'Lys', themeDark: 'Mørk',
     openGroup: 'Åpne samarbeid',
     newGroup: 'Start nytt verktøysamarbeid',
     or: 'eller',
@@ -197,6 +207,7 @@ var I18N = {
     ownerFilter: 'Owner',
     more: 'More',
     exportMenu: 'Export',
+    theme: 'Appearance', themeSystem: 'System', themeLight: 'Light', themeDark: 'Dark',
     openGroup: 'Open group',
     newGroup: 'Start a new tool group',
     or: 'or',
@@ -538,6 +549,7 @@ var st = {
   modal:null, lagrer:false, oppsett:null, bekreft:null,
   lang: oppdagSprak(),   // a stored choice replaces this during boot
   selected: {}, selectMode: false, meOpen: false, moreId: null,
+  theme: 'system',
   pinOk: false,
   landing: false,     // front page: open an existing group or start a new one
   landingError: '',   // message shown on the front page / setup screen
@@ -1015,6 +1027,14 @@ H.toggleSel = function(id){
 H.clearSel = function(){ st.selected = {}; st.selectMode = false; render(); };
 H.toggleSelMode = function(){ st.selectMode = !st.selectMode; if(!st.selectMode) st.selected = {}; render(); };
 H.toggleMe = function(){ st.meOpen = !st.meOpen; render(); };
+H.setTheme = function(v){
+  if(v !== 'system' && v !== 'light' && v !== 'dark') return;
+  if(st.theme === v) return;
+  st.theme = v;
+  try{ localStorage.setItem(CONFIG.storageKey+':theme', v); }catch(e){}
+  applyTheme();
+  render();
+};
 H.mer = function(id){ st.moreId = st.moreId === id ? null : id; visListe(); };
 H.setLang = function(v){
   if(v !== 'nb' && v !== 'en') return;
@@ -1380,6 +1400,29 @@ function sprakVelger(paaKort){
   return '<div class="vb-langsw' + (paaKort ? ' kort' : '') + '" role="group" aria-label="' +
     (st.lang === 'en' ? 'Language' : 'Språk') + '">' + seg('nb', 'NO') + seg('en', 'EN') + '</div>';
 }
+function resolvedTheme(){
+  if(st.theme === 'light') return 'light';
+  if(st.theme === 'dark') return 'dark';
+  try{ return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; }
+  catch(e){ return 'light'; }
+}
+function applyTheme(){
+  var mode = resolvedTheme();
+  document.documentElement.setAttribute('data-theme', mode);
+  var meta = document.querySelector('meta[name="theme-color"]');
+  if(meta) meta.content = mode === 'dark' ? '#1A1714' : '#F3EEE4';
+}
+function temaVelger(){
+  var knapp = function(kode, merke){
+    return '<button' + (st.theme === kode ? ' class="on"' : '') + ' aria-pressed="' + (st.theme === kode) + '" ' +
+      'onclick="H.setTheme(\'' + kode + '\')">' + merke + '</button>';
+  };
+  return '<div class="nt-themesw" role="group" aria-label="' + esc(t('theme')) + '">' +
+    knapp('system', t('themeSystem')) +
+    knapp('light', t('themeLight')) +
+    knapp('dark', t('themeDark')) +
+  '</div>';
+}
 
 /* ---------- Rendering ---------- */
 function personKart(){
@@ -1452,7 +1495,9 @@ function render(){
 
   var megNavn = megGyldig ? byId[meg].name : (st.lang==='en'?'You':'Velg deg');
   var meMenu = st.meOpen
-    ? '<div class="nt-memenu">' + sprakVelger(true) +
+    ? '<div class="nt-memenu">' +
+        '<div class="nt-setrow">' + sprakVelger(true) + '</div>' +
+        '<div class="nt-setrow">' + temaVelger() + '</div>' +
         '<button class="vb-btn vb-ghost vb-small" onclick="H.oppdater()">' + ikon('oppdater',16) + ' ' + esc(t('updated')) + '</button>' +
         (Lager.mode === 'server'
           ? '<button class="vb-btn vb-ghost vb-small" onclick="H.switchGroup()">' + ikon('laas',16) + ' ' + esc(t('switchGroup')) + '</button>'
@@ -1478,7 +1523,8 @@ function render(){
       '</nav>' +
       '<div class="nt-railme">' +
         (megGyldig ? avatarHtml(byId[meg]) : '<span class="nt-av">?</span>') +
-        '<div><b>' + esc(megNavn) + '</b><div class="vb-muted">' + sprakVelger(true) + '</div></div>' +
+        '<div><b>' + esc(megNavn) + '</b><div class="nt-setrow" style="margin-top:6px">' + sprakVelger(true) + '</div>' +
+          '<div class="nt-setrow" style="margin-top:6px">' + temaVelger() + '</div></div>' +
       '</div>' +
       (Lager.mode === 'server'
         ? '<button class="vb-btn vb-ghost vb-small" onclick="H.switchGroup()">' + esc(t('switchGroup')) + '</button>'
@@ -1560,7 +1606,8 @@ function htmlLanding(){
   return '<main class="vb-main">' +
     '<div class="nt-land-desk">' +
       '<div class="nt-land-left nt-land">' +
-        '<div style="display:flex;justify-content:space-between;align-items:center">' + merke() + sprakVelger(true) + '</div>' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">' + merke() +
+          '<div class="nt-setrow">' + sprakVelger(true) + temaVelger() + '</div></div>' +
         '<h2>' + esc(t('landingTitle')) + '</h2>' +
         '<p class="vb-muted">' + esc(t('landingHint')) + '</p>' +
         tillit +
@@ -1603,8 +1650,8 @@ function htmlOppsett(){
     '</header>' +
     '<main class="vb-main">' +
       '<section class="vb-card">' +
-        '<div style="display:flex;justify-content:flex-end;margin-bottom:8px">' +
-          sprakVelger(true) + '</div>' +
+        '<div class="nt-setrow" style="justify-content:flex-end;margin-bottom:8px">' +
+          sprakVelger(true) + temaVelger() + '</div>' +
         '<h2 class="vb-h2">' + esc(t('setupTitle')) + '</h2>' +
         '<p class="vb-muted vb-mb">' + esc(t('setupHint')) + '</p>' +
         rader +
@@ -2288,8 +2335,16 @@ render = function(){
     // An explicit NO/EN choice always beats what the browser asked for
     var savedLang = localStorage.getItem(CONFIG.storageKey+':lang');
     if(savedLang === 'nb' || savedLang === 'en') st.lang = savedLang;
+    var savedTheme = localStorage.getItem(CONFIG.storageKey+':theme');
+    if(savedTheme === 'system' || savedTheme === 'light' || savedTheme === 'dark') st.theme = savedTheme;
   }catch(e){}
   document.documentElement.lang = st.lang === 'en' ? 'en' : 'nb';
+  applyTheme();
+  try{
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(){
+      if(st.theme === 'system') applyTheme();
+    });
+  }catch(e){}
   // The boot screen is static markup, so translate it before the first await
   var bootTekst = document.querySelector('#app .vb-muted');
   if(bootTekst) bootTekst.textContent = t('loading');
