@@ -1,5 +1,5 @@
-/* NeighborTools – minimal service worker (app shell cache) */
-const CACHE = 'nt-shell-v5';
+/* NeighborTools – app shell cache + Web Push */
+const CACHE = 'nt-shell-v6';
 const ASSETS = ['/', '/index.html', '/app.css', '/manifest.webmanifest'];
 
 self.addEventListener('install', function(e){
@@ -49,6 +49,39 @@ self.addEventListener('fetch', function(e){
       }).catch(function(){
         return caches.match('/index.html');
       });
+    })
+  );
+});
+
+self.addEventListener('push', function(e){
+  var data = {title: 'NeighborTools', body: '', url: '/'};
+  try{
+    if(e.data) data = Object.assign(data, e.data.json());
+  }catch(err){
+    try{ data.body = e.data ? e.data.text() : ''; }catch(e2){}
+  }
+  e.waitUntil(
+    self.registration.showNotification(data.title || 'NeighborTools', {
+      body: data.body || '',
+      data: {url: data.url || '/'},
+      tag: 'nt-' + (data.body || 'ping').slice(0, 40),
+      renotify: true
+    })
+  );
+});
+
+self.addEventListener('notificationclick', function(e){
+  e.notification.close();
+  var url = (e.notification.data && e.notification.data.url) || '/';
+  e.waitUntil(
+    self.clients.matchAll({type: 'window', includeUncontrolled: true}).then(function(list){
+      for(var i = 0; i < list.length; i++){
+        var c = list[i];
+        if(c.url && c.url.indexOf(self.location.origin) === 0 && 'focus' in c){
+          return c.focus();
+        }
+      }
+      if(self.clients.openWindow) return self.clients.openWindow(url);
     })
   );
 });

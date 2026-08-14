@@ -11,19 +11,27 @@ Built for real life: housing co-ops, friends who share gear, tool libraries, cab
 ## Features
 
 - Shared live tool list (owner + who has it now)
-- Loan / return in one tap
-- **Agreed return date** with a reminder for the borrower, and overdue tags
+- Loan / return in one tap, with an optional **damage / return note**
+- **Due date** defaults to *no end date*; the borrower in the group can set
+  or change it later. Overdue tags + in-app reminder
+- **Web Push** – optional notifications on loan, queue and upcoming due dates
 - **Reservations** – queue up for a tool that is out; the owner gets a
   one-tap “loan to the next in line” when it comes back
 - **Loan outside the group** – lend to a neighbor who is not on the list,
   with contact note and full history
+- **Invite link** – join without already knowing the PIN
+- **First person is admin**; admins can grant admin to some or all
+- **Forgotten PIN** – if one admin has registered an email, a reset link is
+  queued. Wire up Resend (`RESEND_API_KEY`) when you want mail to actually send
 - **Requests ("etterlysninger")** – ask your group for something you need
 - **Neighborhood requests** – opt-in: ask other groups on the same server,
   matched by how far *you* are willing to travel (postal-code distance, no
   external services)
 - **Borrow myself** quick action
 - **Multi-select** tools and loan them out together
-- Optional photo per tool (compressed)
+- Optional photo per tool, stored as **files** (auto-compressed; v1 cap 500,
+  layout ready for ~2 000)
+- Category tidy-up that **remembers your decision** and does not nag again
 - Per-tool **history** (who had it, when)
 - Highlight loans out longer than 14 days
 - People list with addresses
@@ -35,11 +43,10 @@ Built for real life: housing co-ops, friends who share gear, tool libraries, cab
 - **Norwegian / English** – full UI in both languages. A first-time visitor
   gets the language their browser asks for (English if it asks for neither);
   the NO/EN control shows which one is active, and an explicit choice sticks
-- Dark mode (system)
+- Theme: system / light / dark
 - Installable PWA (Add to Home Screen)
 - Store-like **responsive grid**
 - Whitelabel via `CONFIG`
-- **Contribute** button in the header → opens this GitHub repo so anyone can improve the app
 - Docker / Portainer ready
 
 UI: Norwegian + English  
@@ -77,10 +84,20 @@ first and use **Restore** in the Log tab after creating the group.
 ### Without Docker
 
 ```bash
+python3 -m pip install -r requirements.txt   # Web Push; optional
 python3 server.py
 ```
 
 Open the address printed in the terminal (default port 8080).
+
+### Environment (optional)
+
+| Variable | Purpose |
+| --- | --- |
+| `RESEND_API_KEY` | Send forgotten-PIN mail via [Resend](https://resend.com). Without it the reset link is only queued in `/data/mail-queue.json`. |
+| `MAIL_FROM` | From-address when Resend is on (`NeighborTools <noreply@example.com>`) |
+| `PUBLIC_URL` | Public origin used in reset links, e.g. `https://neighbor-tools.com` |
+| `VAPID_MAILTO` | VAPID subject (`mailto:admin@example.com`) |
 
 ---
 
@@ -134,10 +151,17 @@ The logo and page title update automatically from `CONFIG.name`.
 
 ## Loans, due dates and reservations
 
-When you lend a tool out you can set an **agreed return date**. The borrower
-sees a reminder on the Tools tab as the date approaches, and the card shows
-“due in 3 days” or “2 days overdue”. The date is optional – leave it empty and
-nothing changes from before.
+A loan defaults to **no end date** (“ubestemt tid”). The person who borrowed
+the tool – anyone in the same group – can set or change the date afterwards.
+The card shows “due in 3 days” or “2 days overdue”, and the borrower gets an
+in-app reminder plus an optional Web Push.
+
+Returning a tool can include a **note or damage flag**. That line is stored on
+the tool and in the history.
+
+Turn on **notifications** from the profile menu. The service worker shows a
+system notification when someone borrows, queues, or when a due date is close.
+This needs `pywebpush` (installed in the Docker image).
 
 If a tool is already out, tap **Reserve** to queue up. The queue is shown on
 the card, and when the tool comes home the owner gets a **“Loan to <name>”**
@@ -182,7 +206,9 @@ Postal-code coordinates: [Erik Bolstad's postnummer register](https://www.erikbo
 
 From the **Log** tab:
 
-- **Download** / **Restore** – full JSON backup of the group, images included
+- **Download** / **Restore** – full JSON backup of the group. Photos stay as
+  files on the volume (`img: "file"` in the JSON). Restore the JSON onto the
+  same server to keep the pictures; a JSON file alone does not embed them.
 - **Export CSV** / **Import CSV** – the tool list as a spreadsheet
 
 CSV import accepts comma- or semicolon-separated files (Norwegian Excel uses
@@ -194,17 +220,36 @@ that do not exist yet are created as people.
 
 ---
 
+## Admins, invites and forgotten PIN
+
+The **first person** in a new group is admin. Admins can grant admin to
+individual people or to everyone, and they can add an email on their profile.
+
+**Invite link** (profile menu) lets a neighbour join without the PIN. The
+device then uses a hashed grant instead of the PIN.
+
+**Forgot PIN** requires that at least one admin has registered an email. The
+backend queues a reset mail (`/data/mail-queue.json`). Actual sending is
+**not** on until the host sets `RESEND_API_KEY` (and usually `MAIL_FROM` +
+`PUBLIC_URL`). The API is the same either way, so wiring Resend later is a
+config change, not a rewrite.
+
 ## Data & safety
 
 - Each group is one file: `/data/groups/<id>.json` (Docker volume `neighbortools-data`)
+- Tool photos live as files under `/data/img/<group>/` (not inside the JSON).
+  v1 keeps at most **500** photos; the same layout can go to ~2 000 later.
+  The client auto-compresses (max 960 px, JPEG) before upload.
 - PINs are never stored in plain text – only a PBKDF2 hash, salted per installation
   (`/data/pin-salt`; deleting it makes every existing PIN unusable)
-- The server refuses to read or write a group without its PIN
+- Invite grants and recovery tokens are stored hashed
+- The server refuses to read or write a group without its PIN or a valid grant
 - `GET /api/groups` is unauthenticated but returns ids and counts only – never
   names or tools
-- A forgotten PIN cannot be recovered: it is the only way into the group
+- Web Push subscriptions sit in `/data/push/`, not in the synced group JSON
 - For stronger protection, put **Cloudflare Access** (free) in front of the URL
-- Download a backup from the Log tab when it matters
+- Download a backup from the Log tab when it matters (photos on disk stay on
+  the volume; a JSON backup stores `img: "file"` references)
 
 ---
 

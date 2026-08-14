@@ -2,7 +2,10 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
-# App is a single index.html + server + PWA files
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+
+# App is a single index.html + CSS + server + PWA files
 # postnummer.json: postal-code coordinates for neighborhood requests
 COPY server.py index.html app.css manifest.webmanifest sw.js postnummer.json ./
 

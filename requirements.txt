@@ -1,0 +1,3 @@
+# Optional but recommended: Web Push (VAPID). The server still starts
+# without it – subscribe endpoints work, sending is a no-op.
+pywebpush>=2.0.3

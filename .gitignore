@@ -1,6 +1,13 @@
 data.json
 groups/
+img/
+push/
 pin-salt
+vapid.json
+invites.json
+grants.json
+recover.json
+mail-queue.json
 *.tmp
 __pycache__/
 *.pyc
