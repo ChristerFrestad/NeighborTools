@@ -141,10 +141,55 @@ var I18N = {
     extName: 'Hvem låner?', extNamePh: 'F.eks. Kari fra 4633',
     extNote: 'Kontakt / notat (valgfritt)', extNotePh: 'Telefon, hentested, avtale …',
     extTag: 'Nabolag', extRegister: 'Registrer utlån',
-    due: 'Avtalt retur (valgfritt)',
-    dueHint: 'Låneren får en påminnelse i appen når datoen nærmer seg.',
+    due: 'Returfrist',
+    dueNone: 'Ubestemt tid',
+    duePick: 'Velg dato',
+    dueHint: 'Standard er ubestemt tid. Du som låner i gruppa kan sette eller endre fristen.',
+    dueSet: 'Sett frist',
+    dueChange: 'Endre frist',
+    dueSaved: 'Frist oppdatert',
     dueIn: 'leveres om', dueToday: 'leveres i dag', dueTomorrow: 'leveres i morgen',
     overdue: 'på overtid',
+    returnAsk: 'Levere tilbake?',
+    returnOk: 'Alt i orden',
+    returnNote: 'Merknad / skade (valgfritt)',
+    returnNotePh: 'F.eks. sprukket koffert, mangler bits',
+    damage: 'Merk som skadet',
+    returnDamage: 'levert med merknad',
+    admin: 'Admin',
+    makeAdmin: 'Gjør til admin',
+    makeAllAdmin: 'Gjør alle til admin',
+    adminHint: 'Første person er admin. Admin kan tildele admin og motta PIN-reset på e-post.',
+    emailLbl: 'E-post (valgfritt)',
+    emailHint: 'Trengs for glemt PIN. Minst én admin må ha e-post.',
+    emailBad: 'Ugyldig e-postadresse.',
+    forgotPin: 'Glemt PIN?',
+    forgotPinHint: 'Skriv e-posten til en admin. Hvis den er registrert, køes en reset-lenke.',
+    forgotSend: 'Send reset-lenke',
+    forgotSent: 'Hvis e-posten er registrert hos en admin, er en reset-lenke lagt i kø.',
+    forgotNoMail: 'Utsending er ikke slått på her ennå. Lenken ligger i serverens e-postkø til RESEND_API_KEY settes.',
+    newPin: 'Ny PIN',
+    resetPin: 'Sett ny PIN',
+    resetOk: 'PIN er oppdatert. Logg inn med den nye.',
+    resetBad: 'Lenken er ugyldig eller utløpt.',
+    invite: 'Invitasjonslenke',
+    inviteCopied: 'Lenke kopiert',
+    inviteHint: 'Del lenken. Naboen trenger ikke PIN for å bli med.',
+    inviteFail: 'Klarte ikke lage invitasjonslenke.',
+    joinInvite: 'Bli med i gruppa',
+    joinInviteHint: 'Du er invitert. Skriv navnet ditt – så er du inne.',
+    joinNow: 'Bli med',
+    notify: 'Varsler',
+    notifyOn: 'Slå på varsler',
+    notifyOff: 'Varsler er på',
+    notifyDenied: 'Varsler er blokkert i nettleseren',
+    notifyNeed: 'Varsler når noen låner, stiller seg i kø eller fristen nærmer seg.',
+    typeCleanup: 'Rydd kategorier',
+    typeCleanupHint: 'Noen verktøy ser ut til å ligge i feil hylle. Du velger – vi spør ikke igjen om de du tar stilling til.',
+    typeKeep: 'Behold',
+    typeApply: 'Bruk forslag',
+    typeSkipAll: 'Hopp over alle',
+    photoLimit: 'For mange bilder (maks 500 i denne versjonen).',
     reserve: 'Reserver', unreserve: 'Fjern reservasjon',
     inQueue: 'i kø', queueYou: 'Du står i kø',
     nextUp: 'Neste', loanToNext: 'Lån ut til',
@@ -271,10 +316,55 @@ var I18N = {
     extName: 'Who is borrowing?', extNamePh: 'E.g. Kari from 4633',
     extNote: 'Contact / note (optional)', extNotePh: 'Phone, pickup spot, agreement …',
     extTag: 'Neighborhood', extRegister: 'Register loan',
-    due: 'Agreed return (optional)',
-    dueHint: 'The borrower gets a reminder in the app as the date approaches.',
+    due: 'Return date',
+    dueNone: 'No end date',
+    duePick: 'Pick a date',
+    dueHint: 'Default is no end date. Anyone borrowing in the group can set or change it.',
+    dueSet: 'Set due date',
+    dueChange: 'Change due date',
+    dueSaved: 'Due date updated',
     dueIn: 'due in', dueToday: 'due today', dueTomorrow: 'due tomorrow',
     overdue: 'overdue',
+    returnAsk: 'Return this tool?',
+    returnOk: 'All good',
+    returnNote: 'Note / damage (optional)',
+    returnNotePh: 'E.g. cracked case, missing bits',
+    damage: 'Mark as damaged',
+    returnDamage: 'returned with a note',
+    admin: 'Admin',
+    makeAdmin: 'Make admin',
+    makeAllAdmin: 'Make everyone admin',
+    adminHint: 'The first person is admin. Admins can grant admin and receive PIN reset by email.',
+    emailLbl: 'Email (optional)',
+    emailHint: 'Needed for forgotten PIN. At least one admin must have an email.',
+    emailBad: 'Invalid email address.',
+    forgotPin: 'Forgot PIN?',
+    forgotPinHint: 'Enter an admin email. If it is registered, a reset link is queued.',
+    forgotSend: 'Send reset link',
+    forgotSent: 'If that email belongs to an admin, a reset link has been queued.',
+    forgotNoMail: 'Sending is not enabled on this host yet. The link sits in the mail queue until RESEND_API_KEY is set.',
+    newPin: 'New PIN',
+    resetPin: 'Set new PIN',
+    resetOk: 'PIN updated. Sign in with the new one.',
+    resetBad: 'That link is invalid or has expired.',
+    invite: 'Invite link',
+    inviteCopied: 'Link copied',
+    inviteHint: 'Share the link. Neighbours can join without the PIN.',
+    inviteFail: 'Could not create an invite link.',
+    joinInvite: 'Join the group',
+    joinInviteHint: 'You have been invited. Enter your name to get in.',
+    joinNow: 'Join',
+    notify: 'Notifications',
+    notifyOn: 'Turn on notifications',
+    notifyOff: 'Notifications are on',
+    notifyDenied: 'Notifications are blocked in the browser',
+    notifyNeed: 'Notifies on loans, queue spots and upcoming due dates.',
+    typeCleanup: 'Tidy categories',
+    typeCleanupHint: 'Some tools look like they sit on the wrong shelf. You decide – we will not ask again about tools you have already judged.',
+    typeKeep: 'Keep',
+    typeApply: 'Use suggestion',
+    typeSkipAll: 'Skip all',
+    photoLimit: 'Too many photos (500 in this version).',
     reserve: 'Reserve', unreserve: 'Cancel reservation',
     inQueue: 'in queue', queueYou: 'You are in the queue',
     nextUp: 'Next', loanToNext: 'Loan to',
@@ -552,14 +642,14 @@ var fmtDato = function(iso){
 /* ---------- Storage (server / artifact / memory) ----------
    On a server, every tool-sharing group is its own store and the PIN is the
    key to it. gid + pin are kept on this device so you stay logged in. */
-var Lager = { mode:'minne', mem:null, me:null, gid:null, pin:'' };
+var Lager = { mode:'minne', mem:null, me:null, gid:null, pin:'', grant:'' };
 
 var SESSION_KEY = CONFIG.storageKey + ':sess';
 function readSession(){
   try{ return JSON.parse(localStorage.getItem(SESSION_KEY) || 'null'); }catch(e){ return null; }
 }
 function writeSession(){
-  try{ localStorage.setItem(SESSION_KEY, JSON.stringify({gid:Lager.gid, pin:Lager.pin})); }catch(e){}
+  try{ localStorage.setItem(SESSION_KEY, JSON.stringify({gid:Lager.gid, pin:Lager.pin, grant:Lager.grant})); }catch(e){}
 }
 function clearSession(){ try{ localStorage.removeItem(SESSION_KEY); }catch(e){} }
 
@@ -581,15 +671,18 @@ function pinHeader(extra){
   var h = extra || {};
   // URI-encoded so special characters (and æøå) are legal in an HTTP header
   if(Lager.pin) h['X-Pin'] = encodeURIComponent(Lager.pin);
+  if(Lager.grant) h['X-Grant'] = encodeURIComponent(Lager.grant);
   return h;
 }
 function groupUrl(){ return 'api/groups/' + Lager.gid + '/data'; }
-function setGroup(gid, pin){
-  Lager.gid = gid; Lager.pin = pin || '';
+function setGroup(gid, pin, grant){
+  Lager.gid = gid;
+  Lager.pin = pin || '';
+  Lager.grant = arguments.length >= 3 ? (grant || '') : '';
   writeSession();
 }
 function leaveGroup(){
-  Lager.gid = null; Lager.pin = ''; Lager.me = null;
+  Lager.gid = null; Lager.pin = ''; Lager.grant = ''; Lager.me = null;
   clearSession();
 }
 
@@ -599,7 +692,7 @@ async function initLager(){
     Lager.mode = 'server';
     var s = readSession();
     if(s && s.gid){
-      Lager.gid = s.gid; Lager.pin = s.pin || '';
+      Lager.gid = s.gid; Lager.pin = s.pin || ''; Lager.grant = s.grant || '';
       var r = await api(groupUrl(), {headers: pinHeader()});
       if(r.ok && r.body && r.body.data) return r.body.data;
       leaveGroup();   // group deleted or PIN changed – back to the front page
@@ -714,6 +807,8 @@ var st = {
   landing: false,     // front page: open an existing group or start a new one
   landingError: '',   // message shown on the front page / setup screen
   setupPin: '',       // PIN typed in the setup wizard (kept across re-renders)
+  inviteToken: '',    // ?invite= from the URL
+  resetToken: '',     // ?reset= from the URL
   req: {mine: [], nearby: []},  // neighborhood requests from the server
   toast: '', toastTil: 0        // current toast message and when it expires
 };
@@ -765,6 +860,7 @@ async function endre(fn, melding){
       if(basis === undefined || basis === null) basis = st.data;
       var ny = fn(kopi(basis));
       if(!ny || typeof ny !== 'object') throw new Error('invalid');
+      sikrAdmin(ny);
       ny.log = (ny.log || []).slice(-150);
       try{
         st.data = await lagreData(ny, basis ? basis.rev : 0);
@@ -804,6 +900,95 @@ function megPerson(){
 }
 function fornavn(navn){ return String(navn || '').trim().split(/\s+/)[0]; }
 function gyldigPostnr(nr){ return /^\d{4}$/.test(String(nr || '').trim()); }
+function gyldigEpost(s){ return /^[^@\s]{1,64}@[^@\s]{1,255}\.[^@\s]{2,24}$/.test(String(s || '').trim()); }
+function sikrAdmin(d){
+  var people = (d && d.people) || [];
+  if(people.length && !people.some(function(p){ return p.admin; })) people[0].admin = true;
+  return d;
+}
+function erAdmin(p){
+  if(!p) p = megPerson();
+  return !!(p && p.admin);
+}
+function adminAntall(d){
+  return ((d && d.people) || []).filter(function(p){ return p.admin; }).length;
+}
+function verktoyBildeUrl(v){
+  if(!v || !v.img) return '';
+  if(v.img.indexOf('data:') === 0) return v.img;
+  if(v.img === 'file' || v.img.indexOf('file') === 0){
+    if(!Lager.gid) return '';
+    return '/api/groups/' + Lager.gid + '/img/' + encodeURIComponent(v.id);
+  }
+  return v.img;
+}
+function fotoAntall(d){
+  return ((d && d.tools) || []).filter(function(v){ return !!v.img; }).length;
+}
+function typeRyddKandidater(d){
+  return ((d && d.tools) || []).filter(function(v){
+    if(v.typeDecided) return false;
+    var hint = foreslaType((v.name || '') + ' ' + (v.notes || ''));
+    if(!hint) return false;
+    var cur = (typeFinn(v.type) || {}).k;
+    return hint.k !== cur;
+  });
+}
+function urlBase64ToUint8Array(b64){
+  var pad = '='.repeat((4 - (b64.length % 4)) % 4);
+  var raw = atob((b64 + pad).replace(/-/g, '+').replace(/_/g, '/'));
+  var out = new Uint8Array(raw.length);
+  for(var i = 0; i < raw.length; i++) out[i] = raw.charCodeAt(i);
+  return out;
+}
+async function startPush(){
+  if(Lager.mode !== 'server' || !Lager.gid) return false;
+  if(!('serviceWorker' in navigator) || !('PushManager' in window)) return false;
+  var meg = hentMeg();
+  if(!meg) return false;
+  try{
+    var vapid = await api('api/push/vapid');
+    if(!vapid.ok || !vapid.body || !vapid.body.publicKey) return false;
+    var perm = Notification.permission;
+    if(perm === 'denied') return false;
+    if(perm !== 'granted'){
+      perm = await Notification.requestPermission();
+      if(perm !== 'granted') return false;
+    }
+    var reg = await navigator.serviceWorker.ready;
+    var sub = await reg.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToUint8Array(vapid.body.publicKey)
+    });
+    var r = await api('api/groups/' + Lager.gid + '/push/subscribe', {
+      method:'POST',
+      headers: pinHeader({'Content-Type':'application/json'}),
+      body: JSON.stringify({personId: meg, subscription: sub.toJSON()})
+    });
+    if(r.ok){
+      try{ localStorage.setItem(CONFIG.storageKey + ':push', '1'); }catch(e){}
+      return true;
+    }
+  }catch(e){}
+  return false;
+}
+function pushStatus(){
+  if(typeof Notification === 'undefined') return 'off';
+  if(Notification.permission === 'denied') return 'denied';
+  try{
+    if(localStorage.getItem(CONFIG.storageKey + ':push') === '1' && Notification.permission === 'granted')
+      return 'on';
+  }catch(e){}
+  return 'off';
+}
+function kanskjeTypeRydd(){
+  if(st._typeRyddSett || st.modal || !st.data || st.landing) return;
+  var k = typeRyddKandidater(st.data);
+  st._typeRyddSett = true;
+  if(!k.length) return;
+  st.modal = {type:'typeRydd'};
+  render();
+}
 
 /* ---------- Actions ---------- */
 var H = {};
@@ -913,7 +1098,7 @@ H.oStart = function(){
   var rader = st.oppsett.filter(function(r){ return r.name.trim(); });
   if(rader.length < 2) return;
   var people = rader.map(function(r, i){
-    return { id:uid(), name:r.name.trim(), address:r.address.trim(), color:FARGER[i % FARGER.length] };
+    return { id:uid(), name:r.name.trim(), address:r.address.trim(), color:FARGER[i % FARGER.length], admin: i === 0 };
   });
   var pinEl = $('#setup-pin');
   var pin = pinEl ? pinEl.value.trim() : (st.setupPin || '');
@@ -963,7 +1148,7 @@ H.setupPinInput = function(el){ st.setupPin = el.value; oppdaterStartKnapp(); };
 H.oLegg = function(){ st.oppsett.push({name:'', address:''}); render(); };
 H.oFjern = function(i){ st.oppsett.splice(i, 1); render(); };
 
-H.velgMeg = function(pid){ settMeg(pid); st.modal = null; render(); };
+H.velgMeg = function(pid){ settMeg(pid); st.modal = null; render(); setTimeout(kanskjeTypeRydd, 0); };
 H.byttMeg = function(){ st.meOpen = false; st.modal = {type:'byttmeg'}; render(); };
 H.visLeggMeg = function(){ st.modal = {type:'byttmeg', leggTil:true}; render(); };
 H.leggMegTil = function(){
@@ -1010,6 +1195,32 @@ H.navnInput = function(el){
   }
   chip.hidden = true;
 };
+function komprimerBilde(img){
+  var side = 960, q = 0.72, data = '', bytes = 0;
+  function tegn(maks, kvalitet){
+    var w = img.width, h = img.height;
+    if(w > maks || h > maks){
+      if(w > h){ h = Math.round(h * maks / w); w = maks; }
+      else { w = Math.round(w * maks / h); h = maks; }
+    }
+    var canvas = document.createElement('canvas');
+    canvas.width = w; canvas.height = h;
+    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+    data = canvas.toDataURL('image/jpeg', kvalitet);
+    var comma = data.indexOf(',');
+    bytes = comma < 0 ? data.length : Math.ceil((data.length - comma - 1) * 3 / 4);
+  }
+  tegn(side, q);
+  while(bytes > 400000 && q > 0.48){
+    q = Math.round((q - 0.08) * 100) / 100;
+    tegn(side, q);
+  }
+  while(bytes > 400000 && side > 640){
+    side -= 160;
+    tegn(side, q);
+  }
+  return data;
+}
 H.forhandsvisBilde = function(inp){
   var fil = inp.files && inp.files[0];
   if(!fil) return;
@@ -1017,16 +1228,7 @@ H.forhandsvisBilde = function(inp){
   leser.onload = function(e){
     var img = new Image();
     img.onload = function(){
-      var maks = 280;
-      var w = img.width, h = img.height;
-      if(w > maks || h > maks){
-        if(w > h){ h = Math.round(h * maks / w); w = maks; }
-        else { w = Math.round(w * maks / h); h = maks; }
-      }
-      var canvas = document.createElement('canvas');
-      canvas.width = w; canvas.height = h;
-      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-      var data = canvas.toDataURL('image/jpeg', 0.65);
+      var data = komprimerBilde(img);
       st._tempImg = data;
       st._removeImg = false;
       var prev = $('#f-img-preview');
@@ -1061,10 +1263,14 @@ H.lagreVerktoy = function(){
   st._tempImg = null;
   st._removeImg = false;
   st.modal = null;
+  if(bilde && !id && st.data && fotoAntall(st.data) >= 500){
+    toast(t('photoLimit'));
+    return;
+  }
   if(!id){
     endre(function(d){
       var tool = { id:uid(), name:navn, type:type, ownerId:eier, holderId:eier,
-                   notes:notat, since:naaISO(), created:naaISO() };
+                   notes:notat, since:naaISO(), created:naaISO(), typeDecided:true };
       if(bilde) tool.img = bilde;
       d.tools.push(tool);
       leggLogg(d, {t:'ny', tool:navn, toolId:tool.id, by:hentMeg(), to:eier});
@@ -1076,6 +1282,7 @@ H.lagreVerktoy = function(){
       if(t){
         var gmlEier = t.ownerId;
         t.name = navn; t.type = type; t.ownerId = eier; t.notes = notat;
+        t.typeDecided = true;
         if(bilde) t.img = bilde;
         if(fjernBilde) delete t.img;
         if(t.holderId === gmlEier && eier !== gmlEier) t.holderId = eier;
@@ -1119,10 +1326,16 @@ function utlaan(d, ids, pid, due, ext){
   return d;
 }
 function lesForfall(){
+  var mode = document.querySelector('input[name="due-mode"]:checked');
+  if(mode && mode.value === 'none') return '';
   var el = $('#l-due');
   var v = el ? el.value.trim() : '';
   return /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : '';
 }
+H.dueMode = function(v){
+  var el = $('#l-due');
+  if(el) el.hidden = v !== 'date';
+};
 H.velgLaaner = function(tid, pid){
   var ids = [];
   if(st.modal && st.modal.ids && st.modal.ids.length) ids = st.modal.ids.slice();
@@ -1160,18 +1373,60 @@ H.laanTilMeg = function(id){
   if(st.lagrer) return;
   var meg = hentMeg();
   if(!meg){ st.modal = {type:'byttmeg', tvang:true}; render(); return; }
-  endre(function(d){ return utlaan(d, [id], meg, '', null); }, t('loanDone'));
+  st.modal = {type:'laanMeg', id:id}; render();
+};
+H.bekreftLaanMeg = function(){
+  var meg = hentMeg();
+  if(!meg || !st.modal || !st.modal.id) return;
+  var due = lesForfall();
+  var id = st.modal.id;
+  st.modal = null;
+  endre(function(d){ return utlaan(d, [id], meg, due, null); }, t('loanDone'));
+};
+H.visFrist = function(id){
+  if(st.lagrer) return;
+  st.modal = {type:'frist', id:id}; render();
+};
+H.lagreFrist = function(){
+  if(!st.modal || !st.modal.id) return;
+  var id = st.modal.id;
+  var due = lesForfall();
+  st.modal = null;
+  endre(function(d){
+    var vt = d.tools.find(function(x){ return x.id === id; });
+    var meg = hentMeg();
+    if(!vt || !meg) return d;
+    if(vt.holderId !== meg && vt.holderId === EXT) return d;
+    if(vt.holderId !== meg && vt.ownerId !== meg && !erAdmin()) return d;
+    if(due) vt.due = due; else delete vt.due;
+    delete vt.dueNotified;
+    return d;
+  }, t('dueSaved'));
 };
 H.lever = function(id){
   if(st.lagrer) return;
+  st.modal = {type:'retur', id:id}; render();
+};
+H.bekreftRetur = function(){
+  if(!st.modal || st.modal.type !== 'retur') return;
+  var id = st.modal.id;
+  var note = (($('#r-note') || {}).value || '').trim();
+  var skade = !!( $('#r-skade') && $('#r-skade').checked );
+  st.modal = null;
   var neste = null;
   endre(function(d){
     var vt = d.tools.find(function(x){ return x.id === id; });
     if(vt){
       leggLogg(d, {t:'retur', tool:vt.name, toolId:vt.id, from:vt.holderId,
-                   to:vt.ownerId, extName: vt.ext ? vt.ext.name : null});
+                   to:vt.ownerId, extName: vt.ext ? vt.ext.name : null,
+                   note: note || null, damage: skade || null});
       vt.holderId = vt.ownerId; vt.since = naaISO();
-      delete vt.ext; delete vt.due;
+      delete vt.ext; delete vt.due; delete vt.dueNotified;
+      if(note || skade){
+        var merke = (skade ? (st.lang==='en' ? 'Damage' : 'Skade') : (st.lang==='en' ? 'Return note' : 'Returmerknad'));
+        var linje = merke + ' (' + new Date().toISOString().slice(0,10) + '): ' + (note || merke);
+        vt.notes = (vt.notes ? vt.notes.replace(/\s+$/,'') + '\n' : '') + linje;
+      }
       neste = (vt.queue || [])[0] || null;
     }
     return d;
@@ -1505,26 +1760,41 @@ H.redigerPerson = function(id){ st.modal = {type:'person', id:id}; st.bekreft = 
 H.lagrePerson = function(){
   var n = $('#p-navn').value.trim(), a = $('#p-adr').value.trim();
   var nr = ($('#p-postnr') ? $('#p-postnr').value : '').trim();
+  var em = ($('#p-epost') ? $('#p-epost').value : '').trim();
+  var vilAdmin = !!( $('#p-admin') && $('#p-admin').checked );
   if(!n) return;
   if(nr && !gyldigPostnr(nr)){ toast(t('unknownPostnr')); return; }
+  if(em && !gyldigEpost(em)){ toast(t('emailBad')); return; }
   var id = st.modal.id;
   st.modal = null;
   if(!id){
     endre(function(d){
-      d.people.push({ id:uid(), name:n, address:a, postnr:nr, color:FARGER[d.people.length % FARGER.length] });
+      d.people.push({ id:uid(), name:n, address:a, postnr:nr, email:em,
+                      color:FARGER[d.people.length % FARGER.length],
+                      admin: vilAdmin && erAdmin() });
+      sikrAdmin(d);
       leggLogg(d, {t:'pers', name:n});
       return d;
     }, tf('addedName', n));
   }else{
     endre(function(d){
       var p = d.people.find(function(x){ return x.id === id; });
-      if(p){ p.name = n; p.address = a; p.postnr = nr; }
+      if(p){
+        p.name = n; p.address = a; p.postnr = nr; p.email = em;
+        if(erAdmin()){
+          if(vilAdmin) p.admin = true;
+          else if(adminAntall(d) > 1) p.admin = false;
+        }
+      }
+      sikrAdmin(d);
       return d;
     }, t('saved'));
   }
 };
 H.slettPerson = function(id){
   if(st.bekreft !== 'p' + id){ st.bekreft = 'p' + id; render(); return; }
+  var p = ((st.data && st.data.people) || []).find(function(x){ return x.id === id; });
+  if(p && p.admin && adminAntall(st.data) < 2){ toast(t('cantRemove')); return; }
   st.modal = null; st.bekreft = null;
   endre(function(d){
     d.people = d.people.filter(function(p){ return p.id !== id; });
@@ -1532,8 +1802,120 @@ H.slettPerson = function(id){
     (d.tools || []).forEach(function(v){
       if(v.queue) v.queue = v.queue.filter(function(q){ return q.personId !== id; });
     });
+    sikrAdmin(d);
     return d;
   }, t('personRemoved'));
+};
+H.alleAdmin = function(){
+  if(!erAdmin()) return;
+  endre(function(d){
+    (d.people || []).forEach(function(p){ p.admin = true; });
+    return d;
+  }, t('saved'));
+};
+H.kopierInvite = async function(){
+  if(Lager.mode !== 'server' || !Lager.gid) return;
+  var r = await api('api/groups/' + Lager.gid + '/invite', {
+    method:'POST', headers: pinHeader({'Content-Type':'application/json'}),
+    body: JSON.stringify({maxUses: 50})
+  });
+  if(!r.ok || !r.body || !r.body.token){ toast(t('inviteFail')); return; }
+  var url = location.origin + '/?invite=' + r.body.token;
+  try{
+    if(navigator.clipboard && navigator.clipboard.writeText)
+      await navigator.clipboard.writeText(url);
+    else {
+      var ta = document.createElement('textarea');
+      ta.value = url; document.body.appendChild(ta); ta.select();
+      document.execCommand('copy'); document.body.removeChild(ta);
+    }
+    toast(t('inviteCopied'));
+  }catch(e){ toast(url); }
+};
+H.slaaPaaVarsler = async function(){
+  var ok = await startPush();
+  render();
+  toast(ok ? t('notifyOff') : (pushStatus() === 'denied' ? t('notifyDenied') : t('serverDown')));
+};
+H.visGlemt = function(){ st.modal = {type:'glemt'}; render(); };
+H.sendGlemt = async function(){
+  var em = (($('#g-epost') || {}).value || '').trim();
+  if(!gyldigEpost(em)){ toast(t('emailBad')); return; }
+  var r = await api('api/recover', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({email: em})
+  });
+  var status = await api('api/recover/status');
+  st.modal = null;
+  render();
+  toast(t('forgotSent'));
+  if(r.ok && status.ok && status.body && !status.body.mailConfigured)
+    setTimeout(function(){ toast(t('forgotNoMail')); }, 2800);
+};
+H.settNyPin = async function(){
+  var pin = (($('#reset-pin') || {}).value || '').trim();
+  if(pin.length < 4 || pin.length > 32){ toast(t('pinLength')); return; }
+  var r = await api('api/recover/reset', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({token: st.resetToken, pin: pin})
+  });
+  if(r.ok){
+    st.resetToken = '';
+    try{ history.replaceState({}, '', '/'); }catch(e){}
+    st.landingError = '';
+    toast(t('resetOk'));
+    render();
+    return;
+  }
+  toast(r.status === 409 ? t('pinTaken') : t('resetBad'));
+};
+H.bliMedInvite = async function(){
+  var n = (($('#inv-navn') || {}).value || '').trim();
+  var a = (($('#inv-adr') || {}).value || '').trim();
+  if(!n || !st.inviteToken) return;
+  st.lagrer = true; visLagrer(true);
+  var r = await api('api/invite/' + st.inviteToken + '/join', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({name: n, address: a})
+  });
+  st.lagrer = false; visLagrer(false);
+  if(!r.ok || !r.body || !r.body.id){
+    toast(r.status === 404 ? t('resetBad') : t('serverDown'));
+    return;
+  }
+  setGroup(r.body.id, '', r.body.grant);
+  st.data = r.body.data;
+  if(r.body.personId) settMeg(r.body.personId);
+  st.inviteToken = ''; st.landing = false;
+  try{ history.replaceState({}, '', '/'); }catch(e){}
+  render();
+};
+H.brukTypeRydd = function(id){
+  endre(function(d){
+    var vt = d.tools.find(function(x){ return x.id === id; });
+    if(!vt) return d;
+    var hint = foreslaType((vt.name || '') + ' ' + (vt.notes || ''));
+    if(hint) vt.type = hint.k;
+    vt.typeDecided = true;
+    return d;
+  });
+};
+H.beholdTypeRydd = function(id){
+  endre(function(d){
+    var vt = d.tools.find(function(x){ return x.id === id; });
+    if(vt) vt.typeDecided = true;
+    return d;
+  });
+};
+H.hoppTypeRydd = function(){
+  st.modal = null;
+  endre(function(d){
+    typeRyddKandidater(d).forEach(function(v){
+      var vt = d.tools.find(function(x){ return x.id === v.id; });
+      if(vt) vt.typeDecided = true;
+    });
+    return d;
+  });
 };
 
 window.H = H;
@@ -1627,8 +2009,11 @@ function render(){
   if(!st.klar) return;
 
   if(st.landing){
-    app.innerHTML = htmlLanding();
-    setTimeout(function(){ var i=$('#land-pin'); if(i) i.focus(); }, 50);
+    app.innerHTML = htmlLanding() + trygtModal({}, false);
+    setTimeout(function(){
+      var i = $('#land-pin') || $('#inv-navn') || $('#reset-pin') || $('#g-epost');
+      if(i) i.focus();
+    }, 50);
     return;
   }
 
@@ -1696,6 +2081,16 @@ function render(){
           ? '<button class="vb-btn vb-ghost vb-small" onclick="H.switchGroup()">' + ikon('laas',16) + ' ' + esc(t('switchGroup')) + '</button>'
           : '') +
         '<button class="vb-btn vb-ghost vb-small" onclick="H.byttMeg()">' + esc(t('whoAreYou')) + '</button>' +
+        (Lager.mode === 'server'
+          ? '<p class="vb-lbl" style="margin-top:12px">' + esc(t('notify')) + '</p>' +
+            '<p class="vb-finetext" style="margin:0 0 6px">' + esc(t('notifyNeed')) + '</p>' +
+            (pushStatus() === 'on'
+              ? '<p class="vb-finetext">' + esc(t('notifyOff')) + '</p>'
+              : '<button class="vb-btn vb-ghost vb-small" onclick="H.slaaPaaVarsler()">' +
+                  esc(pushStatus() === 'denied' ? t('notifyDenied') : t('notifyOn')) + '</button>') +
+            '<button class="vb-btn vb-ghost vb-small" onclick="H.kopierInvite()">' + esc(t('invite')) + '</button>' +
+            '<p class="vb-finetext" style="margin:4px 0 0">' + esc(t('inviteHint')) + '</p>'
+          : '') +
       '</div>'
     : '';
 
@@ -1774,6 +2169,26 @@ function antallEttersp(){
 
 /* ----- Front page (server mode): open a group with a PIN, or start a new one ----- */
 function htmlLanding(){
+  if(st.inviteToken){
+    return '<main class="vb-main"><div class="nt-land vb-pinbox" style="max-width:420px;margin:40px auto">' +
+      merke() +
+      '<h2 class="vb-h2" style="margin-top:18px">' + esc(t('joinInvite')) + '</h2>' +
+      '<p class="vb-muted vb-mb">' + esc(t('joinInviteHint')) + '</p>' +
+      felt(esc(t('name')), '<input class="vb-inp" id="inv-navn" maxlength="60">') +
+      felt(esc(t('address')), '<input class="vb-inp" id="inv-adr" placeholder="' + esc(t('addressPh')) + '">') +
+      '<button class="vb-btn vb-primary" onclick="H.bliMedInvite()">' + esc(t('joinNow')) + '</button>' +
+      '<p style="margin-top:14px"><button class="nt-textbtn" onclick="st.inviteToken=\'\';try{history.replaceState({},\'\',\'/\')}catch(e){}render()">' +
+        esc(t('back')) + '</button></p></div></main><div id="toast" class="vb-toast" hidden></div>';
+  }
+  if(st.resetToken){
+    return '<main class="vb-main"><div class="nt-land vb-pinbox" style="max-width:420px;margin:40px auto">' +
+      merke() +
+      '<h2 class="vb-h2" style="margin-top:18px">' + esc(t('resetPin')) + '</h2>' +
+      felt(esc(t('newPin')), '<input class="vb-inp" id="reset-pin" type="password" maxlength="32" autocomplete="new-password">') +
+      '<p class="vb-finetext">' + esc(t('setupPinReqHint')) + '</p>' +
+      '<button class="vb-btn vb-primary vb-mt" onclick="H.settNyPin()">' + esc(t('resetPin')) + '</button>' +
+      '</div></main><div id="toast" class="vb-toast" hidden></div>';
+  }
   var errHtml = st.landingError
     ? '<p class="vb-finetext" style="color:var(--danger)" role="alert">' + esc(st.landingError) + '</p>'
     : '';
@@ -1784,7 +2199,9 @@ function htmlLanding(){
       '<span>' + esc(t('pinLabel')) + '</span></label>' +
     errHtml +
     '<button class="vb-btn vb-primary vb-mt" onclick="H.openGroup()">' + esc(t('openGroup')) + '</button>' +
-    '<p style="text-align:center;margin:14px 0 0"><button class="nt-textbtn" onclick="H.newGroup()">' +
+    '<p style="text-align:center;margin:14px 0 0"><button class="nt-textbtn" onclick="H.visGlemt()">' +
+      esc(t('forgotPin')) + '</button></p>' +
+    '<p style="text-align:center;margin:10px 0 0"><button class="nt-textbtn" onclick="H.newGroup()">' +
       esc(t('newGroup')) + '</button></p>';
   var tillit =
     '<ul class="nt-trust">' +
@@ -2104,6 +2521,10 @@ function visListe(){
     } else {
       handling = '<button class="vb-btn vb-return vb-small" onclick="H.lever(\'' + v.id + '\')">' +
           ikon('tilbake',15) + ' ' + esc(t('returnBtn')) + '</button>';
+      if(meg && v.holderId === meg && v.holderId !== EXT){
+        handling += '<button class="vb-btn vb-ghost vb-small" onclick="H.visFrist(\'' + v.id + '\')">' +
+          esc(v.due ? t('dueChange') : t('dueSet')) + '</button>';
+      }
       if(meg && v.holderId !== meg){
         handling += minKø
           ? '<button class="vb-btn vb-ghost vb-small" onclick="H.avreserver(\'' + v.id + '\')">' +
@@ -2112,8 +2533,9 @@ function visListe(){
               esc(t('reserve')) + '</button>';
       }
     }
-    var fig = v.img
-      ? '<span class="nt-fig-wrap"><img class="nt-fig-img" src="' + esc(v.img) + '" alt=""></span>'
+    var figSrc = verktoyBildeUrl(v);
+    var fig = figSrc
+      ? '<span class="nt-fig-wrap"><img class="nt-fig-img" src="' + esc(figSrc) + '" alt=""></span>'
       : '<span class="nt-fig-wrap nt-fig-sil">' + ikon('skru',40) + '</span>';
     var check = ((st.selectMode || selN) && hjemme)
       ? '<button class="vb-check nt-fig-check' + (sel?' on':'') + '" aria-label="Select" onclick="H.toggleSel(\'' + v.id + '\')">' +
@@ -2228,7 +2650,8 @@ function htmlPersoner(byId, meg){
     return '<article class="vb-card">' +
       '<div class="vb-toolrow">' +
         '<h3 class="vb-toolname">' + avatarHtml(p, 'lg') + ' ' + esc(p.name) +
-          (p.id === meg ? '<span class="vb-you">' + esc(t('youTag')) + '</span>' : '') + '</h3>' +
+          (p.id === meg ? '<span class="vb-you">' + esc(t('youTag')) + '</span>' : '') +
+          (p.admin ? '<span class="vb-you">' + esc(t('admin')) + '</span>' : '') + '</h3>' +
         '<button class="vb-iconbtn" aria-label="' + esc(t('edit')) + '" onclick="H.redigerPerson(\'' + p.id + '\')">' +
           ikon('blyant',17) + '</button>' +
       '</div>' +
@@ -2246,7 +2669,12 @@ function htmlPersoner(byId, meg){
   }).join('');
   return '<div class="vb-list">' + kort +
     '<button class="vb-btn vb-ghost" onclick="H.nyPerson()">' + ikon('pluss',16) + ' ' +
-      esc(t('addPersonBtn')) + '</button></div>';
+      esc(t('addPersonBtn')) + '</button>' +
+    (erAdmin()
+      ? '<button class="vb-btn vb-ghost" onclick="H.alleAdmin()">' + esc(t('makeAllAdmin')) + '</button>' +
+        '<p class="vb-finetext">' + esc(t('adminHint')) + '</p>'
+      : '') +
+    '</div>';
 }
 
 /* ----- Log tab ----- */
@@ -2264,7 +2692,8 @@ function htmlLogg(byId){
         var tekst = '';
         if(e.t === 'ny') tekst = (e.by && byId[e.by] ? n(e.by) + (st.lang==='en'?' added ':' la til ') : (st.lang==='en'?'Added ':'La til ')) + '«' + esc(e.tool) + '»';
         if(e.t === 'laan') tekst = '«' + esc(e.tool) + '»: ' + n(e.from, e) + ' → ' + n(e.to, e);
-        if(e.t === 'retur') tekst = '«' + esc(e.tool) + '» ' + (st.lang==='en'?'returned to ':'levert tilbake til ') + n(e.to, e);
+        if(e.t === 'retur') tekst = '«' + esc(e.tool) + '» ' + (st.lang==='en'?'returned to ':'levert tilbake til ') + n(e.to, e) +
+          (e.note || e.damage ? ' · ' + esc(e.note || t('returnDamage')) : '');
         if(e.t === 'slett') tekst = '«' + esc(e.tool) + '» ' + (st.lang==='en'?'was deleted':'ble slettet');
         if(e.t === 'pers') tekst = esc(e.name) + (st.lang==='en'?' joined':' ble med');
         if(e.t === 'ettersp') tekst = n(e.by) + ' ' + esc(t('looksFor')) + ': «' + esc(e.text) + '»';
@@ -2289,6 +2718,19 @@ function htmlLogg(byId){
 /* ----- Modal sheets ----- */
 function felt(navn, indre){
   return '<label class="vb-field"><span class="vb-lbl">' + navn + '</span>' + indre + '</label>';
+}
+function dueFelt(valgt){
+  var har = /^\d{4}-\d{2}-\d{2}$/.test(valgt || '');
+  return '<div class="vb-field"><span class="vb-lbl">' + esc(t('due')) + '</span>' +
+    '<div class="vb-radios">' +
+      '<label><input type="radio" name="due-mode" value="none"' + (har ? '' : ' checked') +
+        ' onchange="H.dueMode(this.value)"> ' + esc(t('dueNone')) + '</label>' +
+      '<label><input type="radio" name="due-mode" value="date"' + (har ? ' checked' : '') +
+        ' onchange="H.dueMode(this.value)"> ' + esc(t('duePick')) + '</label>' +
+    '</div>' +
+    '<input class="vb-inp" id="l-due" type="date" min="' + new Date().toISOString().slice(0,10) + '"' +
+      (har ? ' value="' + esc(valgt) + '"' : ' hidden') + '>' +
+    '<p class="vb-finetext" style="margin-top:6px">' + esc(t('dueHint')) + '</p></div>';
 }
 function ark(tittel, indre, kanLukke){
   return '<div class="vb-overlay" onmousedown="if(event.target===this && ' + (kanLukke !== false) + ')H.lukk()">' +
@@ -2317,12 +2759,21 @@ function trygtModal(byId, megGyldig){
 }
 
 function htmlModal(byId, megGyldig){
+  var m = st.modal;
+  if(m && m.type === 'glemt'){
+    return ark(esc(t('forgotPin')),
+      '<p class="vb-muted vb-mb">' + esc(t('forgotPinHint')) + '</p>' +
+      felt(esc(t('emailLbl')), '<input class="vb-inp" id="g-epost" type="email" autocomplete="email">') +
+      '<div class="vb-sheet-actions">' +
+        '<button class="vb-btn vb-primary" onclick="H.sendGlemt()">' + esc(t('forgotSend')) + '</button>' +
+      '</div>');
+  }
+  if(!st.data) return '';
   var people = st.data.people || [];
   var tools = st.data.tools || [];
-  var m = st.modal;
 
   // Must pick identity first
-  if(!megGyldig && people.length > 0 && (!m || m.type !== 'byttmeg')) m = {type:'byttmeg', tvang:true};
+  if(!megGyldig && people.length > 0 && (!m || (m.type !== 'byttmeg' && m.type !== 'glemt'))) m = {type:'byttmeg', tvang:true};
 
   if(!m) return '';
 
@@ -2368,7 +2819,7 @@ function htmlModal(byId, megGyldig){
           esc(st.bekreft === 'v' + vt.id ? t('tapDelete') : t('deleteTool')) + '</button>'
       : '';
     var bildePreview = vt && vt.img
-      ? '<img id="f-img-preview" src="' + esc(vt.img) + '" style="width:80px;height:80px;object-fit:cover;border-radius:10px;margin-top:6px;display:block">'
+      ? '<img id="f-img-preview" src="' + esc(verktoyBildeUrl(vt)) + '" style="width:80px;height:80px;object-fit:cover;border-radius:10px;margin-top:6px;display:block">'
       : '<img id="f-img-preview" hidden style="width:80px;height:80px;object-fit:cover;border-radius:10px;margin-top:6px;display:block">';
     var bildeFjern = (vt && vt.img) || st._tempImg
       ? '<button type="button" class="vb-btn vb-ghost vb-small" style="margin-top:6px" onclick="H.fjernBilde()">' + esc(t('photoRemove')) + '</button>'
@@ -2406,9 +2857,7 @@ function htmlModal(byId, megGyldig){
     return ark(esc(title),
       '<p class="vb-muted vb-mb">' + esc(t('toolsMove')) + '</p>' +
       (tls.length > 1 ? '<p class="vb-notes vb-mb">' + tls.map(function(x){ return esc(x.name); }).join(', ') + '</p>' : '') +
-      felt(esc(t('due')), '<input class="vb-inp" id="l-due" type="date" min="' +
-        new Date().toISOString().slice(0,10) + '">') +
-      '<p class="vb-finetext" style="margin-top:-6px">' + esc(t('dueHint')) + '</p>' +
+      dueFelt('') +
       '<div id="l-pick" class="vb-mt">' +
         '<div class="vb-pickgrid">' + knapper + '</div>' +
         '<button class="vb-btn vb-ghost vb-mt" onclick="H.visEksternt()">' +
@@ -2441,7 +2890,8 @@ function htmlModal(byId, megGyldig){
           var tekst = '';
           if(e.t === 'ny') tekst = esc(t('addedShort'));
           if(e.t === 'laan') tekst = n2(e.from, e) + ' → ' + n2(e.to, e);
-          if(e.t === 'retur') tekst = (st.lang==='en'?'Returned to ':'Tilbake til ') + n2(e.to, e);
+          if(e.t === 'retur') tekst = (st.lang==='en'?'Returned to ':'Tilbake til ') + n2(e.to, e) +
+            (e.note || e.damage ? ' · ' + esc(e.note || t('returnDamage')) : '');
           if(e.t === 'slett') tekst = esc(t('deleted'));
           return '<div class="vb-hist-row"><span>' + tekst + '</span><span class="vb-logdate">' + fmtDato(e.date) + '</span></div>';
         }).join('') + '</div>';
@@ -2533,9 +2983,73 @@ function htmlModal(byId, megGyldig){
         '" value="' + esc(p ? p.address : '') + '">') +
       felt(esc(t('postnr')), '<input class="vb-inp" id="p-postnr" inputmode="numeric" maxlength="4" ' +
         'placeholder="4630" value="' + esc(p && p.postnr ? p.postnr : '') + '">') +
+      felt(esc(t('emailLbl')), '<input class="vb-inp" id="p-epost" type="email" autocomplete="email" value="' +
+        esc(p && p.email ? p.email : '') + '">') +
+      '<p class="vb-finetext" style="margin-top:-6px">' + esc(t('emailHint')) + '</p>' +
+      (erAdmin()
+        ? '<label class="vb-hoodtoggle" style="margin-top:10px"><span><b>' + esc(t('makeAdmin')) + '</b></span>' +
+            '<input type="checkbox" id="p-admin"' + (p && p.admin ? ' checked' : '') + '>' +
+            '<span class="nt-knob" aria-hidden="true"></span></label>'
+        : (p && p.admin ? '<p class="vb-finetext">' + esc(t('admin')) + '</p>' : '')) +
       '<p class="vb-finetext" style="margin-top:-6px">' + esc(t('reqPrivacy')) + '</p>' +
       '<div class="vb-sheet-actions">' +
         '<button class="vb-btn vb-primary" onclick="H.lagrePerson()">' + esc(t('save')) + '</button>' + slettP +
+      '</div>');
+  }
+
+  if(m.type === 'laanMeg'){
+    var tm = tools.find(function(x){ return x.id === m.id; });
+    if(!tm) return '';
+    return ark(esc(tm.name),
+      '<p class="vb-muted vb-mb">' + esc(t('loanToMe')) + '</p>' +
+      dueFelt('') +
+      '<div class="vb-sheet-actions">' +
+        '<button class="vb-btn vb-primary" onclick="H.bekreftLaanMeg()">' + esc(t('loanToMe')) + '</button>' +
+      '</div>');
+  }
+
+  if(m.type === 'frist'){
+    var tfv = tools.find(function(x){ return x.id === m.id; });
+    if(!tfv) return '';
+    return ark(esc(t('due')),
+      dueFelt(tfv.due || '') +
+      '<div class="vb-sheet-actions">' +
+        '<button class="vb-btn vb-primary" onclick="H.lagreFrist()">' + esc(t('save')) + '</button>' +
+      '</div>');
+  }
+
+  if(m.type === 'retur'){
+    var tr = tools.find(function(x){ return x.id === m.id; });
+    if(!tr) return '';
+    return ark(esc(t('returnAsk')),
+      '<p class="vb-muted vb-mb">«' + esc(tr.name) + '»</p>' +
+      felt(esc(t('returnNote')), '<textarea class="vb-inp" id="r-note" rows="2" maxlength="300" placeholder="' +
+        esc(t('returnNotePh')) + '"></textarea>') +
+      '<label class="vb-hoodtoggle"><span><b>' + esc(t('damage')) + '</b></span>' +
+        '<input type="checkbox" id="r-skade"><span class="nt-knob" aria-hidden="true"></span></label>' +
+      '<div class="vb-sheet-actions">' +
+        '<button class="vb-btn vb-primary" onclick="H.bekreftRetur()">' + esc(t('returnOk')) + '</button>' +
+      '</div>');
+  }
+
+  if(m.type === 'typeRydd'){
+    var kandidater = typeRyddKandidater(st.data);
+    if(!kandidater.length){ st.modal = null; return ''; }
+    var rader = kandidater.map(function(v){
+      var hint = foreslaType((v.name || '') + ' ' + (v.notes || ''));
+      return '<div class="vb-hist-row" style="align-items:flex-start;gap:8px;flex-wrap:wrap">' +
+        '<span><b>' + esc(v.name) + '</b><br><span class="vb-finetext">' +
+          esc(typeNavn(v.type)) + ' → ' + esc(hint ? typeNavn(hint.k) : '') + '</span></span>' +
+        '<span style="display:flex;gap:6px">' +
+          '<button class="vb-btn vb-ghost vb-small" onclick="H.beholdTypeRydd(\'' + v.id + '\')">' + esc(t('typeKeep')) + '</button>' +
+          '<button class="vb-btn vb-primary vb-small" onclick="H.brukTypeRydd(\'' + v.id + '\')">' + esc(t('typeApply')) + '</button>' +
+        '</span></div>';
+    }).join('');
+    return ark(esc(t('typeCleanup')),
+      '<p class="vb-muted vb-mb">' + esc(t('typeCleanupHint')) + '</p>' +
+      '<div class="vb-hist">' + rader + '</div>' +
+      '<div class="vb-sheet-actions">' +
+        '<button class="vb-btn vb-ghost" onclick="H.hoppTypeRydd()">' + esc(t('typeSkipAll')) + '</button>' +
       '</div>');
   }
 
@@ -2638,7 +3152,14 @@ render = function(){
     try{ navigator.serviceWorker.register('/sw.js'); }catch(e){}
   }
 
+  try{
+    var q = new URLSearchParams(location.search);
+    if(q.get('invite')) st.inviteToken = String(q.get('invite')).replace(/[^a-f0-9]/g,'');
+    if(q.get('reset')) st.resetToken = String(q.get('reset')).replace(/[^a-f0-9]/g,'');
+  }catch(e){}
+
   st.data = await initLager();
+  if(st.data) sikrAdmin(st.data);
   st.klar = true;
   if(st.data && Lager.mode === 'server')
     fetchReq().then(function(endret){ if(endret) render(); });
@@ -2650,7 +3171,15 @@ render = function(){
       st.setupPin = '';
     }
   }
+  if(st.inviteToken || st.resetToken){
+    if(st.data){
+      leaveGroup();
+      st.data = null;
+    }
+    st.landing = true;
+  }
   render();
+  if(st.data && hentMeg()) setTimeout(kanskjeTypeRydd, 400);
 
   // Background refresh (on tab focus + every 25s)
   async function stille(){

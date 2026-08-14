@@ -37,14 +37,35 @@ Run through this before tagging a release or pushing to a public repo.
 
 ## Loans
 - [ ] “Lån ut” opens person picker (excludes current holder)
+- [ ] Due date defaults to “Ubestemt tid”; a date is optional
 - [ ] After loan, status shows “Hos X · N dager”
-- [ ] “Lever tilbake” returns tool to owner
+- [ ] Borrower in the group can set / change the due date from the card
+- [ ] “Lån til meg” asks for a due date (default: no end date)
+- [ ] Return sheet: optional note + damage flag; note appears on the tool and in the log
 - [ ] Log entries created for loan and return
 
 ## People
 - [ ] Add / edit person
 - [ ] Cannot delete person who still owns or holds tools
 - [ ] Counts (owns / has borrowed) are correct
+- [ ] First person created is admin; admin badge shows
+- [ ] Admin can grant admin on a person, or “make everyone admin”
+- [ ] Last admin cannot be removed
+- [ ] Admin can add an email on their profile (forgotten PIN)
+
+## Invite, PIN reset, push
+- [ ] Profile → invite link copies a URL; opening it on another browser joins without the PIN
+- [ ] Front page → Forgot PIN: any email shows the same “queued” message
+- [ ] With an admin email saved, a row appears in `/data/mail-queue.json` (no SMTP unless `RESEND_API_KEY` is set)
+- [ ] Reset link (`/?reset=…`) sets a new PIN and the old one stops working
+- [ ] Profile → turn on notifications: browser permission + subscribe (needs HTTPS / localhost and `pywebpush` in the image)
+
+## Categories & photos
+- [ ] Suggested category on a new tool; saving marks it decided
+- [ ] Category tidy-up on login only lists tools you have not already judged
+- [ ] Skip / keep / apply persists; next login does not re-ask those tools
+- [ ] Photo is compressed in the browser and stored as a file (`/data/img/…`), not a data URL in the group JSON
+- [ ] 501st new photo is refused (v1 cap 500)
 
 ## Log & backup
 - [ ] Log shows newest first
