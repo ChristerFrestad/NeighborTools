@@ -2209,8 +2209,18 @@ function htmlLanding(){
       '<li><i>—</i> ' + esc(t('trust2')) + '</li>' +
       '<li><i>—</i> ' + esc(t('trust3')) + '</li>' +
     '</ul>';
+  var fig = function(src){
+    return '<span class="nt-obj"><img src="' + src + '" alt=""></span>';
+  };
 
   return '<main class="vb-main">' +
+    '<div class="nt-hero-strip" aria-hidden="true">' +
+      fig('/assets/landing/saw.jpg') +
+      '<div class="nt-hero-stack">' +
+        fig('/assets/landing/grinder.webp') +
+        fig('/assets/landing/driver.jpg') +
+      '</div>' +
+    '</div>' +
     '<div class="nt-land-desk">' +
       '<div class="nt-land-left nt-land">' +
         '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">' + merke() +
@@ -2218,7 +2228,12 @@ function htmlLanding(){
         '<h2>' + esc(t('landingTitle')) + '</h2>' +
         '<p class="vb-muted">' + esc(t('landingHint')) + '</p>' +
         tillit +
-        '<div class="nt-silrow" aria-hidden="true">' + ikon('skru',36) + ikon('klokke',36) + ikon('folk',36) + '</div>' +
+        '<div class="nt-collage" aria-hidden="true">' +
+          fig('/assets/landing/saw.jpg') +
+          fig('/assets/landing/grinder.webp') +
+          fig('/assets/landing/driver.jpg') +
+          fig('/assets/landing/compressor.jpg') +
+        '</div>' +
       '</div>' +
       '<div class="nt-land-right vb-pinbox">' +
         '<h3 class="vb-h2">' + esc(t('havePin')) + '</h3>' +

@@ -1,5 +1,5 @@
 /* NeighborTools – app shell cache + Web Push */
-const CACHE = 'nt-shell-v6';
+const CACHE = 'nt-shell-v7';
 const ASSETS = ['/', '/index.html', '/app.css', '/manifest.webmanifest'];
 
 self.addEventListener('install', function(e){

@@ -8,6 +8,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # App is a single index.html + CSS + server + PWA files
 # postnummer.json: postal-code coordinates for neighborhood requests
 COPY server.py index.html app.css manifest.webmanifest sw.js postnummer.json ./
+COPY assets ./assets
 
 # Data lives here (mounted as volume in Portainer)
 RUN mkdir -p /data

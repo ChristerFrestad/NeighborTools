@@ -40,6 +40,13 @@ Sentence case `NeighborTools`. Logomark: heksagonal bit i kobber — ikke 🔧.
 3. Etterlysninger som oppslagstavle
 4. Desktop-rail + katalog
 
-## Ikke committet ennå
+## Landing-foto
 
-Produktfotoene i `img/` er lokale forhåndsvisningsfiler fra Christers utstyrsliste. Ikke push til GitHub uten avklaring (butikkfoto / eierskap).
+Fire utvalgte katalogbilder ligger i `assets/landing/` og vises på forsiden (mobil-stripe + desktop-kollasj):
+
+1. Dewalt kapp- og gjærsag — hero, gult, «stort verktøy man låner»
+2. Einhell vinkelsliper — gjenkjennelig silhuett
+3. Makita slagskrutrekker — blå kontrast, matcher overskriften
+4. Kompressor — grå, hverdags/garasje, annen form
+
+Øvrige produktfoto i `design/img/` er lokale forhåndsvisninger. Ikke bruk butikk-overlay (NOT INCLUDED, stiplede batteri) på forsiden.
