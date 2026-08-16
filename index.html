@@ -17,6 +17,19 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="description" content="Shared tools with your neighbors – no login needed.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="NeighborTools">
+<meta property="og:title" content="NeighborTools">
+<meta property="og:description" content="Shared tools with your neighbors – no login needed.">
+<meta property="og:url" content="https://neighbor-tools.com/">
+<meta property="og:image" content="https://neighbor-tools.com/assets/landing/saw.jpg">
+<meta property="og:locale" content="nb_NO">
+<meta property="og:locale:alternate" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="NeighborTools">
+<meta name="twitter:description" content="Shared tools with your neighbors – no login needed.">
+<meta name="twitter:image" content="https://neighbor-tools.com/assets/landing/saw.jpg">
+<link rel="canonical" href="https://neighbor-tools.com/">
 <title>NeighborTools</title>
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='3' fill='%23B85C2A'/%3E%3Cpath d='M16 6.5 25 11.2v9.6L16 25.5 7 20.8v-9.6L16 6.5Z' fill='none' stroke='%23F6F1E8' stroke-width='1.6'/%3E%3Crect x='13.2' y='13.2' width='5.6' height='5.6' rx='.6' fill='none' stroke='%23F6F1E8' stroke-width='1.5' transform='rotate(45 16 16)'/%3E%3C/svg%3E">
@@ -1820,7 +1833,7 @@ H.kopierInvite = async function(){
     body: JSON.stringify({maxUses: 50})
   });
   if(!r.ok || !r.body || !r.body.token){ toast(t('inviteFail')); return; }
-  var url = location.origin + '/?invite=' + r.body.token;
+  var url = location.origin + '/i/' + r.body.token;
   try{
     if(navigator.clipboard && navigator.clipboard.writeText)
       await navigator.clipboard.writeText(url);
@@ -3170,6 +3183,8 @@ render = function(){
   try{
     var q = new URLSearchParams(location.search);
     if(q.get('invite')) st.inviteToken = String(q.get('invite')).replace(/[^a-f0-9]/g,'');
+    var pathInv = location.pathname.match(/^\/i\/([a-f0-9]{16,80})$/);
+    if(pathInv) st.inviteToken = pathInv[1];
     if(q.get('reset')) st.resetToken = String(q.get('reset')).replace(/[^a-f0-9]/g,'');
   }catch(e){}
 

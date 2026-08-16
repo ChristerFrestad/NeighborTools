@@ -54,7 +54,8 @@ Run through this before tagging a release or pushing to a public repo.
 - [ ] Admin can add an email on their profile (forgotten PIN)
 
 ## Invite, PIN reset, push
-- [ ] Profile → invite link copies a URL; opening it on another browser joins without the PIN
+- [ ] Profile → invite link copies `/i/<token>`; opening it on another browser joins without the PIN
+- [ ] `curl -sI https://neighbor-tools.com/` returns 200 (not 501). Paste the same URL in Facebook Sharing Debugger, scrape again, then send a fresh Messenger message.
 - [ ] Front page → Forgot PIN: any email shows the same “queued” message
 - [ ] With an admin email saved, a row appears in `/data/mail-queue.json` (no SMTP unless `RESEND_API_KEY` is set)
 - [ ] Reset link (`/?reset=…`) sets a new PIN and the old one stops working

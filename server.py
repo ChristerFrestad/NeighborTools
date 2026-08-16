@@ -19,7 +19,7 @@ import uuid
 from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from urllib.parse import unquote
+from urllib.parse import parse_qs, unquote
 
 PORT = int(os.environ.get("PORT", "8080"))
 DATA_DIR = Path(os.environ.get("DATA_DIR", Path(__file__).resolve().parent))
@@ -769,10 +769,40 @@ class Handler(BaseHTTPRequestHandler):
         for cookie in getattr(self, "_cookies", None) or []:
             self.send_header("Set-Cookie", cookie)
         self.end_headers()
+        # HEAD must send the same headers as GET, but no body. Messenger and
+        # other crawlers probe with HEAD and treat 501 as "this URL does not exist".
+        if getattr(self, "_omit_body", False):
+            return
         try:
             self.wfile.write(data)
         except (BrokenPipeError, ConnectionResetError):
             pass
+
+    def _public_origin(self):
+        return (os.environ.get("PUBLIC_URL") or "https://neighbor-tools.com").rstrip("/")
+
+    def _serve_index(self, invite_token=""):
+        html = (BASE / "index.html").read_text(encoding="utf-8")
+        origin = self._public_origin()
+        html = html.replace("https://neighbor-tools.com", origin)
+        if invite_token:
+            html = html.replace(
+                'property="og:title" content="NeighborTools"',
+                'property="og:title" content="Du er invitert til en verktøygruppe"',
+            )
+            html = html.replace(
+                'property="og:description" content="Shared tools with your neighbors – no login needed."',
+                'property="og:description" content="Åpne lenken for å bli med i NeighborTools – uten PIN."',
+            )
+            html = html.replace(
+                'property="og:url" content="%s/"' % origin,
+                'property="og:url" content="%s/i/%s"' % (origin, invite_token),
+            )
+            html = html.replace(
+                'rel="canonical" href="%s/"' % origin,
+                'rel="canonical" href="%s/i/%s"' % (origin, invite_token),
+            )
+        return self._reply(200, html.encode("utf-8"), "text/html; charset=utf-8")
 
     def _add_cookie(self, cookie):
         self._cookies = list(getattr(self, "_cookies", None) or [])
@@ -886,9 +916,26 @@ class Handler(BaseHTTPRequestHandler):
         if m:
             return self.list_requests(m.group(1))
 
-        # Static files from app directory
-        if path in ("/", "/index.html"):
-            path = "/index.html"
+        if path == "/robots.txt":
+            return self._reply(
+                200,
+                b"User-agent: *\nAllow: /\n",
+                "text/plain; charset=utf-8",
+            )
+
+        qs = parse_qs(self.path.split("?", 1)[1] if "?" in self.path else "")
+        invite_m = re.match(r"^/i/([a-f0-9]{16,80})$", path)
+        invite_q = str((qs.get("invite") or [""])[0])
+        invite_token = invite_m.group(1) if invite_m else invite_q
+        invite_token = re.sub(r"[^a-f0-9]", "", invite_token)
+        if len(invite_token) < 16:
+            invite_token = ""
+
+        # App shell + invite short links. Unknown non-API paths fall through
+        # to the SPA so crawlers never see a JSON 404 on a shared URL.
+        if path in ("/", "/index.html") or invite_m:
+            return self._serve_index(invite_token)
+
         rel = path.lstrip("/")
         if ".." in rel or rel.startswith("/"):
             return self._reply(404, {"error": "not found"})
@@ -899,7 +946,14 @@ class Handler(BaseHTTPRequestHandler):
             ctype = MIME.get(ext, "application/octet-stream")
             return self._reply(200, file_path.read_bytes(), ctype)
 
+        if not path.startswith("/api/"):
+            return self._serve_index(invite_token)
+
         self._reply(404, {"error": "not found"})
+
+    def do_HEAD(self):
+        self._omit_body = True
+        return self.do_GET()
 
     # ---------- POST ----------
     def do_POST(self):

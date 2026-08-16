@@ -69,6 +69,49 @@ def main():
     assert code == 200 and h.get("ok"), h
     print("OK health")
 
+    # Messenger / Facebook crawlers probe with HEAD. 501 looks like
+    # "this URL does not exist" even though GET works in a browser.
+    def head(path):
+        r = urllib.request.Request(BASE + path, method="HEAD")
+        try:
+            with urllib.request.urlopen(r) as res:
+                return res.status, dict(res.headers), res.read()
+        except urllib.error.HTTPError as e:
+            return e.code, dict(e.headers), e.read()
+
+    code, headers, body = head("/")
+    assert code == 200, code
+    assert "text/html" in (headers.get("Content-Type") or ""), headers
+    assert body == b"", body
+    print("OK HEAD /")
+
+    code, headers, body = head("/api/health")
+    assert code == 200, code
+    assert body == b"", body
+    print("OK HEAD health")
+
+    code, html = req("GET", "/", raw=True)
+    assert code == 200 and b"og:title" in html and b"og:image" in html, html[:400]
+    print("OK Open Graph tags")
+
+    code, robots = req("GET", "/robots.txt", raw=True)
+    assert code == 200 and b"Allow:" in robots, robots
+    print("OK robots.txt")
+
+    dummy = "ab" * 16
+    code, invite_html = req("GET", "/i/" + dummy, raw=True)
+    assert code == 200 and b"og:title" in invite_html, invite_html[:400]
+    assert b"/i/" + dummy.encode() in invite_html, invite_html[:800]
+    print("OK /i/ invite path")
+
+    code, spa = req("GET", "/finnes-ikke", raw=True)
+    assert code == 200 and b"og:title" in spa, spa[:400]
+    print("OK SPA fallback")
+
+    code, api404 = req("GET", "/api/nope")
+    assert code == 404, api404
+    print("OK API 404")
+
     code, g = req("GET", "/api/groups")
     assert code == 200 and isinstance(g.get("groups"), list), g
     if g["groups"]:
