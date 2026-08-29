@@ -1,0 +1,57 @@
+name: Publish v1.0.0
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/publish-v1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create v1.0.0 release if missing
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if gh release view v1.0.0 >/dev/null 2>&1; then
+            echo "Release v1.0.0 already exists"
+          else
+            gh release create v1.0.0 \
+              --title "v1.0.0" \
+              --notes "First tagged release of NeighborTools.
+
+- Multi-group PIN model (hashed server-side)
+- Live tool list, loans, due dates, reservations, requests
+- Installable PWA, Norwegian + English
+- Docker / Portainer ready
+
+Live: https://neighbor-tools.com/"
+          fi
+
+      - name: Set description, homepage and topics
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set +e
+          gh api -X PATCH /repos/ChristerFrestad/NeighborTools \
+            -f description='PIN-based shared tool list for housing co-ops. No accounts. Docker.' \
+            -f homepage='https://neighbor-tools.com/'
+          desc=$?
+          gh api -X PUT /repos/ChristerFrestad/NeighborTools/topics \
+            -H 'Accept: application/vnd.github+json' \
+            -f names[]=pwa -f names[]=self-hosted -f names[]=python \
+            -f names[]=tool-library -f names[]=norway -f names[]=docker
+          topics=$?
+          if [ "$desc" -ne 0 ] || [ "$topics" -ne 0 ]; then
+            echo "GITHUB_TOKEN cannot change the About box. Do it in Settings → About."
+            echo "Description: PIN-based shared tool list for housing co-ops. No accounts. Docker."
+            echo "Topics: pwa self-hosted python tool-library norway docker"
+          fi
+          exit 0
