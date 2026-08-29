@@ -2,6 +2,8 @@
 
 Thanks for helping improve a simple tool for sharing tools.
 
+This is a **solo-maintained** repo. Small, focused pull requests are welcome. Please open an issue first if the change is more than a few files, so it does not collide with work already in progress.
+
 ## Principles
 
 1. **Keep it simple** – one HTML file, one CSS file, one Python server, Docker-ready.
@@ -26,7 +28,7 @@ No build step. Edit `index.html` and refresh.
    DATA_DIR=/tmp/nt-data PORT=8080 python3 server.py &
    DATA_DIR=/tmp/nt-data python3 tests/api_test.py http://127.0.0.1:8080
    ```
-3. Walk through [MANUAL_TEST.md](MANUAL_TEST.md)
+3. Walk through [MANUAL_TEST.md](MANUAL_TEST.md) for anything that touches the UI.
 
 ## Whitelabel
 
@@ -37,3 +39,4 @@ Only change the `CONFIG` object at the top of `index.html`.
 - User accounts / OAuth
 - Heavy frameworks
 - Native mobile apps
+- Payments or public marketplaces

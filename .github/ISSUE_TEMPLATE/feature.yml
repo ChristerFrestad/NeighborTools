@@ -1,0 +1,32 @@
+name: Feature idea
+description: A small change that fits the existing product
+title: "[Idea] "
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        NeighborTools stays account-free and framework-free.
+        Ideas that need OAuth, payments or a native app will be closed.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What is awkward today
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: What you would rather have
+    validations:
+      required: true
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Who does this help
+      options:
+        - A group that already shares tools
+        - Someone self-hosting the server
+        - Someone landing on the public site for the first time
+    validations:
+      required: true

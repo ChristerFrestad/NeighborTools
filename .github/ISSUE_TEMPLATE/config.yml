@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Live site
+    url: https://neighbor-tools.com/
+    about: Public instance of NeighborTools
+  - name: Discussions are not enabled
+    url: https://github.com/ChristerFrestad/NeighborTools/issues/new/choose
+    about: Use an issue for bugs, ideas and questions
